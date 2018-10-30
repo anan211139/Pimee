@@ -5,6 +5,9 @@ button:focus,input:focus,textarea:focus,select:focus{
 body{
     padding-bottom: 70px;
 }
+label{
+    margin: 0;
+}
 .tabs {
     display: block;
     display: -webkit-flex;
@@ -55,7 +58,7 @@ body{
     color:#5bbcd2;
 }
 .tabs .tab-2 {
-    width: 50%;
+    width: 33.33%;
 }
 .tabs .tab-2 [type="radio"] + div {
     width: 200%;

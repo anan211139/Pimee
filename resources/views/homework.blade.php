@@ -44,12 +44,31 @@
                                 <th>วิชา</th>
                                 <th>เรื่อง</th> 
                                 <th>คุณครู</th>
-                                <th>กำหนดส่ง</th>
+                                <th>คะแนน</th>
                             </tr>
                             <tr>
                                 <td>ffff</td>
                                 <td>ff</td> 
                                 <td>ff</td>
+                                <td>ff</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="tab-2 all">
+                    <label for="tab2-3">ขาดส่ง</label>
+                    <input id="tab2-3" name="tabs-two" type="radio">
+                    <div>
+                        <table>
+                            <tr>
+                                <th>วิชา</th>
+                                <th>เรื่อง</th> 
+                                <th>คุณครู</th>
+                            </tr>
+                            <tr>
+                                <td>ffff</td>
+                                <td>ff</td> 
                                 <td>ff</td>
                             </tr>
                         </table>
