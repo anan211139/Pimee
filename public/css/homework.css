@@ -1,0 +1,147 @@
+
+button:focus,input:focus,textarea:focus,select:focus{
+    outline: none;
+}
+body{
+    padding-bottom: 70px;
+}
+.tabs {
+    display: block;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -moz-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin: 0;
+    overflow: hidden;
+}
+.tabs [class^="tab"] label,.tabs [class*=" tab"] label {
+    color: #5bbcd2;
+    cursor: pointer;
+    display: block;
+    font-size: 1.1em;
+    font-weight: 300;
+    text-align: center;
+}
+.tabs [class^="tab"] [type="radio"],.tabs [class*=" tab"] [type="radio"] {
+    border-bottom: 1px solid rgba(239, 237, 239, 0.5);
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+}
+.tabs [class^="tab"] [type="radio"]:hover, .tabs [class^="tab"] [type="radio"]:focus,.tabs [class*=" tab"] [type="radio"]:hover,.tabs [class*=" tab"] [type="radio"]:focus {
+    border-bottom: 1px solid #5bbcd2;
+}
+.tabs [class^="tab"] [type="radio"]:checked,.tabs [class*=" tab"] [type="radio"]:checked {
+    border-bottom: 2px solid #5bbcd2;
+}
+.tabs [class^="tab"] [type="radio"]:checked + div,.tabs [class*=" tab"] [type="radio"]:checked + div {
+    opacity: 1;
+}
+.tabs [class^="tab"] [type="radio"] + div,.tabs [class*=" tab"] [type="radio"] + div {
+    display: block;
+    opacity: 0;
+    width: 90%;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+.tabs .tab-1 {
+    color:#5bbcd2;
+}
+.tabs .tab-2 {
+    width: 50%;
+}
+.tabs .tab-2 [type="radio"] + div {
+    width: 200%;
+    margin-left: 200%;
+}
+.tabs .tab-2 [type="radio"]:checked + div {
+    margin-left: 0;
+}
+.tabs .tab-2:last-child [type="radio"] + div {
+    margin-left: 100%; 
+}
+.tabs .tab-2:last-child [type="radio"]:checked + div {
+    margin-left: -100%; 
+}
+.lb-myself{
+/*    height: 70px;*/
+    padding: 10px 0px;
+    width: 100%;
+    background-color:white;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    color: #5bbcd2;
+}
+.flex{
+    display: inline-flex;
+    justify-content: space-around;
+}
+.all .other_rank{
+    background-color: #86c6d5;
+    color:white;
+}
+.all .st_rank{
+    background-color: #fabc29;
+}
+.all .nd_rank{
+    background-color: #fe842f;
+}
+.all .th_rank{
+    background-color: #ef4a2e;
+}
+.img_leader{
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    margin: 5px 0px;
+}
+.trophy>img{
+    height: 40px;
+    width: auto;
+    background-color: white;
+    padding: 7px 5px;
+    border-radius: 100px;
+}
+.all table{
+    width: 100%;
+    -webkit-border-horizontal-spacing: 0px;
+    -webkit-border-vertical-spacing: 7px;
+}
+.all td{
+    width: 25%;
+    text-align: center;
+    border: none;
+}
+.all tr td:first-child {
+    -webkit-border-top-left-radius: 20px;
+    -moz-border-top-left-radius: 20px;
+    border-top-left-radius: 20px;
+    
+    -webkit-border-bottom-left-radius: 20px;
+    -moz-border-bottom-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.all tr td:last-child {
+    -webkit-border-top-right-radius: 20px;
+    -moz-border-top-right-radius: 20px;
+    border-top-right-radius: 20px;
+    
+    -webkit-border-bottom-right-radius: 20px;
+    -moz-border-bottom-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+.ms{
+    width: 100%;
+    text-align: center;
+}
