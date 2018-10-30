@@ -363,7 +363,7 @@ class BotController extends Controller
                             $actionBuilder = array(
                                 new UriTemplateActionBuilder(
                                     'ดูลำดับ', // ข้อความแสดงในปุ่ม
-                                    SERV_NAME.'/leaderboard/'.$userId
+                                    SERV_NAME.'leaderboard/'.$userId
                                 ),
                             );
                             $imageUrl = null;
@@ -371,6 +371,24 @@ class BotController extends Controller
                                 new ButtonTemplateBuilder(
                                         'Leaderdoard', // กำหนดหัวเรื่อง
                                         'ดูลำดับคะแนนของน้องๆ ของทั้งระบบ และภายในห้องเรียน', // กำหนดรายละเอียด
+                                        $imageUrl, // กำหนด url รุปภาพ
+                                        $actionBuilder  // กำหนด action object
+                                )
+                            );       
+                            // $replyData = new TextMessageBuilder("https://pimee.softbot.ai/leaderboard/".$userId);// softbot
+                        }
+                        else if($userMessage == "homework"){
+                            $actionBuilder = array(
+                                new UriTemplateActionBuilder(
+                                    'ดูการบ้านทั้งหมด', // ข้อความแสดงในปุ่ม
+                                    SERV_NAME.'homework/'.$userId
+                                ),
+                            );
+                            $imageUrl = null;
+                            $replyData = new TemplateMessageBuilder('Button Template',
+                                new ButtonTemplateBuilder(
+                                        'การบ้าน', // กำหนดหัวเรื่อง
+                                        'น้องๆสามารดูรายการ การบ้านทั้งหมด จากเมนูด้านล่างเลยจ้า', // กำหนดรายละเอียด
                                         $imageUrl, // กำหนด url รุปภาพ
                                         $actionBuilder  // กำหนด action object
                                 )
