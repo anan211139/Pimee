@@ -8,6 +8,19 @@ body{
 label{
     margin: 0;
 }
+table{
+    width: 300%;
+    -webkit-border-horizontal-spacing: 0px;
+    -webkit-border-vertical-spacing: 7px;
+}
+th,tr{
+    width: 25%;
+    text-align: center;
+    border: none;
+}
+table.first{
+    width: 205%;
+}
 .tabs {
     display: block;
     display: -webkit-flex;
@@ -19,13 +32,25 @@ label{
     margin: 0;
     overflow: hidden;
 }
+.tabs .ready{
+    color:#5bbcd2;
+}
+.tabs .done{
+    color:rgb(75, 227, 142);
+}
+.tabs .late{
+    color:rgb(255, 86, 62);
+}
 .tabs [class^="tab"] label,.tabs [class*=" tab"] label {
-    color: #5bbcd2;
+    
     cursor: pointer;
     display: block;
     font-size: 1.1em;
     font-weight: 300;
     text-align: center;
+}
+.tabs th{
+    font-size: .8em;
 }
 .tabs [class^="tab"] [type="radio"],.tabs [class*=" tab"] [type="radio"] {
     border-bottom: 1px solid rgba(239, 237, 239, 0.5);
@@ -60,18 +85,26 @@ label{
 .tabs .tab-2 {
     width: 33.33%;
 }
-.tabs .tab-2 [type="radio"] + div {
+.tabs .tab-2:first-child [type="radio"] + div {
     width: 200%;
     margin-left: 200%;
 }
-.tabs .tab-2 [type="radio"]:checked + div {
+.tabs .tab-2:first-child [type="radio"]:checked + div {
     margin-left: 0;
+    width: 138%;
+}
+.tabs .tab-2 [type="radio"] + div {
+    width: 100%;
+    margin-left: 100%;
+}
+.tabs .tab-2 [type="radio"]:checked + div {
+    margin-left: -100%;
 }
 .tabs .tab-2:last-child [type="radio"] + div {
-    margin-left: 100%; 
+    margin-left: 200%; 
 }
 .tabs .tab-2:last-child [type="radio"]:checked + div {
-    margin-left: -100%; 
+    margin-left: -200%; 
 }
 .lb-myself{
 /*    height: 70px;*/
@@ -89,62 +122,4 @@ label{
     display: inline-flex;
     justify-content: space-around;
 }
-.all .other_rank{
-    background-color: #86c6d5;
-    color:white;
-}
-.all .st_rank{
-    background-color: #fabc29;
-}
-.all .nd_rank{
-    background-color: #fe842f;
-}
-.all .th_rank{
-    background-color: #ef4a2e;
-}
-.img_leader{
-    width: 50px;
-    height: 50px;
-    border-radius: 25px;
-    margin: 5px 0px;
-}
-.trophy>img{
-    height: 40px;
-    width: auto;
-    background-color: white;
-    padding: 7px 5px;
-    border-radius: 100px;
-}
-.all table{
-    width: 100%;
-    -webkit-border-horizontal-spacing: 0px;
-    -webkit-border-vertical-spacing: 7px;
-}
-.all td{
-    width: 25%;
-    text-align: center;
-    border: none;
-}
-.all tr td:first-child {
-    -webkit-border-top-left-radius: 20px;
-    -moz-border-top-left-radius: 20px;
-    border-top-left-radius: 20px;
-    
-    -webkit-border-bottom-left-radius: 20px;
-    -moz-border-bottom-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-}
 
-.all tr td:last-child {
-    -webkit-border-top-right-radius: 20px;
-    -moz-border-top-right-radius: 20px;
-    border-top-right-radius: 20px;
-    
-    -webkit-border-bottom-right-radius: 20px;
-    -moz-border-bottom-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
-.ms{
-    width: 100%;
-    text-align: center;
-}

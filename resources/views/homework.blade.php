@@ -14,11 +14,11 @@
         <div class="box">
             <input type="text" name="line_code" id="useridprofilefield" style ="display:none;"></p>
             <div class="tabs">
-                <div class="tab-2 friend">
-                    <label for="tab2-1">ยังไม่ได้ทำ</label>
+                <div class="tab-2">
+                    <label for="tab2-1" class="ready">ยังไม่ได้ทำ</label>
                     <input id="tab2-1" name="tabs-two" type="radio" checked="checked">
                     <div>
-                        <table>
+                        <table class="first">
                             <tr>
                                 <th>วิชา</th>
                                 <th>เรื่อง</th> 
@@ -26,17 +26,17 @@
                                 <th>กำหนดส่ง</th>
                             </tr>
                             <tr>
-                                <td>ffff</td>
-                                <td>ff</td> 
-                                <td>ff</td>
-                                <td>ff</td>
+                                <td>คณิตศาสตร์</td>
+                                <td>สมการ</td> 
+                                <td>กลมฉัตร</td>
+                                <td>5 วัน</td>
                             </tr>
                           
                         </table>
                     </div>
                 </div>
-                <div class="tab-2 all">
-                    <label for="tab2-2">ทำเสร็จแล้ว</label>
+                <div class="tab-2">
+                    <label for="tab2-2" class="done">ทำเสร็จแล้ว</label>
                     <input id="tab2-2" name="tabs-two" type="radio">
                     <div>
                         <table>
@@ -47,17 +47,17 @@
                                 <th>คะแนน</th>
                             </tr>
                             <tr>
-                                <td>ffff</td>
-                                <td>ff</td> 
-                                <td>ff</td>
-                                <td>ff</td>
+                                <td>คณิตศาสตร์</td>
+                                <td>สมการ</td> 
+                                <td>กลมฉัตร</td>
+                                <td>10</td>
                             </tr>
                         </table>
                     </div>
 
                 </div>
-                <div class="tab-2 all">
-                    <label for="tab2-3">ขาดส่ง</label>
+                <div class="tab-2">
+                    <label for="tab2-3" class="late">ขาดส่ง</label>
                     <input id="tab2-3" name="tabs-two" type="radio">
                     <div>
                         <table>
@@ -67,9 +67,9 @@
                                 <th>คุณครู</th>
                             </tr>
                             <tr>
-                                <td>ffff</td>
-                                <td>ff</td> 
-                                <td>ff</td>
+                                <td>คณิตศาสตร์</td>
+                                <td>สมการ</td> 
+                                <td>กลมฉัตร</td>
                             </tr>
                         </table>
                     </div>
