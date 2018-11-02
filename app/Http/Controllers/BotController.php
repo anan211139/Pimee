@@ -1603,12 +1603,7 @@ class BotController extends Controller
             ->select('id','line_code')
             ->where('status', false)
             ->get();
-            // ->pluck('id','line_code')
-            // ->all();
-
-        //$user_select = $user_select -> toArray();
-        //$user_select = array_unique($user_select);
-        //dd($user_select);
+       
         foreach ($user_select as $line_u) {
             echo "1";
             $join_log_group = DB::table('groups')
@@ -1629,15 +1624,15 @@ class BotController extends Controller
                 $del_subj = $join_log_group->where('chap_name', $rest_chap)->first();
                 //dd($del_subj);
                 if ((new Carbon($del_subj->time))->diffInDays(Carbon::now()) >= 6) {
-                    // DB::table('groupRandoms')
-                    //     ->where('group_id', $del_subj->group_id)
-                    //     ->delete();
-                    // DB::table('logChildrenQuizzes')
-                    //     ->where('group_id', $del_subj->group_id)
-                    //     ->delete();
-                    // DB::table('groups')
-                    //     ->where('id', $del_subj->group_id)
-                    //     ->delete();
+                    DB::table('groupRandoms')
+                        ->where('group_id', $del_subj->group_id)
+                        ->delete();
+                    DB::table('logChildrenQuizzes')
+                        ->where('group_id', $del_subj->group_id)
+                        ->delete();
+                    DB::table('groups')
+                        ->where('id', $del_subj->group_id)
+                        ->delete();
                     $del_group = true;
                     $chap_text7 = $chap_text7." ".$rest_chap.",";
                     echo "MORE6".$rest_chap;
