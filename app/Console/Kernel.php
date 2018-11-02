@@ -33,7 +33,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('Cronjob')
         //         ->everyMinute();
 
-        // $schedule->call('\App\Http\Controllers\BotController@notification')->cron('* * * * *');
+        $schedule->call('\App\Http\Controllers\BotController@notification')->cron('0 18 * * *');
     }
 
     /**
