@@ -6,6 +6,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+
+use App\Http\Controllers\BotController;
+
 class CronJob extends Command
 {
     /**
@@ -37,11 +40,15 @@ class CronJob extends Command
      */
     public function handle()
     {
+        // {{ BotController::notification_for_test(); }}
+        
         DB::table('exchanges')->insert([
             'line_code' => 1,
             'send' => 1,
             'code_id' => 1,
             'time' => Carbon::now()
         ]);
+
+        //$this -> call('App\Http\Controllers\ฺBotController@notification_for_test');
     }
 }

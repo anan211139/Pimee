@@ -353,6 +353,10 @@ class BotController extends Controller
 
                             $replyData = new TextMessageBuilder($content);
                         }
+                        else if ($userMessage == "ลองNOTI") {
+
+                            $replyData = $this->notification();
+                        }
                         
                         else if($userMessage == "[ลงทะเบียนเรียบร้อยแล้ว]"){
                             $this->replymessage6($replyToken,'flex_message_sub');
@@ -1583,6 +1587,14 @@ class BotController extends Controller
         
         return $textMessageBuilder; 
     }
+    public function notification_for_test() {
+        DB::table('exchanges')->insert([
+            'line_code' => 2,
+            'send' => 1,
+            'code_id' => 1,
+            'time' => Carbon::now()
+        ]);
+    }
     public function notification() {
         $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
         $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
@@ -1591,18 +1603,18 @@ class BotController extends Controller
             ->where('status', false)
             ->pluck('line_code')
             ->all();
+
         $user_select = array_unique($user_select);
         foreach ($user_select as $line_u) {
             $join_log_group = DB::table('groups')
                 ->join('logChildrenQuizzes', 'logChildrenQuizzes.group_id', '=', 'groups.id')
                 ->join('chapters', 'chapters.id', '=', 'groups.chapter_id')
                 ->select('logChildrenQuizzes.id as log_id','chapters.name as chap_name', 'groups.id as group_id', 'groups.line_code','logChildrenQuizzes.time')
-                ->where('groups.
-                    ', $line_u)
+                ->where('groups.line_code', $line_u)
                 ->orderBy('groups.id','ASC')
                 ->orderBy('logChildrenQuizzes.time', 'DESC')
                 ->get();
-            
+            // dd($join_log_group);
             $unfin_log = array_unique($join_log_group->pluck('chap_name')->all());
             $chap_text7 = "";
             $chap_text3 = "";
@@ -1610,15 +1622,15 @@ class BotController extends Controller
             foreach ($unfin_log as $rest_chap) {
                 $del_subj = $join_log_group->where('chap_name', $rest_chap)->first();
                 if ((new Carbon($del_subj->time))->diffInDays(Carbon::now()) >= 6) {
-                    DB::table('groupRandoms')
-                        ->where('group_id', $del_subj->group_id)
-                        ->delete();
-                    DB::table('logChildrenQuizzes')
-                        ->where('group_id', $del_subj->group_id)
-                        ->delete();
-                    DB::table('groups')
-                        ->where('id', $del_subj->group_id)
-                        ->delete();
+                    // DB::table('groupRandoms')
+                    //     ->where('group_id', $del_subj->group_id)
+                    //     ->delete();
+                    // DB::table('logChildrenQuizzes')
+                    //     ->where('group_id', $del_subj->group_id)
+                    //     ->delete();
+                    // DB::table('groups')
+                    //     ->where('id', $del_subj->group_id)
+                    //     ->delete();
                     $del_group = true;
                     $chap_text7 = $chap_text7." ".$rest_chap.",";
                     echo "MORE6".$rest_chap;
