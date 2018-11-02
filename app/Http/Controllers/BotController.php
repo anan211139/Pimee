@@ -1600,27 +1600,34 @@ class BotController extends Controller
         $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
     
         $user_select = DB::table('groups')
+            ->select('id','line_code')
             ->where('status', false)
-            ->pluck('line_code')
-            ->all();
+            ->get();
+            // ->pluck('id','line_code')
+            // ->all();
 
-        $user_select = array_unique($user_select);
+        //$user_select = $user_select -> toArray();
+        //$user_select = array_unique($user_select);
+        //dd($user_select);
         foreach ($user_select as $line_u) {
+            echo "1";
             $join_log_group = DB::table('groups')
                 ->join('logChildrenQuizzes', 'logChildrenQuizzes.group_id', '=', 'groups.id')
                 ->join('chapters', 'chapters.id', '=', 'groups.chapter_id')
                 ->select('logChildrenQuizzes.id as log_id','chapters.name as chap_name', 'groups.id as group_id', 'groups.line_code','logChildrenQuizzes.time')
-                ->where('groups.line_code', $line_u)
+                ->where('groups.line_code', $line_u->line_code)
+                ->where('groups.id', $line_u->id)
                 ->orderBy('groups.id','ASC')
                 ->orderBy('logChildrenQuizzes.time', 'DESC')
                 ->get();
-            // dd($join_log_group);
+            //dd($join_log_group);
             $unfin_log = array_unique($join_log_group->pluck('chap_name')->all());
             $chap_text7 = "";
             $chap_text3 = "";
             $del_group = false;
             foreach ($unfin_log as $rest_chap) {
                 $del_subj = $join_log_group->where('chap_name', $rest_chap)->first();
+                //dd($del_subj);
                 if ((new Carbon($del_subj->time))->diffInDays(Carbon::now()) >= 6) {
                     // DB::table('groupRandoms')
                     //     ->where('group_id', $del_subj->group_id)
@@ -1644,13 +1651,13 @@ class BotController extends Controller
                 $chap_text7 = rtrim($chap_text7, ',');
                 $textReplyMessage = "ข้อสอบเรื่อง".$chap_text7." ที่ทำค้างไว้ถูกลบแล้วนะครับบบบ";
                 $replyData = new TextMessageBuilder($textReplyMessage);
-                $response = $bot->pushMessage($line_u ,$replyData);
+                $response = $bot->pushMessage($line_u ->line_code,$replyData);
             }
             else if (strlen($chap_text3) > 0) {
                 $chap_text3 = rtrim($chap_text3, ',');
                 $textReplyMessage = "กลับมาทำโจทย์เรื่อง".$chap_text3." กับพี่หมีกันเถอะ !!!!!!";
                 $replyData = new TextMessageBuilder($textReplyMessage);
-                $response = $bot->pushMessage($line_u ,$replyData);
+                $response = $bot->pushMessage($line_u->line_code ,$replyData);
             }
         }
     }
