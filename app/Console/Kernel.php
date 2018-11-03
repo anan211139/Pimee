@@ -34,6 +34,7 @@ class Kernel extends ConsoleKernel
         //         ->everyMinute();
 
         $schedule->call('\App\Http\Controllers\BotController@notification')->cron('0 18 * * *');
+        $schedule->call('\App\Http\Controllers\BotController@notification_homework')->cron('0 18 * * *');
     }
 
     /**
