@@ -1656,16 +1656,17 @@ class BotController extends Controller
         $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
             ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
-            ->select('info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw')
             ->where('send_groups.noti_status', false)
             ->get();
         //dd($room_id_homework);
         
-        // DB::table('send_groups')
-        //     ->where('id', $group_id)
-        //     ->update(['status' => 1, 'score' => $point_update]);
-            
+        
+
         foreach ($room_id_homework as $room_id_hw) {
+            DB::table('send_groups')
+                ->where('id', $room_id_hw->id)
+                ->update(['noti_status' => 1]);
             echo "*";
             $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
             $replyData = new TextMessageBuilder($textReplyMessage);
