@@ -1653,10 +1653,10 @@ class BotController extends Controller
         $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
         $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
     
-        $room_id_homework = DB::table('send_group') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
-            ->join('info_classroom','info_classroom.classroom_id','=','send_group.classroom_id')
-            ->select('info_classroom.classroom_id as room_id','info_classroom.line_code as line_code')
-            ->where('send_group.noti_status', false)
+        $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
+            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+            ->select('info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code')
+            ->where('send_groups.noti_status', false)
             ->get();
         dd($room_id_homework);
             
