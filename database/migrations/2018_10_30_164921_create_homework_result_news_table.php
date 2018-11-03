@@ -18,7 +18,7 @@ class CreateHomeworkResultNewsTable extends Migration
             $table->string('line_code');
             $table->Integer('examgroup_id');
             $table->Integer('total');
-            $table->boolean('status')->default(false);
+            // $table->boolean('status')->default(false);
             $table->timestamps();
         });
             $table->timestamps();
