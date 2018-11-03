@@ -1655,58 +1655,22 @@ class BotController extends Controller
     
         $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
-            ->select('info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code')
+            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+            ->select('info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw')
             ->where('send_groups.noti_status', false)
             ->get();
-        dd($room_id_homework);
+        //dd($room_id_homework);
+        
+        // DB::table('send_groups')
+        //     ->where('id', $group_id)
+        //     ->update(['status' => 1, 'score' => $point_update]);
             
-       
-        // foreach ($user_select as $line_u) {
-           
-        //     $join_log_group = DB::table('groups')
-        //         ->join('logChildrenQuizzes', 'logChildrenQuizzes.group_id', '=', 'groups.id')
-        //         ->join('chapters', 'chapters.id', '=', 'groups.chapter_id')
-        //         ->select('logChildrenQuizzes.id as log_id','chapters.name as chap_name', 'groups.id as group_id', 'groups.line_code','logChildrenQuizzes.time')
-        //         ->where('groups.line_code', $line_u->line_code)
-        //         ->where('groups.id', $line_u->id)
-        //         ->orderBy('groups.id','ASC')
-        //         ->orderBy('logChildrenQuizzes.time', 'DESC')
-        //         ->get();
-            
-        //     $unfin_log = array_unique($join_log_group->pluck('chap_name')->all());
-        //     $chap_text7 = "";
-        //     $chap_text3 = "";
-        //     $del_group = false;
-        //     foreach ($unfin_log as $rest_chap) {
-        //         $del_subj = $join_log_group->where('chap_name', $rest_chap)->first();
-              
-        //         if ((new Carbon($del_subj->time))->diffInDays(Carbon::now()) >= 6) {
-        //             DB::table('groupRandoms')
-        //                 ->where('group_id', $del_subj->group_id)
-        //                 ->delete();
-        //             DB::table('logChildrenQuizzes')
-        //                 ->where('group_id', $del_subj->group_id)
-        //                 ->delete();
-        //             DB::table('groups')
-        //                 ->where('id', $del_subj->group_id)
-        //                 ->delete();
-        //             $del_group = true;
-        //             $chap_text7 = $chap_text7." ".$rest_chap.",";
-        //             echo "MORE6".$rest_chap;
-        //         }
-        //         else if ((new Carbon($del_subj->time))->diffInDays(Carbon::now()) >= 2) {
-        //             $chap_text3 = $chap_text3." ".$rest_chap.",";
-        //             echo "MORE2".$rest_chap;
-        //         }
-        //     }
-        //     if ($del_group == true) {
-        //         $chap_text7 = rtrim($chap_text7, ',');
-        //         $textReplyMessage = "ข้อสอบเรื่อง".$chap_text7." ที่ทำค้างไว้ถูกลบแล้วนะครับบบบ";
-        //         $replyData = new TextMessageBuilder($textReplyMessage);
-        //         $response = $bot->pushMessage($line_u ->line_code,$replyData);
-        //     }
-          
-        // }
+        foreach ($room_id_homework as $room_id_hw) {
+            echo "*";
+            $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
+            $replyData = new TextMessageBuilder($textReplyMessage);
+            $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
+        }
     }
     public function detect_intent_texts($projectId, $text1, $sessionId, $languageCode){
         // new session
