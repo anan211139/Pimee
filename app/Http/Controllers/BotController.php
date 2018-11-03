@@ -358,6 +358,11 @@ class BotController extends Controller
                             $this->replymessage6($replyToken,'flex_message_sub');
                             $replyData = new TextMessageBuilder("flex_sub");
                         }
+
+                        else if($userMessage == "ลองHW"){
+                            $this->notification_homework();
+                            $replyData = new TextMessageBuilder("flex_sub");
+                        }
                     
                         else if($userMessage == "leaderboard"){
                             $actionBuilder = array(
