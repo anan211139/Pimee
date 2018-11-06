@@ -25,16 +25,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('Cronjob')
-         // $schedule->call('App\Http\Controllers\ฺBotController@notification_for_test')
-         //     ->everyMinute();
-             //->everyFiveMinutes();
 
-        // $schedule->command('Cronjob')
-        //         ->everyMinute();
-
-        $schedule->call('\App\Http\Controllers\BotController@notification')->cron('0 18 * * *');
-        $schedule->call('\App\Http\Controllers\BotController@notification_homework')->cron('0 18 * * *');
+        $schedule->call('\App\Http\Controllers\BotController@notification')->timezone('Asia/Bangkok')->dailyAt('18:00');
+        $schedule->call('\App\Http\Controllers\BotController@notification_homework')->timezone('Asia/Bangkok')->dailyAt('18:00');
     }
 
     /**

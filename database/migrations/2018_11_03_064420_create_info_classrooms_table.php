@@ -17,7 +17,7 @@ class CreateInfoClassroomsTable extends Migration
         $table->increments('id');
         $table->Integer('classroom_id');
         $table->string('line_code');
-        $table->timestamps();
+        $table->timestamps();});
     }
 
     /**

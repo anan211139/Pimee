@@ -365,7 +365,8 @@ class BotController extends Controller
                         }
 
                         else if($userMessage == "ลองHW"){
-                            $textReplyMessage = $this->start_homework($replyToken,$userId);
+                            $examgroup_id = 1;
+                            $textReplyMessage = $this->start_homework($replyToken,$userId,$examgroup_id);
                             $replyData = new TextMessageBuilder($textReplyMessage);
                         }
                     
@@ -694,87 +695,46 @@ class BotController extends Controller
         $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
         return $arr_replyData;
     }
-    public function start_homework($replyToken,$userId) {
+    public function start_homework($replyToken,$userId,$examgroup_id) {
+        $count_quiz = 1;
         $old_group_count = DB::table('exam_test_groups')
             ->where('line_code', $userId)
-            ->where('chapter_id', $chapter_id)
+            ->where('examgroup_id', $examgroup_id)
             ->where('status',false)
-            ->orderBy('id','DESC')
             ->count();
-
-
-        $count_quiz = 0;
-        $version = 0;
-        $arr_replyData = array();
-        $current_chapter = DB::table('chapters')
-            ->where('id', $chapter_id)
-            ->first();
-        $old_group_count = DB::table('groups')
-            ->where('line_code', $userId)
-            ->where('chapter_id', $chapter_id)
-            ->where('status',false)
-            ->orderBy('id','DESC')
-            ->count();
-        // if student has finished the old group or fist time create group
-        if ($old_group_count == 0) {
-            $quizzesforsubj = DB::table('exam_news') //generate the first quiz
-                ->where('chapter_id', $chapter_id)
-                ->where('level_id', 2)
-                ->inRandomOrder()
-                ->first();
-            if($quizzesforsubj === null){
-                $textReplyMessage = "ยังไม่มีข้อสอบวิชานี้";
-                return $textReplyMessage;
-            }
-            $group_id = DB::table('groups')->insertGetId([ //create new group
+        
+        if($old_group_count == 0){
+            echo "เริ่มทำการบ้าน";
+            $group_id = DB::table('exam_test_groups')->insertGetId([
                 'line_code' => $userId,
-                'chapter_id' => $chapter_id,
+                'examgroup_id' => $examgroup_id,
                 'status' => false
             ]);
-            $tests = DB::table('groupRandoms')->insert([
-                'group_id' => $group_id,
-                'listexamid' => ','.$quizzesforsubj->id.',',
-                'listlevelid' => "2,"
+            $quiz = DB::table('info_examgroups')
+            ->where('examgroup_id', $examgroup_id)
+            ->orderBy('id','ASC')
+            ->first();
+            DB::table('homework_logs')->insert([
+                'line_code' => $userId,
+                'group_hw_id' => $examgroup_id,
+                'exam_id' => $quiz->exam_id,
+                'created_at' => Carbon::now()
             ]);
-            DB::table('logChildrenQuizzes')->insert([
-                'group_id' => $group_id,
-                'exam_id' => $quizzesforsubj->id,
-                'time' => Carbon::now()
-            ]);
-            $textReplyMessage = "ยินดีต้อนรับน้องๆเข้าสู่บทเรียน\nเรื่อง ".$current_chapter->name."\nเรามาเริ่มกันที่ข้อแรกกันเลยจ้า";
-            $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
-        }
-        //if student has non-finish old group
-        else { //in the future, don't forget to check the expire date
-            $old_group = DB::table('groups')
-                ->where('line_code', $userId)
-                ->where('chapter_id', $chapter_id)
-                ->orderBy('id','DESC')
-                ->first();
-            $group_id = $old_group->id;
-            $count_quiz = DB::table('logChildrenQuizzes')
-            ->where('group_id', $group_id)
-            ->count();
-
+            $version = 0;
+            $welcome_text ="เรามาเริ่มทำการบ้านข้อแรกกันเถอะ";
+        }else{
+            echo "ทำการบ้านต่อ";
             $version = 1;
-         
-            $textReplyMessage = "เรามาเริ่มบทเรียน\nเรื่อง ".$current_chapter->name."\n กันต่อ ในข้อที่ ".$count_quiz." กันเลยจ้า";
-            $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
+          
+            //$welcome_text ="เรามาทำการบ้านกันต่อเลยนะ";
         }
-        //for now, there's a non-ans log for every case
-        $current_log = DB::table('logChildrenQuizzes')
-            ->where('group_id', $group_id)
-            ->orderBy('id','DESC')
-            ->first();
-
-        $current_quiz = DB::table('exam_news')
-            ->where('id', $current_log->exam_id)
-            ->first();
-        
-        //show current quiz
-        $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id);
-        $pathtoexam = SERV_NAME.$current_quiz->local_pic;
-        $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
+        $count_quiz = DB::table('homework_logs')
+            ->where('group_hw_id', $examgroup_id)
+            ->where('line_code', $userId)
+            ->count();
+        //dd($count_quiz);
+        $this->replymessage_start_homework($replyToken,$version,$examgroup_id,$count_quiz);
+        $arr_replyData[] = new TextMessageBuilder("$old_group_count");
         return $arr_replyData;
     }
     public function close_group($group_id) {
@@ -971,6 +931,50 @@ class BotController extends Controller
                 'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
             ];
         }
+        $access_token = LINE_MESSAGE_ACCESS_TOKEN;
+        $post = json_encode($data);
+        $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+    }
+    public function replymessage_start_homework($replyToken,$version,$group_hw,$count_quiz){   
+        $exam_id = 1;
+        if($version == 0){
+            //$count_quiz ++;
+            $messages1 = [
+                'type' => 'text',
+                'text' => 'เรามาเริ่มทำการบ้านข้อแรกกันเถอะ',
+            ]; 
+        }
+        else if($version == 1){
+            $messages1 = [
+                'type' => 'text',
+                'text' => 'เรามาทำการบ้านกันต่อ ในข้อที่ '.$count_quiz.'กันเลยจ้า',
+            ]; 
+        }
+        $url = 'https://api.line.me/v2/bot/message/reply';
+        $exam_check_pic = DB::table('exam_news')
+            ->where('id', $exam_id)
+            ->first();
+        if($exam_check_pic->local_pic === null){
+            $data = [
+                'replyToken' => $replyToken,
+                'messages' => [$messages1,$this->flex_choice_nonpic($count_quiz,$exam_id)],
+            ];
+        }
+        else{
+            $data = [
+                'replyToken' => $replyToken,
+                'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
+            ];
+        }
+
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);

@@ -21,8 +21,6 @@ class CreateHomeworkResultNewsTable extends Migration
             // $table->boolean('status')->default(false);
             $table->timestamps();
         });
-            $table->timestamps();
-        });
     }
 
     /**

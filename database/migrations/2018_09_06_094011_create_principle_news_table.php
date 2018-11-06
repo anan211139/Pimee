@@ -15,7 +15,7 @@ class CreatePrincipleNewsTable extends Migration
     {
         Schema::create('principle_news', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('local_pic');
+            $table->string('local_pic')->nullable();
             $table->string('detail');
             $table->timestampsTz();
         });
