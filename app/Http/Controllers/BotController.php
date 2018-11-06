@@ -359,9 +359,14 @@ class BotController extends Controller
                             $replyData = new TextMessageBuilder("flex_sub");
                         }
 
-                        else if($userMessage == "ลองHW"){
+                        else if($userMessage == "ลองNOTI_HW"){
                             $this->notification_homework();
                             $replyData = new TextMessageBuilder("flex_sub");
+                        }
+
+                        else if($userMessage == "ลองHW"){
+                            $textReplyMessage = $this->start_exam($replyToken,$userId, $chap_name_id->id);
+                            $replyData = new TextMessageBuilder($textReplyMessage);
                         }
                     
                         else if($userMessage == "leaderboard"){
@@ -1659,7 +1664,7 @@ class BotController extends Controller
             ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw')
             ->where('send_groups.noti_status', false)
             ->get();
-        //dd($room_id_homework);
+        // dd($room_id_homework);
         
         
 
