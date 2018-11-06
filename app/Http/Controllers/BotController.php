@@ -365,7 +365,7 @@ class BotController extends Controller
                         }
 
                         else if($userMessage == "ลองHW"){
-                            $textReplyMessage = $this->start_exam($replyToken,$userId, $chap_name_id->id);
+                            $textReplyMessage = $this->start_homework($replyToken,$userId);
                             $replyData = new TextMessageBuilder($textReplyMessage);
                         }
                     
@@ -620,6 +620,89 @@ class BotController extends Controller
     }
     //use this function after the student pick their own lesson
     public function start_exam($replyToken,$userId, $chapter_id) {
+        $count_quiz = 0;
+        $version = 0;
+        $arr_replyData = array();
+        $current_chapter = DB::table('chapters')
+            ->where('id', $chapter_id)
+            ->first();
+        $old_group_count = DB::table('groups')
+            ->where('line_code', $userId)
+            ->where('chapter_id', $chapter_id)
+            ->where('status',false)
+            ->orderBy('id','DESC')
+            ->count();
+        // if student has finished the old group or fist time create group
+        if ($old_group_count == 0) {
+            $quizzesforsubj = DB::table('exam_news') //generate the first quiz
+                ->where('chapter_id', $chapter_id)
+                ->where('level_id', 2)
+                ->inRandomOrder()
+                ->first();
+            if($quizzesforsubj === null){
+                $textReplyMessage = "ยังไม่มีข้อสอบวิชานี้";
+                return $textReplyMessage;
+            }
+            $group_id = DB::table('groups')->insertGetId([ //create new group
+                'line_code' => $userId,
+                'chapter_id' => $chapter_id,
+                'status' => false
+            ]);
+            $tests = DB::table('groupRandoms')->insert([
+                'group_id' => $group_id,
+                'listexamid' => ','.$quizzesforsubj->id.',',
+                'listlevelid' => "2,"
+            ]);
+            DB::table('logChildrenQuizzes')->insert([
+                'group_id' => $group_id,
+                'exam_id' => $quizzesforsubj->id,
+                'time' => Carbon::now()
+            ]);
+            $textReplyMessage = "ยินดีต้อนรับน้องๆเข้าสู่บทเรียน\nเรื่อง ".$current_chapter->name."\nเรามาเริ่มกันที่ข้อแรกกันเลยจ้า";
+            $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
+        }
+        //if student has non-finish old group
+        else { //in the future, don't forget to check the expire date
+            $old_group = DB::table('groups')
+                ->where('line_code', $userId)
+                ->where('chapter_id', $chapter_id)
+                ->orderBy('id','DESC')
+                ->first();
+            $group_id = $old_group->id;
+            $count_quiz = DB::table('logChildrenQuizzes')
+            ->where('group_id', $group_id)
+            ->count();
+
+            $version = 1;
+         
+            $textReplyMessage = "เรามาเริ่มบทเรียน\nเรื่อง ".$current_chapter->name."\n กันต่อ ในข้อที่ ".$count_quiz." กันเลยจ้า";
+            $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
+        }
+        //for now, there's a non-ans log for every case
+        $current_log = DB::table('logChildrenQuizzes')
+            ->where('group_id', $group_id)
+            ->orderBy('id','DESC')
+            ->first();
+
+        $current_quiz = DB::table('exam_news')
+            ->where('id', $current_log->exam_id)
+            ->first();
+        
+        //show current quiz
+        $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id);
+        $pathtoexam = SERV_NAME.$current_quiz->local_pic;
+        $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
+        return $arr_replyData;
+    }
+    public function start_homework($replyToken,$userId) {
+        $old_group_count = DB::table('exam_test_groups')
+            ->where('line_code', $userId)
+            ->where('chapter_id', $chapter_id)
+            ->where('status',false)
+            ->orderBy('id','DESC')
+            ->count();
+
+
         $count_quiz = 0;
         $version = 0;
         $arr_replyData = array();

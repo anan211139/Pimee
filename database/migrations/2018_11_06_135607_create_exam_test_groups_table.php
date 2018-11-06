@@ -16,6 +16,7 @@ class CreateExamTestGroupsTable extends Migration
         Schema::create('exam_test_groups', function (Blueprint $table) {
             $table->increments('id');
             $table->string('line_code');
+            $table->Integer('examgroup_id');
             $table->boolean('status')->default(false);
             $table->timestamps();
         });
