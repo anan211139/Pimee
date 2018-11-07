@@ -342,7 +342,7 @@ class BotController extends Controller
                                     if ($count_quiz < 20) {
                                         // Query ข้อต่อไป
                                         $arr_replyData[]
-                                         = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply);
+                                         = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply,$userId);
                                     } 
                                 } else {
                                     $ansst = false;
@@ -371,7 +371,7 @@ class BotController extends Controller
                                     ->update(['second_chance' => 1, 'is_correct_second' => $ansst]);
                                 if ($count_quiz < 20) {
                                     // Query ข้อต่อไป
-                                    $arr_replyData[] = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply);
+                                    $arr_replyData[] = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply,$userId);
                                 } 
                             }else{
                                 $arr_replyData[] = new TextMessageBuilder("ข้อสอบไม่เพียงพอ");
@@ -607,7 +607,7 @@ class BotController extends Controller
         }
         echo "2";
     }
-    public function randQuiz($replyToken,$chapter_id, $level_id, $group_id,$text_reply){
+    public function randQuiz($replyToken,$chapter_id, $level_id, $group_id,$text_reply,$userId){
         //check changing level
         $num_group = DB::table('groups')
             ->where('id', $group_id)
@@ -894,7 +894,10 @@ class BotController extends Controller
             }
             $textReplyMessage = $concat_result;
         }
-        
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "other"]);
+                
         $replyData = new TextMessageBuilder($textReplyMessage);
         return $replyData;
     }
