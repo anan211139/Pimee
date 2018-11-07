@@ -86,6 +86,11 @@ class BotController extends Controller
                     list($postback_action_part, $postback_id_part) = explode("&", $postbackData, 2);
                     list($postback_title, $postback_action) = explode("=", $postback_action_part);
                     if ($postback_action == "exchange") {
+
+                        DB::table('user_sequences')
+                            ->where('line_code', $userId)
+                            ->update(['type' => "other"]);
+
                         list($postback_title, $postback_id) = explode("=", $postback_id_part);
                         $selected = DB::table('prizes')
                             ->where('id', $postback_id)
@@ -156,6 +161,11 @@ class BotController extends Controller
                         }else{
                             $sticker_id = rand(180,259); 
                         }
+
+                        DB::table('user_sequences')
+                            ->where('line_code', $userId)
+                            ->update(['type' => "other"]);
+
                         $stickerID = $sticker_id;
                         $packageID = $randpack;
                         $replyData = new StickerMessageBuilder($packageID,$stickerID);
@@ -167,6 +177,10 @@ class BotController extends Controller
                         if ($userMessage == "เปลี่ยนวิชา") {
                             $this->replymessage7($replyToken,'flex_message_sub',$userId);
                             $replyData = new TextMessageBuilder("วิชา");
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
                         else if($userMessage == "เปลี่ยนหัวข้อ" ){
                                 $sub_name_id = DB::table('students')
@@ -174,6 +188,9 @@ class BotController extends Controller
                                     ->first();
                                 $this->replymessage_chap($replyToken,'flex_message_chap',$sub_name_id->subject_id,$userId);
                                 $replyData = new TextMessageBuilder("หัวข้อ");
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
                         else if($userMessage =="ดูคะแนน"){
                             $arr_replyData = array();
@@ -199,6 +216,10 @@ class BotController extends Controller
                                 $multiMessage->add($arr_Reply);
                             }
                             $replyData = $multiMessage;
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
                         else if ($userMessage == "สะสมแต้ม") {
                             $score = DB::table('students')
@@ -219,6 +240,10 @@ class BotController extends Controller
                                     $actionBuilder  // กำหนด action object
                                 )
                             );
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
                         else if ($userMessage == "แลกของรางวัล") {
                             $re_prizes = Prize::all()->toArray();
@@ -236,6 +261,10 @@ class BotController extends Controller
                             }
                             $carouselTemplateBuilder = new CarouselTemplateBuilder($columnTemplateBuilders);
                             $replyData = new TemplateMessageBuilder('รายการ Sponser', $carouselTemplateBuilder);
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
                         else if ($userMessage == "ดู Code") {
                             $arr_replyData = array();
@@ -254,6 +283,10 @@ class BotController extends Controller
                                 $multiMessage->add($arr_Reply);
                             }
                             $replyData = $multiMessage;
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
                         else if ($userMessage == "เกี่ยวกับพี่หมี") {
                             $arr_replyData = array();
@@ -266,6 +299,10 @@ class BotController extends Controller
                                 $multiMessage->add($arr_Reply);
                             }
                             $replyData = $multiMessage;
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         } 
                         else if ($userMessage == '1' || $userMessage == '2' || $userMessage == '3' || $userMessage == '4') {
                             $multiMessage = new MultiMessageBuilder;
@@ -347,11 +384,21 @@ class BotController extends Controller
                             foreach ($arr_replyData as $arr_Reply) {
                                 $multiMessage->add($arr_Reply);
                             }
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "exam"]);
+
+
                             $replyData =  $multiMessage;
                         }
                         else if ($userMessage == "content") {
 
                             $replyData = new TextMessageBuilder($content);
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
                         
                         else if($userMessage == "[ลงทะเบียนเรียบร้อยแล้ว]"){
@@ -361,17 +408,28 @@ class BotController extends Controller
 
                             $this->replymessage6($replyToken,'flex_message_sub',$userId);
                             $replyData = new TextMessageBuilder("flex_sub");
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
 
                         else if($userMessage == "ลองNOTI_HW"){
                             $this->notification_homework();
                             $replyData = new TextMessageBuilder("flex_sub");
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
                         }
 
                         else if($userMessage == "ลองHW"){
                             $examgroup_id = 1;
                             $textReplyMessage = $this->start_homework($replyToken,$userId,$examgroup_id);
                             $replyData = new TextMessageBuilder($textReplyMessage);
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "homework"]);
                         }
                     
                         else if($userMessage == "leaderboard"){
@@ -389,7 +447,10 @@ class BotController extends Controller
                                         $imageUrl, // กำหนด url รุปภาพ
                                         $actionBuilder  // กำหนด action object
                                 )
-                            );       
+                            );  
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);     
                             // $replyData = new TextMessageBuilder("https://pimee.softbot.ai/leaderboard/".$userId);// softbot
                         }
                         else if($userMessage == "homework"){
@@ -407,7 +468,11 @@ class BotController extends Controller
                                         $imageUrl, // กำหนด url รุปภาพ
                                         $actionBuilder  // กำหนด action object
                                 )
-                            );       
+                            ); 
+
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);      
                             // $replyData = new TextMessageBuilder("https://pimee.softbot.ai/leaderboard/".$userId);// softbot
                         }
                         else {
@@ -440,6 +505,9 @@ class BotController extends Controller
                                     ->where('line_code', $userId)
                                     ->update(['subject_id' => $sub_name_id->id]);
                                 $this->replymessage_chap($replyToken,'flex_message_chap',$sub_name_id->id,$userId);
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "other"]);
                                 $replyData = new TextMessageBuilder("หัวข้อ");
                             }
                             else{
@@ -453,6 +521,10 @@ class BotController extends Controller
                                 $userMessage =  $this->detect_intent_texts($projectId,$text1, $sessionId,$languageCode);
                                 // detect_intent_texts('your-project-id','hi','123456');
                                 $replyData = new TextMessageBuilder($userMessage);
+
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "other"]);
                             }   
                         }
 
@@ -529,9 +601,7 @@ class BotController extends Controller
                     }
                 }
             }
-            DB::table('user_sequences')
-                ->where('line_code', $userId)
-                ->update(['type' => "other"]);
+            
             // ส่วนของคำสั่งตอบกลับข้อความ
             $response = $bot->replyMessage($replyToken,$replyData);
         }
@@ -697,7 +767,7 @@ class BotController extends Controller
             ->first();
         
         //show current quiz
-        $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id);
+        $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id,$userId);
         $pathtoexam = SERV_NAME.$current_quiz->local_pic;
         $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
         return $arr_replyData;
@@ -957,8 +1027,8 @@ class BotController extends Controller
                 'replyToken' => $replyToken,
                 'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
             ];
-        }
-
+        }   
+        echo "ADD SEQ---EXAM";
         DB::table('user_sequences')
                 ->where('line_code', $userId)
                 ->update(['type' => "exam"]);
@@ -1023,7 +1093,8 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId){   
+    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId){  
+        echo $userId; 
         if($version == 0){
             $count_quiz++; 
             $messages1 = [
@@ -1053,7 +1124,7 @@ class BotController extends Controller
                 'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
             ];
         }
-
+        echo "CHAP_UPDATE";
         DB::table('user_sequences')
                 ->where('line_code', $userId)
                 ->update(['type' => "exam"]);
@@ -1767,6 +1838,12 @@ class BotController extends Controller
                     echo "MORE2".$rest_chap;
                 }
             }
+
+            DB::table('user_sequences')
+                ->where('line_code', $line_u ->line_code)
+                ->update(['type' => "other"]);
+
+
             if ($del_group == true) {
                 $chap_text7 = rtrim($chap_text7, ',');
                 $textReplyMessage = "ข้อสอบเรื่อง".$chap_text7." ที่ทำค้างไว้ถูกลบแล้วนะครับบบบ";
@@ -1800,6 +1877,12 @@ class BotController extends Controller
                 ->where('id', $room_id_hw->id)
                 ->update(['noti_status' => 1]);
             echo "*";
+
+            DB::table('user_sequences')
+                ->where('line_code', $room_id_hw->line_code)
+                ->update(['type' => "other"]);
+
+
             $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
             $replyData = new TextMessageBuilder($textReplyMessage);
             $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
