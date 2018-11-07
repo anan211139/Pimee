@@ -14,10 +14,11 @@ class CreateInfoClassroomsTable extends Migration
     public function up()
     {
         Schema::create('info_classrooms', function (Blueprint $table) {
-        $table->increments('id');
-        $table->Integer('classroom_id');
-        $table->string('line_code');
-        $table->timestamps();});
+            $table->increments('id');
+            $table->Integer('classroom_id');
+            $table->string('line_code');
+            $table->timestamps();
+        });
     }
 
     /**

@@ -165,14 +165,14 @@ class BotController extends Controller
                         $userMessage = $event['message']['text'];
                         echo "text";
                         if ($userMessage == "เปลี่ยนวิชา") {
-                            $this->replymessage7($replyToken,'flex_message_sub');
+                            $this->replymessage7($replyToken,'flex_message_sub',$userId);
                             $replyData = new TextMessageBuilder("วิชา");
                         }
                         else if($userMessage == "เปลี่ยนหัวข้อ" ){
                                 $sub_name_id = DB::table('students')
                                     ->where('line_code', $userId)
                                     ->first();
-                                $this->replymessage_chap($replyToken,'flex_message_chap',$sub_name_id->subject_id);
+                                $this->replymessage_chap($replyToken,'flex_message_chap',$sub_name_id->subject_id,$userId);
                                 $replyData = new TextMessageBuilder("หัวข้อ");
                         }
                         else if($userMessage =="ดูคะแนน"){
@@ -313,7 +313,7 @@ class BotController extends Controller
                                         ->where('id', $currentlog->id)
                                         ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'time' => Carbon::now()]);
 
-                                    $this->replymessage_princ($replyToken,'flex_principle',$ans->principle_id);
+                                    $this->replymessage_princ($replyToken,'flex_principle',$ans->principle_id,$userId);
                                     $arr_replyData[] = new TextMessageBuilder("น้องลองตอบใหม่อีกครั้งสิจ๊ะ");
                                 }
                             } else if ($ans_status == 0 && $sec_chance == 0) {
@@ -355,7 +355,11 @@ class BotController extends Controller
                         }
                         
                         else if($userMessage == "[ลงทะเบียนเรียบร้อยแล้ว]"){
-                            $this->replymessage6($replyToken,'flex_message_sub');
+                            DB::table('user_sequences')->insert([
+                                'line_code' => $userId,
+                            ]);
+
+                            $this->replymessage6($replyToken,'flex_message_sub',$userId);
                             $replyData = new TextMessageBuilder("flex_sub");
                         }
 
@@ -435,7 +439,7 @@ class BotController extends Controller
                                 DB::table('students')
                                     ->where('line_code', $userId)
                                     ->update(['subject_id' => $sub_name_id->id]);
-                                $this->replymessage_chap($replyToken,'flex_message_chap',$sub_name_id->id);
+                                $this->replymessage_chap($replyToken,'flex_message_chap',$sub_name_id->id,$userId);
                                 $replyData = new TextMessageBuilder("หัวข้อ");
                             }
                             else{
@@ -525,6 +529,9 @@ class BotController extends Controller
                     }
                 }
             }
+            DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "other"]);
             // ส่วนของคำสั่งตอบกลับข้อความ
             $response = $bot->replyMessage($replyToken,$replyData);
         }
@@ -614,7 +621,7 @@ class BotController extends Controller
             ->where('id', $quizzesforsubj->id)
             ->first();
   
-        $this->replymessage_exam($replyToken,($count_quiz+1),$current_quiz->id,$text_reply);
+        $this->replymessage_exam($replyToken,($count_quiz+1),$current_quiz->id,$text_reply,$userId);
         $pathtoexam = SERV_NAME.$current_quiz->local_pic;
         $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
         return $arr_replyData;
@@ -733,7 +740,7 @@ class BotController extends Controller
             ->where('line_code', $userId)
             ->count();
         //dd($count_quiz);
-        $this->replymessage_start_homework($replyToken,$version,$examgroup_id,$count_quiz);
+        $this->replymessage_start_homework($replyToken,$version,$examgroup_id,$count_quiz,$userId);
         $arr_replyData[] = new TextMessageBuilder("$old_group_count");
         return $arr_replyData;
     }
@@ -821,12 +828,17 @@ class BotController extends Controller
         $replyData = new TextMessageBuilder($textReplyMessage);
         return $replyData;
     }
-    public function replymessage_chap($replyToken,$fn_json,$sub_id){   
+    public function replymessage_chap($replyToken,$fn_json,$sub_id,$userId){   
         $url = 'https://api.line.me/v2/bot/message/reply';
         $data = [
             'replyToken' => $replyToken,
             'messages' => [$this->$fn_json($sub_id)],
         ];
+
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "other"]);
+
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
@@ -839,7 +851,7 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_princ($replyToken,$fn_json,$princ_id){   
+    public function replymessage_princ($replyToken,$fn_json,$princ_id,$userId){   
         echo "replymessage_princ";
         $messages1 = [
             'type' => 'text',
@@ -856,6 +868,11 @@ class BotController extends Controller
             'replyToken' => $replyToken,
             'messages' => [$messages1,$this->$fn_json($princ_id),$messages2],
         ];
+
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "exam"]);
+
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
@@ -868,7 +885,7 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage7($replyToken,$fn_json){   
+    public function replymessage7($replyToken,$fn_json,$userId){   
         echo "function_json";
         echo $fn_json;
         $url = 'https://api.line.me/v2/bot/message/reply';
@@ -876,6 +893,11 @@ class BotController extends Controller
             'replyToken' => $replyToken,
             'messages' => [$this->$fn_json()],
         ];
+
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "other"]);
+
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
@@ -888,7 +910,7 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage6($replyToken,$fn_json){   
+    public function replymessage6($replyToken,$fn_json,$userId){   
         $messages1 = [
             'type' => 'text',
             'text' =>  'เอาล่ะ! ถ้าพร้อมแล้ว เรามาเลือกวิชาแรกที่จะทำข้อสอบกันเถอะ'
@@ -898,6 +920,11 @@ class BotController extends Controller
             'replyToken' => $replyToken,
             'messages' => [$messages1,$this->$fn_json()],
         ];
+
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "other"]);
+
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
@@ -910,7 +937,7 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_exam($replyToken,$count_quiz,$exam_id,$text_reply){   
+    public function replymessage_exam($replyToken,$count_quiz,$exam_id,$text_reply,$userId){   
         $messages1 = [
             'type' => 'text',
             'text' =>  $text_reply
@@ -931,6 +958,11 @@ class BotController extends Controller
                 'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
             ];
         }
+
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "exam"]);
+
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
@@ -943,7 +975,7 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_start_homework($replyToken,$version,$group_hw,$count_quiz){   
+    public function replymessage_start_homework($replyToken,$version,$group_hw,$count_quiz,$userId){   
         $exam_id = 1;
         if($version == 0){
             //$count_quiz ++;
@@ -975,6 +1007,10 @@ class BotController extends Controller
             ];
         }
 
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "homework"]);
+
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
@@ -987,7 +1023,7 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id){   
+    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId){   
         if($version == 0){
             $count_quiz++; 
             $messages1 = [
@@ -1017,6 +1053,10 @@ class BotController extends Controller
                 'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
             ];
         }
+
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "exam"]);
 
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);

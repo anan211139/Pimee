@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePrincipleNewsTable extends Migration
+class CreateUserSequencesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreatePrincipleNewsTable extends Migration
      */
     public function up()
     {
-        Schema::create('principle_news', function (Blueprint $table) {
+        Schema::create('user_sequences', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('local_pic')->nullable();
-            $table->longText('detail');
-            $table->timestampsTz();
+            $table->string('line_code');
+            $table->string('type');
+            $table->timestamps();
         });
     }
 
@@ -28,6 +28,6 @@ class CreatePrincipleNewsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('principle_news');
+        Schema::dropIfExists('user_sequences');
     }
 }
