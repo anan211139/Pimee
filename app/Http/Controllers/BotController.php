@@ -305,92 +305,141 @@ class BotController extends Controller
                                 ->update(['type' => "other"]);
                         } 
                         else if ($userMessage == '1' || $userMessage == '2' || $userMessage == '3' || $userMessage == '4') {
-                            $multiMessage = new MultiMessageBuilder;
-                            $std = DB::table('students')
+
+                            $seq = DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->first();
-                            $urgroup = DB::table('groups')
-                                ->where('line_code', $userId)
-                                ->where('chapter_id', $std->chapter_id)
-                                ->orderBy('id', 'DESC')
-                                ->first();
-                            $currentlog = DB::table('logChildrenQuizzes')
-                                ->where('group_id', $urgroup->id)
-                                ->orderBy('id', 'DESC')
-                                ->first();
-                            $ans = DB::table('exam_news')
-                                ->where('id', $currentlog->exam_id)
-                                ->orderBy('id', 'DESC')
-                                ->first();
-                            $count_quiz = DB::table('logChildrenQuizzes')
-                                ->where('group_id', $urgroup->id)
-                                ->count();
-                            $ans_status = $currentlog->is_correct;
-                            $sec_chance = $currentlog->second_chance;
-                            $arr_replyData = array();
-                            $check_st_end = false;
-                            if ($ans_status === null) {
-                                if ((int)$userMessage == $ans->answer) {
-                                    // ตอบถูกครั้งแรก
-                                    $arr_replyData[] = new TextMessageBuilder("ถูกต้อง! เก่งจังเลย");
-                                    $text_reply = "ถูกต้อง! เก่งจังเลย";
-                                    $ansst = true;
+
+                            if($seq->type == "exam"){
+                                $multiMessage = new MultiMessageBuilder;
+                                $std = DB::table('students')
+                                    ->where('line_code', $userId)
+                                    ->first();
+                                $urgroup = DB::table('groups')
+                                    ->where('line_code', $userId)
+                                    ->where('chapter_id', $std->chapter_id)
+                                    ->orderBy('id', 'DESC')
+                                    ->first();
+                                $currentlog = DB::table('logChildrenQuizzes')
+                                    ->where('group_id', $urgroup->id)
+                                    ->orderBy('id', 'DESC')
+                                    ->first();
+                                $ans = DB::table('exam_news')
+                                    ->where('id', $currentlog->exam_id)
+                                    ->orderBy('id', 'DESC')
+                                    ->first();
+                                $count_quiz = DB::table('logChildrenQuizzes')
+                                    ->where('group_id', $urgroup->id)
+                                    ->count();
+                                $ans_status = $currentlog->is_correct;
+                                $sec_chance = $currentlog->second_chance;
+                                $arr_replyData = array();
+                                $check_st_end = false;
+                                if ($ans_status === null) {
+                                    if ((int)$userMessage == $ans->answer) {
+                                        // ตอบถูกครั้งแรก
+                                        $arr_replyData[] = new TextMessageBuilder("ถูกต้อง! เก่งจังเลย");
+                                        $text_reply = "ถูกต้อง! เก่งจังเลย";
+                                        $ansst = true;
+                                        $check_st_end = true;
+                                        DB::table('logChildrenQuizzes')
+                                            ->where('id', $currentlog->id)
+                                            ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'time' => Carbon::now()]);
+                                        if ($count_quiz < 20) {
+                                            // Query ข้อต่อไป
+                                            $arr_replyData[]
+                                             = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply,$userId);
+                                        } 
+                                    } else {
+                                        $ansst = false;
+                                        DB::table('logChildrenQuizzes')
+                                            ->where('id', $currentlog->id)
+                                            ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'time' => Carbon::now()]);
+
+                                        $this->replymessage_princ($replyToken,'flex_principle',$ans->principle_id,$userId);
+                                        $arr_replyData[] = new TextMessageBuilder("น้องลองตอบใหม่อีกครั้งสิจ๊ะ");
+                                    }
+                                } else if ($ans_status == 0 && $sec_chance == 0) {
                                     $check_st_end = true;
+                                    if ((int)$userMessage == $ans->answer) {
+                                        $textReplyMessage = "ถูกต้อง! เก่งจังเลย";
+                                        $text_reply = "ถูกต้อง! เก่งจังเลย";
+                                        $arr_replyData[] = new TextMessageBuilder("ถูกต้อง! เก่งจังเลย");
+                                        $ansst = true;
+                                    } else {
+                                        $textReplyMessage = "ยังผิดอยู่เลย ไปแก้ตัวที่ข้อต่อไปกันดีกว่า";
+                                        $text_reply = "ยังผิดอยู่เลย ไปแก้ตัวที่ข้อต่อไปกันดีกว่า";
+                                        $arr_replyData[] = new TextMessageBuilder("ยังผิดอยู่เลย ไปแก้ตัวที่ข้อต่อไปกันดีกว่า");
+                                        $ansst = false;
+                                    }
                                     DB::table('logChildrenQuizzes')
                                         ->where('id', $currentlog->id)
-                                        ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'time' => Carbon::now()]);
+                                        ->update(['second_chance' => 1, 'is_correct_second' => $ansst]);
                                     if ($count_quiz < 20) {
                                         // Query ข้อต่อไป
-                                        $arr_replyData[]
-                                         = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply,$userId);
+                                        $arr_replyData[] = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply,$userId);
                                     } 
-                                } else {
-                                    $ansst = false;
-                                    DB::table('logChildrenQuizzes')
-                                        ->where('id', $currentlog->id)
-                                        ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'time' => Carbon::now()]);
-
-                                    $this->replymessage_princ($replyToken,'flex_principle',$ans->principle_id,$userId);
-                                    $arr_replyData[] = new TextMessageBuilder("น้องลองตอบใหม่อีกครั้งสิจ๊ะ");
+                                }else{
+                                    $arr_replyData[] = new TextMessageBuilder("ข้อสอบไม่เพียงพอ");
+                                    echo "ไม่พอ";
                                 }
-                            } else if ($ans_status == 0 && $sec_chance == 0) {
-                                $check_st_end = true;
+                                if($count_quiz == 20 && $check_st_end == true){
+                                    $arr_replyData[] = $this->close_group($urgroup->id);
+                                }
+                                echo "end_loop";
+                                foreach ($arr_replyData as $arr_Reply) {
+                                    $multiMessage->add($arr_Reply);
+                                }
+
+                                $replyData =  $multiMessage;
+
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "exam"]);
+                            }
+                            else if($seq->type == "homework"){
+
+                                $replyData = new TextMessageBuilder("น้องๆยังไม่ได้อยู่ในขั้นตอนการตอบคำถาม");
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "other"]);
+
+                                $hw_logs = DB::table('homework_logs')
+                                    ->where('line_code', $userId)
+                                    ->first();
+
+                                $ans = DB::table('exam_news')
+                                    ->where('id', $hw_logs->exam_id)
+                                    ->orderBy('id', 'DESC')
+                                    ->first();
+
                                 if ((int)$userMessage == $ans->answer) {
-                                    $textReplyMessage = "ถูกต้อง! เก่งจังเลย";
-                                    $text_reply = "ถูกต้อง! เก่งจังเลย";
-                                    $arr_replyData[] = new TextMessageBuilder("ถูกต้อง! เก่งจังเลย");
+                                    $replyData = new TextMessageBuilder("ถูก");
                                     $ansst = true;
-                                } else {
-                                    $textReplyMessage = "ยังผิดอยู่เลย ไปแก้ตัวที่ข้อต่อไปกันดีกว่า";
-                                    $text_reply = "ยังผิดอยู่เลย ไปแก้ตัวที่ข้อต่อไปกันดีกว่า";
-                                    $arr_replyData[] = new TextMessageBuilder("ยังผิดอยู่เลย ไปแก้ตัวที่ข้อต่อไปกันดีกว่า");
-                                    $ansst = false;
-                                }
-                                DB::table('logChildrenQuizzes')
-                                    ->where('id', $currentlog->id)
-                                    ->update(['second_chance' => 1, 'is_correct_second' => $ansst]);
-                                if ($count_quiz < 20) {
-                                    // Query ข้อต่อไป
-                                    $arr_replyData[] = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply,$userId);
                                 } 
-                            }else{
-                                $arr_replyData[] = new TextMessageBuilder("ข้อสอบไม่เพียงพอ");
-                                echo "ไม่พอ";
+                                else {
+                                    $replyData = new TextMessageBuilder("ผิด");
+                                    $ansst = false;       
+                                }
+
+                                DB::table('homework_logs')
+                                        ->where('group_hw_id', $hw_logs->group_hw_id)
+                                        ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'created_at' => Carbon::now()]);
+                                $next_hw = $this->query_next_hw($userId,$);
+
                             }
-                            if($count_quiz == 20 && $check_st_end == true){
-                                $arr_replyData[] = $this->close_group($urgroup->id);
-                            }
-                            echo "end_loop";
-                            foreach ($arr_replyData as $arr_Reply) {
-                                $multiMessage->add($arr_Reply);
+                            else{
+
+                                $replyData = new TextMessageBuilder("น้องๆยังไม่ได้อยู่ในขั้นตอนการตอบคำถาม");
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "other"]);
                             }
 
-                            DB::table('user_sequences')
-                                ->where('line_code', $userId)
-                                ->update(['type' => "exam"]);
+                            
 
 
-                            $replyData =  $multiMessage;
+                            
                         }
                         else if ($userMessage == "content") {
 
@@ -512,6 +561,10 @@ class BotController extends Controller
                             }
                             else{
                                 echo ">>else";
+
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "other"]);
                                 
                                 $text =  json_encode($userMessage, JSON_UNESCAPED_UNICODE );
                                 $text1 = str_replace('"', "", $text);
@@ -522,9 +575,7 @@ class BotController extends Controller
                                 // detect_intent_texts('your-project-id','hi','123456');
                                 $replyData = new TextMessageBuilder($userMessage);
 
-                                DB::table('user_sequences')
-                                    ->where('line_code', $userId)
-                                    ->update(['type' => "other"]);
+                                
                             }   
                         }
 
@@ -606,6 +657,13 @@ class BotController extends Controller
             $response = $bot->replyMessage($replyToken,$replyData);
         }
         echo "2";
+    }
+    public function query_next_hw($userId,$examgroup_id)
+    {
+        $hw = DB::table('info_examgroups')
+            ->where('id', $group_id)
+            ->orderBy('id','DESC')
+            ->first();
     }
     public function randQuiz($replyToken,$chapter_id, $level_id, $group_id,$text_reply,$userId){
         //check changing level
@@ -897,7 +955,7 @@ class BotController extends Controller
         DB::table('user_sequences')
                 ->where('line_code', $userId)
                 ->update(['type' => "other"]);
-                
+
         $replyData = new TextMessageBuilder($textReplyMessage);
         return $replyData;
     }
