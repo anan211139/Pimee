@@ -305,11 +305,9 @@ class BotController extends Controller
                                 ->update(['type' => "other"]);
                         } 
                         else if ($userMessage == '1' || $userMessage == '2' || $userMessage == '3' || $userMessage == '4') {
-
                             $seq = DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->first();
-
                             if($seq->type == "exam"){
                                 $multiMessage = new MultiMessageBuilder;
                                 $std = DB::table('students')
@@ -390,29 +388,33 @@ class BotController extends Controller
                                 foreach ($arr_replyData as $arr_Reply) {
                                     $multiMessage->add($arr_Reply);
                                 }
-
                                 $replyData =  $multiMessage;
-
                                 DB::table('user_sequences')
                                     ->where('line_code', $userId)
                                     ->update(['type' => "exam"]);
                             }
                             else if($seq->type == "homework"){
-
-                                $replyData = new TextMessageBuilder("น้องๆยังไม่ได้อยู่ในขั้นตอนการตอบคำถาม");
-                                DB::table('user_sequences')
-                                    ->where('line_code', $userId)
-                                    ->update(['type' => "other"]);
-
-                                $hw_logs = DB::table('homework_logs')
+                                $current_group_hw = DB::table('students')
                                     ->where('line_code', $userId)
                                     ->first();
-
-                                $ans = DB::table('exam_news')
-                                    ->where('id', $hw_logs->exam_id)
+                                $currentlog_hw = DB::table('homework_logs')
+                                    ->where('line_code', $userId)
+                                    ->where('group_hw_id',$current_group_hw->hw_group_id)
                                     ->orderBy('id', 'DESC')
                                     ->first();
+                                //dd($currentlog_hw);
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "homework"]);
+                                // $hw_logs = DB::table('homework_logs')
+                                //     ->where('line_code', $userId)
+                                //     ->first();
 
+                                $ans = DB::table('exam_news')
+                                    ->where('id', $currentlog_hw->exam_id)
+                                    ->orderBy('id', 'DESC')
+                                    ->first();
+                                
                                 if ((int)$userMessage == $ans->answer) {
                                     $replyData = new TextMessageBuilder("ถูก");
                                     $ansst = true;
@@ -421,25 +423,19 @@ class BotController extends Controller
                                     $replyData = new TextMessageBuilder("ผิด");
                                     $ansst = false;       
                                 }
-
                                 DB::table('homework_logs')
-                                        ->where('group_hw_id', $hw_logs->group_hw_id)
+                                        ->where('group_hw_id', $currentlog_hw->group_hw_id)
+                                        ->where('exam_id', $currentlog_hw->exam_id)
                                         ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'created_at' => Carbon::now()]);
-                                $next_hw = $this->query_next_hw($userId,$);
-
+                                $next_hw = $this->query_next_hw($replyToken,$currentlog_hw->group_hw_id,$userId);
+                                $replyData = $next_hw;
                             }
                             else{
-
                                 $replyData = new TextMessageBuilder("น้องๆยังไม่ได้อยู่ในขั้นตอนการตอบคำถาม");
                                 DB::table('user_sequences')
                                     ->where('line_code', $userId)
                                     ->update(['type' => "other"]);
-                            }
-
-                            
-
-
-                            
+                            }   
                         }
                         else if ($userMessage == "content") {
 
@@ -476,8 +472,11 @@ class BotController extends Controller
                             $examgroup_id = 1;
                             $textReplyMessage = $this->start_homework($replyToken,$userId,$examgroup_id);
                             $replyData = new TextMessageBuilder($textReplyMessage);
-                            DB::table('user_sequences')
+                            DB::table('students')
                                 ->where('line_code', $userId)
+                                ->update(['type' => "homework"]);
+                            DB::table('user_sequences')
+                                ->where('hw_group_id',$examgroup_id)
                                 ->update(['type' => "homework"]);
                         }
                     
@@ -658,12 +657,52 @@ class BotController extends Controller
         }
         echo "2";
     }
-    public function query_next_hw($userId,$examgroup_id)
-    {
-        $hw = DB::table('info_examgroups')
-            ->where('id', $group_id)
-            ->orderBy('id','DESC')
+    public function query_next_hw($replyToken,$group_hw,$userId)
+    {   
+
+        $count_quiz = DB::table('homework_logs')
+            ->where('group_hw_id', $group_hw)
+            ->count();
+        // echo "countquiz_fornext>>";
+        // dd($count_quiz);
+        $next = DB::table('info_examgroups')
+            ->where('examgroup_id', $group_hw)
+            ->offset($count_quiz)
             ->first();
+        //dd($next); // query $next->exam_id ข้อสอบหมด $next จะให้ null
+        if($next === null){
+            $count_quiz_true = DB::table('homework_logs')
+                ->where('group_hw_id', $group_hw)
+                ->where('is_correct', 1)
+                ->count();
+            //dd($count_quiz_true);
+            DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "other"]);
+            DB::table('exam_test_groups')
+                ->where('examgroup_id', $group_hw)
+                ->update(['status' => 1]);
+            DB::table('homework_result_news')->insert([
+                    'line_code' => $userId,
+                    'examgroup_id' => $group_hw,
+                    'total' => $count_quiz_true,
+                    'created_at' => Carbon::now()
+                ]);
+
+            echo "ทำครบแล้ว";
+            $textReplyMessage = "น้องๆทำการบ้านชุดนี้เสร็จเรียบร้อยแล้วครับ เก่งจังเลย";
+            $replyData = new TextMessageBuilder($textReplyMessage);
+            return $replyData;
+        }else{
+            echo "ยังทำไม่ครบ";
+            DB::table('homework_logs')->insert([
+                    'line_code' => $userId,
+                    'group_hw_id' => $group_hw,
+                    'exam_id' => $next->exam_id,
+                    'created_at' => Carbon::now()
+                ]);
+            $this->replymessage_hw($replyToken,($count_quiz+1),$next->exam_id,$userId);
+        }
     }
     public function randQuiz($replyToken,$chapter_id, $level_id, $group_id,$text_reply,$userId){
         //check changing level
@@ -831,7 +870,6 @@ class BotController extends Controller
         return $arr_replyData;
     }
     public function start_homework($replyToken,$userId,$examgroup_id) {
-        $count_quiz = 1;
         $old_group_count = DB::table('exam_test_groups')
             ->where('line_code', $userId)
             ->where('examgroup_id', $examgroup_id)
@@ -839,6 +877,7 @@ class BotController extends Controller
             ->count();
         
         if($old_group_count == 0){
+            $count_quiz = 1;
             echo "เริ่มทำการบ้าน";
             $group_id = DB::table('exam_test_groups')->insertGetId([
                 'line_code' => $userId,
@@ -846,9 +885,9 @@ class BotController extends Controller
                 'status' => false
             ]);
             $quiz = DB::table('info_examgroups')
-            ->where('examgroup_id', $examgroup_id)
-            ->orderBy('id','ASC')
-            ->first();
+                ->where('examgroup_id', $examgroup_id)
+                ->orderBy('id','ASC')
+                ->first();
             DB::table('homework_logs')->insert([
                 'line_code' => $userId,
                 'group_hw_id' => $examgroup_id,
@@ -856,18 +895,15 @@ class BotController extends Controller
                 'created_at' => Carbon::now()
             ]);
             $version = 0;
-            $welcome_text ="เรามาเริ่มทำการบ้านข้อแรกกันเถอะ";
         }else{
+            $count_quiz = DB::table('homework_logs')
+                ->where('line_code', $userId)
+                ->where('group_hw_id', $examgroup_id)
+                ->count();
             echo "ทำการบ้านต่อ";
             $version = 1;
-          
-            //$welcome_text ="เรามาทำการบ้านกันต่อเลยนะ";
+            //dd($count_quiz);
         }
-        $count_quiz = DB::table('homework_logs')
-            ->where('group_hw_id', $examgroup_id)
-            ->where('line_code', $userId)
-            ->count();
-        //dd($count_quiz);
         $this->replymessage_start_homework($replyToken,$version,$examgroup_id,$count_quiz,$userId);
         $arr_replyData[] = new TextMessageBuilder("$old_group_count");
         return $arr_replyData;
@@ -1068,6 +1104,39 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
+    public function replymessage_hw($replyToken,$count_quiz,$exam_id,$userId){   
+        $url = 'https://api.line.me/v2/bot/message/reply';
+        $exam_check_pic = DB::table('exam_news')
+            ->where('id', $exam_id)
+            ->first();
+        if($exam_check_pic->local_pic === null){
+            $data = [
+                'replyToken' => $replyToken,
+                'messages' => [$this->flex_choice_nonpic($count_quiz,$exam_id)],
+            ];
+        }
+        else{
+            $data = [
+                'replyToken' => $replyToken,
+                'messages' => [$this->flex_choice_pic($count_quiz,$exam_id)],
+            ];
+        }   
+        DB::table('user_sequences')
+                ->where('line_code', $userId)
+                ->update(['type' => "homework"]);
+
+        $access_token = LINE_MESSAGE_ACCESS_TOKEN;
+        $post = json_encode($data);
+        $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+    }
     public function replymessage_exam($replyToken,$count_quiz,$exam_id,$text_reply,$userId){   
         $messages1 = [
             'type' => 'text',
@@ -1106,8 +1175,12 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_start_homework($replyToken,$version,$group_hw,$count_quiz,$userId){   
-        $exam_id = 1;
+    public function replymessage_start_homework($replyToken,$version,$group_hw,$count_quiz,$userId){ 
+        $exam_id = DB::table('homework_logs')
+                ->where('group_hw_id', $group_hw)
+                ->orderBy('id','DESC')
+                ->first();
+        //dd($exam_id); 
         if($version == 0){
             //$count_quiz ++;
             $messages1 = [
@@ -1123,18 +1196,18 @@ class BotController extends Controller
         }
         $url = 'https://api.line.me/v2/bot/message/reply';
         $exam_check_pic = DB::table('exam_news')
-            ->where('id', $exam_id)
+            ->where('id',$exam_id->exam_id)
             ->first();
         if($exam_check_pic->local_pic === null){
             $data = [
                 'replyToken' => $replyToken,
-                'messages' => [$messages1,$this->flex_choice_nonpic($count_quiz,$exam_id)],
+                'messages' => [$messages1,$this->flex_choice_nonpic($count_quiz,$exam_id->exam_id)],
             ];
         }
         else{
             $data = [
                 'replyToken' => $replyToken,
-                'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
+                'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id->exam_id)],
             ];
         }
 
