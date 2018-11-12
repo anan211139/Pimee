@@ -73,9 +73,9 @@ class BotController extends Controller
         // คำสั่งรอรับการส่งค่ามาของ LINE Messaging API
         $content = file_get_contents('php://input');
         $events = json_decode($content, true);
-        echo "1";
+        //echo "1";
         if(!is_null($events)){
-        	echo "3";
+        	//echo "3";
             foreach ($events['events'] as $event) {
                 // ถ้ามีค่า สร้างตัวแปรเก็บ replyToken ไว้ใช้งาน
                 $replyToken = $event['replyToken'];
@@ -467,7 +467,14 @@ class BotController extends Controller
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
                         }
-
+                        else if($userMessage == "ลองNOTI_HW_EXP"){
+                            $this->notification_homework_exp_date();
+                            $replyData = new TextMessageBuilder("flex_sub");
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
+                        }
+                        
                         else if($userMessage == "ลองHW"){
                             $examgroup_id = 1;
                             $textReplyMessage = $this->start_homework($replyToken,$userId,$examgroup_id);
@@ -655,7 +662,7 @@ class BotController extends Controller
             // ส่วนของคำสั่งตอบกลับข้อความ
             $response = $bot->replyMessage($replyToken,$replyData);
         }
-        echo "2";
+        //echo "2";
     }
     public function query_next_hw($replyToken,$group_hw,$userId)
     {   
@@ -690,7 +697,7 @@ class BotController extends Controller
                 ]);
 
             echo "ทำครบแล้ว";
-            $textReplyMessage = "น้องๆทำการบ้านชุดนี้เสร็จเรียบร้อยแล้วครับ เก่งจังเลย";
+            $textReplyMessage = "น้องๆทำการบ้านชุดนี้เสร็จเรียบร้อยแล้วครับ เก่งจังเลย\n พี่หมีจะบอกคะแนนและเฉลยตอนวันหมดเขตส่งนะจ๊ะ รอพี่หมีหน่อยนะ";
             $replyData = new TextMessageBuilder($textReplyMessage);
             return $replyData;
         }else{
@@ -1935,7 +1942,7 @@ class BotController extends Controller
             ->get();
        
         foreach ($user_select as $line_u) {
-            echo "1";
+            //echo "1";
             $join_log_group = DB::table('groups')
                 ->join('logChildrenQuizzes', 'logChildrenQuizzes.group_id', '=', 'groups.id')
                 ->join('chapters', 'chapters.id', '=', 'groups.chapter_id')
@@ -2002,10 +2009,7 @@ class BotController extends Controller
             ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw')
             ->where('send_groups.noti_status', false)
             ->get();
-        // dd($room_id_homework);
         
-        
-
         foreach ($room_id_homework as $room_id_hw) {
             DB::table('send_groups')
                 ->where('id', $room_id_hw->id)
@@ -2016,11 +2020,60 @@ class BotController extends Controller
                 ->where('line_code', $room_id_hw->line_code)
                 ->update(['type' => "other"]);
 
-
             $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
             $replyData = new TextMessageBuilder($textReplyMessage);
             $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
         }
+    }
+    public function notification_homework_exp_date() {
+        $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
+        $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
+        $date = Carbon::today();
+        echo ">>".$date."<<";
+        $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
+            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.exp_date as exp_date')
+            ->get();
+        
+        foreach ($room_id_homework as $send_group_hw) {
+            if($send_group_hw->exp_date==$date){
+                echo $send_group_hw->id;//ออกกลุ่ม 1 มา 2 คน
+
+                DB::table('user_sequences')
+                    ->where('line_code', $send_group_hw->line_code)
+                    ->update(['type' => "other"]);
+
+                $textReplyMessage = "การบ้านเรื่อง".$send_group_hw->title_hw."หมดเขตส่งวันนี้นะ อย่าลืมเข้ามาทำนะครับ";
+                $replyData = new TextMessageBuilder($textReplyMessage);
+                $response = $bot->pushMessage($send_group_hw->line_code,$replyData);
+            }
+        }
+    }
+    public function notification_homework_result() {
+        // $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
+        // $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
+        // $date = Carbon::today();
+        // echo ">>".$date."<<";
+        // $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
+        //     ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+        //     ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+        //     ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.exp_date as exp_date')
+        //     ->get();
+        
+        // foreach ($room_id_homework as $send_group_hw) {
+        //     if($send_group_hw->exp_date==$date){
+        //         echo $send_group_hw->id;//ออกกลุ่ม 1 มา 2 คน
+
+        //         DB::table('user_sequences')
+        //             ->where('line_code', $send_group_hw->line_code)
+        //             ->update(['type' => "other"]);
+
+        //         $textReplyMessage = "การบ้านเรื่อง".$send_group_hw->title_hw."หมดเขตส่งวันนี้นะ อย่าลืมเข้ามาทำนะครับ";
+        //         $replyData = new TextMessageBuilder($textReplyMessage);
+        //         $response = $bot->pushMessage($send_group_hw->line_code,$replyData);
+        //     }
+        // }
     }
     public function detect_intent_texts($projectId, $text1, $sessionId, $languageCode){
         // new session
