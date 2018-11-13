@@ -16,6 +16,7 @@ class CreateHomeworkResultNewsTable extends Migration
         Schema::create('homework_result_news', function (Blueprint $table) {
             $table->increments('id');
             $table->string('line_code');
+            $table->Integer('send_groups_id');
             $table->Integer('examgroup_id');
             $table->Integer('total');
             // $table->boolean('status')->default(false);

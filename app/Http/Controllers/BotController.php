@@ -400,6 +400,7 @@ class BotController extends Controller
                                 $currentlog_hw = DB::table('homework_logs')
                                     ->where('line_code', $userId)
                                     ->where('group_hw_id',$current_group_hw->hw_group_id)
+                                    ->where('send_groups_id',$current_group_hw->send_groups_id)
                                     ->orderBy('id', 'DESC')
                                     ->first();
                                 //dd($currentlog_hw);
@@ -426,8 +427,9 @@ class BotController extends Controller
                                 DB::table('homework_logs')
                                         ->where('group_hw_id', $currentlog_hw->group_hw_id)
                                         ->where('exam_id', $currentlog_hw->exam_id)
+                                        ->where('send_groups_id',$currentlog_hw->send_groups_id)
                                         ->update(['answer' => $userMessage, 'is_correct' => $ansst, 'created_at' => Carbon::now()]);
-                                $next_hw = $this->query_next_hw($replyToken,$currentlog_hw->group_hw_id,$userId);
+                                $next_hw = $this->query_next_hw($replyToken,$currentlog_hw->send_groups_id,$currentlog_hw->group_hw_id,$userId);
                                 $replyData = $next_hw;
                             }
                             else{
@@ -478,14 +480,17 @@ class BotController extends Controller
                         else if($userMessage == "ลองHW"){
                             $examgroup_id = 1;
                             $send_groups_id = 1;
-                            $textReplyMessage = $this->start_homework($replyToken,$userId,$send_groups_id,$examgroup_id);
-                            $replyData = new TextMessageBuilder($textReplyMessage);
+
                             DB::table('students')
                                 ->where('line_code', $userId)
-                                ->update(['type' => "homework"]);
+                                ->update(['send_groups_id' =>$send_groups_id,'hw_group_id' => $examgroup_id]);
                             DB::table('user_sequences')
-                                ->where('hw_group_id',$examgroup_id)
+                                ->where('line_code',$userId)
                                 ->update(['type' => "homework"]);
+
+                            $textReplyMessage = $this->start_homework($replyToken,$userId,$send_groups_id,$examgroup_id);
+                            $replyData = new TextMessageBuilder($textReplyMessage);
+                            
                         }
                     
                         else if($userMessage == "leaderboard"){
@@ -665,11 +670,12 @@ class BotController extends Controller
         }
         //echo "2";
     }
-    public function query_next_hw($replyToken,$group_hw,$userId)
+    public function query_next_hw($replyToken,$send_groups_id,$group_hw,$userId)
     {   
 
         $count_quiz = DB::table('homework_logs')
             ->where('group_hw_id', $group_hw)
+            ->where('send_groups_id',$send_groups_id)
             ->count();
         // echo "countquiz_fornext>>";
         // dd($count_quiz);
@@ -681,6 +687,7 @@ class BotController extends Controller
         if($next === null){
             $count_quiz_true = DB::table('homework_logs')
                 ->where('group_hw_id', $group_hw)
+                ->where('send_groups_id',$send_groups_id)
                 ->where('is_correct', 1)
                 ->count();
             //dd($count_quiz_true);
@@ -689,9 +696,11 @@ class BotController extends Controller
                 ->update(['type' => "other"]);
             DB::table('exam_test_groups')
                 ->where('examgroup_id', $group_hw)
+                ->where('send_groups_id',$send_groups_id)
                 ->update(['status' => 1]);
             DB::table('homework_result_news')->insert([
                     'line_code' => $userId,
+                    'send_groups_id' => $send_groups_id,
                     'examgroup_id' => $group_hw,
                     'total' => $count_quiz_true,
                     'created_at' => Carbon::now()
@@ -705,6 +714,7 @@ class BotController extends Controller
             echo "ยังทำไม่ครบ";
             DB::table('homework_logs')->insert([
                     'line_code' => $userId,
+                    'send_groups_id' => $send_groups_id,
                     'group_hw_id' => $group_hw,
                     'exam_id' => $next->exam_id,
                     'created_at' => Carbon::now()
@@ -901,6 +911,7 @@ class BotController extends Controller
             DB::table('homework_logs')->insert([
                 'line_code' => $userId,
                 'group_hw_id' => $examgroup_id,
+                'send_groups_id' => $send_groups_id,
                 'exam_id' => $quiz->exam_id,
                 'created_at' => Carbon::now()
             ]);
@@ -908,6 +919,7 @@ class BotController extends Controller
         }else{
             $count_quiz = DB::table('homework_logs')
                 ->where('line_code', $userId)
+                ->where('send_groups_id', $send_groups_id)
                 ->where('group_hw_id', $examgroup_id)
                 ->count();
             echo "ทำการบ้านต่อ";
