@@ -467,8 +467,8 @@ class BotController extends Controller
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
                         }
-                        else if($userMessage == "ลองNOTI_HW_EXP"){
-                            $this->notification_homework_exp_date();
+                        else if($userMessage == "ลองHW_RESULT"){
+                            $this->notification_homework_result();
                             $replyData = new TextMessageBuilder("flex_sub");
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
@@ -2002,78 +2002,91 @@ class BotController extends Controller
     public function notification_homework() {
         $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
         $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
+
+        $mytime = Carbon::now();
+        echo $mytime->toDateTimeString();
     
         $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
             ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
-            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.noti_date as noti_date','send_groups.key_date as key_date')
             ->where('send_groups.noti_status', false)
             ->get();
-        
+        //dd($room_id_homework);
         foreach ($room_id_homework as $room_id_hw) {
-            DB::table('send_groups')
-                ->where('id', $room_id_hw->id)
-                ->update(['noti_status' => 1]);
-            echo "*";
-
-            DB::table('user_sequences')
-                ->where('line_code', $room_id_hw->line_code)
-                ->update(['type' => "other"]);
-
-            $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
-            $replyData = new TextMessageBuilder($textReplyMessage);
-            $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
-        }
-    }
-    public function notification_homework_exp_date() {
-        $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
-        $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
-        $date = Carbon::today();
-        echo ">>".$date."<<";
-        $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
-            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
-            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
-            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.exp_date as exp_date')
-            ->get();
-        
-        foreach ($room_id_homework as $send_group_hw) {
-            if($send_group_hw->exp_date==$date){
-                echo $send_group_hw->id;//ออกกลุ่ม 1 มา 2 คน
+            if($room_id_hw->noti_date <= $mytime){//เวลาตรงตามแจ้งเตือน
+                DB::table('send_groups')
+                    ->where('id', $room_id_hw->id)
+                    ->update(['noti_status' => 1]);
+                echo "*";
 
                 DB::table('user_sequences')
-                    ->where('line_code', $send_group_hw->line_code)
+                    ->where('line_code', $room_id_hw->line_code)
                     ->update(['type' => "other"]);
 
-                $textReplyMessage = "การบ้านเรื่อง".$send_group_hw->title_hw."หมดเขตส่งวันนี้นะ อย่าลืมเข้ามาทำนะครับ";
+                $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
                 $replyData = new TextMessageBuilder($textReplyMessage);
-                $response = $bot->pushMessage($send_group_hw->line_code,$replyData);
+                $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
             }
+            
         }
     }
-    public function notification_homework_result() {
-        // $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
-        // $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
-        // $date = Carbon::today();
-        // echo ">>".$date."<<";
-        // $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
-        //     ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
-        //     ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
-        //     ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.exp_date as exp_date')
-        //     ->get();
+    // public function notification_homework_exp_date() {
+    //     $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
+    //     $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
+    //     $date = Carbon::today();
+    //     echo ">>".$date."<<";
+    //     $room_id_homework = DB::table('send_groups') //ห้องที่มีการบ้าน แต่ยังไม่แจ้งเตือน
+    //         ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+    //         ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+    //         ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.exp_date as exp_date')
+    //         ->get();
         
-        // foreach ($room_id_homework as $send_group_hw) {
-        //     if($send_group_hw->exp_date==$date){
-        //         echo $send_group_hw->id;//ออกกลุ่ม 1 มา 2 คน
+    //     foreach ($room_id_homework as $send_group_hw) {
+    //         if($send_group_hw->exp_date==$date){
+    //             echo $send_group_hw->id;//ออกกลุ่ม 1 มา 2 คน
 
-        //         DB::table('user_sequences')
-        //             ->where('line_code', $send_group_hw->line_code)
-        //             ->update(['type' => "other"]);
+    //             DB::table('user_sequences')
+    //                 ->where('line_code', $send_group_hw->line_code)
+    //                 ->update(['type' => "other"]);
 
-        //         $textReplyMessage = "การบ้านเรื่อง".$send_group_hw->title_hw."หมดเขตส่งวันนี้นะ อย่าลืมเข้ามาทำนะครับ";
-        //         $replyData = new TextMessageBuilder($textReplyMessage);
-        //         $response = $bot->pushMessage($send_group_hw->line_code,$replyData);
-        //     }
-        // }
+    //             $textReplyMessage = "การบ้านเรื่อง".$send_group_hw->title_hw."หมดเขตส่งวันนี้นะ อย่าลืมเข้ามาทำนะครับ";
+    //             $replyData = new TextMessageBuilder($textReplyMessage);
+    //             $response = $bot->pushMessage($send_group_hw->line_code,$replyData);
+    //         }
+    //     }
+    // }
+    public function notification_homework_result() {
+        $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
+        $bot = new LINEBot($httpClient, array('channelSecret' => LINE_MESSAGE_CHANNEL_SECRET));
+
+        $mytime = Carbon::now();
+        echo $mytime->toDateTimeString();
+    
+        $room_id_homework = DB::table('send_groups')
+            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.noti_date as noti_date','send_groups.key_date as key_date')
+            ->where('send_groups.key_status', false)
+            ->get();
+        //dd($room_id_homework);
+        foreach ($room_id_homework as $room_id_hw) {
+            if($room_id_hw->key_date <= $mytime){//เวลาส่งเฉลย
+                DB::table('send_groups')
+                    ->where('id', $room_id_hw->id)
+                    ->update(['key_status' => 1]);
+                echo "*";
+
+                DB::table('user_sequences')
+                    ->where('line_code', $room_id_hw->line_code)
+                    ->update(['type' => "other"]);
+                //ส่งไปหาทุกคนที่ถึงเวลา
+                $textReplyMessage = "ส่งเฉลย";
+                $replyData = new TextMessageBuilder($textReplyMessage);
+                $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
+            }
+            
+        }
     }
     public function detect_intent_texts($projectId, $text1, $sessionId, $languageCode){
         // new session
