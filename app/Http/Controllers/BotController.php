@@ -2081,34 +2081,58 @@ class BotController extends Controller
         $result_detail = DB::table('send_groups')
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
             ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
-
-            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.key_date as key_date','send_groups.created_at as created_date','send_groups.exp_date as exp_date','examgroups.parent_id as parrent_id',
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.key_date as key_date','send_groups.created_at as created_date','send_groups.exp_date as exp_date','examgroups.id as id_group','examgroups.parent_id as parrent_id',
 
                     \DB::raw("(SELECT name FROM managers
                           WHERE examgroups.parent_id = managers.id
-                        ) as parent_name"))
+                        ) as parent_name"),
+                    \DB::raw("(SELECT count(id) FROM info_examgroups
+                          WHERE info_examgroups.examgroup_id = examgroups.id
+                        ) as max_point"),
+                    \DB::raw("(SELECT total FROM homework_result_news
+                          WHERE homework_result_news.examgroup_id = examgroups.id AND homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code
+                        ) as total_point")
+                )
+
             // ->where('send_groups.key_status', false)
             ->where('send_groups.key_date','<=',$mytime )
             ->get();
 
         dd($result_detail);
-        // foreach ($room_id_homework as $room_id_hw) { //วนรับทุกคนและทุกชุดการบ้าน
-        //     if($room_id_hw->key_date <= $mytime){//เวลาส่งเฉลย
-        //         DB::table('send_groups')
-        //             ->where('id', $room_id_hw->id)
-        //             ->update(['key_status' => 1]);
-        //         echo "*";
 
-        //         DB::table('user_sequences')
-        //             ->where('line_code', $room_id_hw->line_code)
-        //             ->update(['type' => "other"]);
-        //         //ส่งไปหาทุกคนที่ถึงเวลา
-        //         $textReplyMessage = "ส่งเฉลย";
-        //         $replyData = new TextMessageBuilder($textReplyMessage);
-        //         $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
+        $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
+
+        //dd($line_code_arr);
+        //echo($line_code_arr[0]);
+       
+
+        // foreach ($line_code_arr as $line_code_arr) { //วนทุกคน
+        //     foreach ($result_detail as $result_detail){
+        //         //dd($result_detail->line_code);
+        //         //dd($line_code_arr);
+        //         // echo "\n";
+        //         if($result_detail->line_code == $line_code_arr){
+        //             echo "$";
+        //         }
+            
         //     }
+        // //     if($room_id_hw->key_date <= $mytime){//เวลาส่งเฉลยที่เคยทำการบ้าน
+        // //         DB::table('send_groups')
+        // //             ->where('id', $room_id_hw->id)
+        // //             ->update(['key_status' => 1]);
+        // //         echo "*";
+
+        // //         DB::table('user_sequences')
+        // //             ->where('line_code', $room_id_hw->line_code)
+        // //             ->update(['type' => "other"]);
+            
+        // //         // $textReplyMessage = "ส่งเฉลย";
+        // //         // $replyData = new TextMessageBuilder($textReplyMessage);
+        // //         // $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
+        // //     }
             
         // }
+
     }
     public function detect_intent_texts($projectId, $text1, $sessionId, $languageCode){
         // new session
