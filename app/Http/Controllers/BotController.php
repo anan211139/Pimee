@@ -477,7 +477,8 @@ class BotController extends Controller
                         
                         else if($userMessage == "ลองHW"){
                             $examgroup_id = 1;
-                            $textReplyMessage = $this->start_homework($replyToken,$userId,$examgroup_id);
+                            $send_groups_id = 1;
+                            $textReplyMessage = $this->start_homework($replyToken,$userId,$send_groups_id,$examgroup_id);
                             $replyData = new TextMessageBuilder($textReplyMessage);
                             DB::table('students')
                                 ->where('line_code', $userId)
@@ -876,10 +877,11 @@ class BotController extends Controller
         $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
         return $arr_replyData;
     }
-    public function start_homework($replyToken,$userId,$examgroup_id) {
+    public function start_homework($replyToken,$userId,$send_groups_id,$examgroup_id) {
         $old_group_count = DB::table('exam_test_groups')
             ->where('line_code', $userId)
             ->where('examgroup_id', $examgroup_id)
+            ->where('send_groups_id', $send_groups_id)
             ->where('status',false)
             ->count();
         
@@ -889,6 +891,7 @@ class BotController extends Controller
             $group_id = DB::table('exam_test_groups')->insertGetId([
                 'line_code' => $userId,
                 'examgroup_id' => $examgroup_id,
+                'send_groups_id' => $send_groups_id,
                 'status' => false
             ]);
             $quiz = DB::table('info_examgroups')
@@ -911,7 +914,7 @@ class BotController extends Controller
             $version = 1;
             //dd($count_quiz);
         }
-        $this->replymessage_start_homework($replyToken,$version,$examgroup_id,$count_quiz,$userId);
+        $this->replymessage_start_homework($replyToken,$version,$send_groups_id,$examgroup_id,$count_quiz,$userId);
         $arr_replyData[] = new TextMessageBuilder("$old_group_count");
         return $arr_replyData;
     }
@@ -1182,9 +1185,10 @@ class BotController extends Controller
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_start_homework($replyToken,$version,$group_hw,$count_quiz,$userId){ 
+    public function replymessage_start_homework($replyToken,$version,$send_groups_id,$group_hw,$count_quiz,$userId){ 
         $exam_id = DB::table('homework_logs')
                 ->where('group_hw_id', $group_hw)
+                ->where('send_groups_id',$send_groups_id)
                 ->orderBy('id','DESC')
                 ->first();
         //dd($exam_id); 
@@ -2070,7 +2074,7 @@ class BotController extends Controller
             ->where('send_groups.key_status', false)
             ->get();
         //dd($room_id_homework);
-        foreach ($room_id_homework as $room_id_hw) {
+        foreach ($room_id_homework as $room_id_hw) { //วนรับทุกคนและทุกชุดการบ้าน
             if($room_id_hw->key_date <= $mytime){//เวลาส่งเฉลย
                 DB::table('send_groups')
                     ->where('id', $room_id_hw->id)

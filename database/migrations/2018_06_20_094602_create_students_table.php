@@ -25,6 +25,7 @@ class CreateStudentsTable extends Migration
             $table->string('address')->nullable();
             $table->Integer('subject_id')->nullable();
             $table->Integer('chapter_id')->nullable();
+            $table->Integer('send_groups_id');
             $table->Integer('hw_group_id')->nullable();
             $table->Integer('seq')->nullable();
             $table->timestampsTz();

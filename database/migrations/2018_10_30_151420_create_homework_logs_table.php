@@ -16,6 +16,7 @@ class CreateHomeworkLogsTable extends Migration
         Schema::create('homework_logs', function (Blueprint $table) {
             $table->increments('id');
             $table->string('line_code');
+            $table->Integer('send_groups_id');
             $table->Integer('group_hw_id');
             $table->Integer('exam_id');
             $table->smallInteger('answer')->nullable();
