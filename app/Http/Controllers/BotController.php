@@ -2093,29 +2093,25 @@ class BotController extends Controller
                           WHERE homework_result_news.examgroup_id = examgroups.id AND homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code
                         ) as total_point")
                 )
-
-            // ->where('send_groups.key_status', false)
             ->where('send_groups.key_date','<=',$mytime )
             ->get();
 
-        dd($result_detail);
+        
 
         $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
-
-        //dd($line_code_arr);
-        //echo($line_code_arr[0]);
-       
-
-        // foreach ($line_code_arr as $line_code_arr) { //วนทุกคน
-        //     foreach ($result_detail as $result_detail){
-        //         //dd($result_detail->line_code);
-        //         //dd($line_code_arr);
-        //         // echo "\n";
-        //         if($result_detail->line_code == $line_code_arr){
-        //             echo "$";
-        //         }
-            
-        //     }
+        $array = $result_detail->toArray();
+        //dd ($array);
+        foreach ($line_code_arr as $line_code){
+            echo "<br>";
+            foreach ($array as $array_result){   
+                if($array_result->line_code == $line_code){
+                    echo $line_code;
+                }  
+            }
+        }
+           
+        
+        
         // //     if($room_id_hw->key_date <= $mytime){//เวลาส่งเฉลยที่เคยทำการบ้าน
         // //         DB::table('send_groups')
         // //             ->where('id', $room_id_hw->id)
@@ -2131,7 +2127,7 @@ class BotController extends Controller
         // //         // $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
         // //     }
             
-        // }
+        
 
     }
     public function detect_intent_texts($projectId, $text1, $sessionId, $languageCode){
