@@ -15,18 +15,18 @@
             <input type="text" name="line_code" id="useridprofilefield" style ="display:none;"></p>
             <div class="tabs">
                 <div class="tab-2">
-                    <label for="tab2-1" class="ready">ยังไม่ได้ทำ</label>
+                    <label for="tab2-1" class="ready">ยังทำไม่เสร็จ</label>
                     <input id="tab2-1" name="tabs-two" type="radio" checked="checked">
                     <div>
                         <table class="first">
                             <tr>
-                                <th>วิชา</th>
+                                <!-- <th>วิชา</th> -->
                                 <th>เรื่อง</th> 
                                 <th>คุณครู</th>
                                 <th>กำหนดส่ง</th>
                             </tr>
                             <tr>
-                                <td>คณิตศาสตร์</td>
+                                <!-- <td>คณิตศาสตร์</td> -->
                                 <td>สมการ</td> 
                                 <td>กลมฉัตร</td>
                                 <td>5 วัน</td>
@@ -41,13 +41,13 @@
                     <div>
                         <table>
                             <tr>
-                                <th>วิชา</th>
+                                <!-- <th>วิชา</th> -->
                                 <th>เรื่อง</th> 
                                 <th>คุณครู</th>
                                 <th>คะแนน</th>
                             </tr>
                             <tr>
-                                <td>คณิตศาสตร์</td>
+                                <!-- <td>คณิตศาสตร์</td> -->
                                 <td>สมการ</td> 
                                 <td>กลมฉัตร</td>
                                 <td>10</td>
@@ -57,17 +57,17 @@
 
                 </div>
                 <div class="tab-2">
-                    <label for="tab2-3" class="late">ขาดส่ง</label>
+                    <label for="tab2-3" class="late">หมดเขต</label>
                     <input id="tab2-3" name="tabs-two" type="radio">
                     <div>
                         <table>
                             <tr>
-                                <th>วิชา</th>
+                                <!-- <th>วิชา</th> -->
                                 <th>เรื่อง</th> 
                                 <th>คุณครู</th>
                             </tr>
                             <tr>
-                                <td>คณิตศาสตร์</td>
+                                <!-- <td>คณิตศาสตร์</td> -->
                                 <td>สมการ</td> 
                                 <td>กลมฉัตร</td>
                             </tr>

@@ -1964,98 +1964,402 @@ class BotController extends Controller
         // $response = $bot->pushMessage('U038940166356c6b9fb0dcf051aded27f', $textMessageBuilder);
 
         // echo $response->getHTTPStatus() . ' ' . $response->getRawBody();
+
+
+        $mytime = Carbon::now();
+        echo $mytime->toDateTimeString();
+    
+        $result_detail = DB::table('send_groups')
+            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.key_date as key_date','send_groups.created_at as created_date','send_groups.exp_date as exp_date','examgroups.id as id_group','examgroups.parent_id as parrent_id',
+
+                    \DB::raw("(SELECT name FROM managers
+                          WHERE examgroups.parent_id = managers.id
+                        ) as parent_name"),
+                    \DB::raw("(SELECT count(id) FROM info_examgroups
+                          WHERE info_examgroups.examgroup_id = examgroups.id
+                        ) as max_point"),
+                    \DB::raw("(SELECT total FROM homework_result_news
+                          WHERE homework_result_news.examgroup_id = examgroups.id AND homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code
+                        ) as total_point")
+                )
+            ->where('send_groups.key_date','<=',$mytime )
+            //->get();
+            ->first();
+
+        
+
+        // $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
+        // $array = $result_detail->toArray();
+        
+
+        //dd($result_detail);
+
         
         echo "1>>";
-        $data = '{"to":"U038940166356c6b9fb0dcf051aded27f","messages":[{"type":"flex","altText":"ชื่อ Title","contents":{
-            "type": "bubble",
-            "body": {
+        $data = '{"to":"U038940166356c6b9fb0dcf051aded27f","messages":[{"type":"flex","altText":"สรุปคะแนน","contents":{
+            
+
+
+
+            
+          "type": "carousel",
+          "contents": [
+
+
+
+
+            {
+              "type": "bubble",
+              "styles": {
+                "header": {
+                  "backgroundColor": "#5FBCD1"
+                },
+                "footer": {
+                  "separator": false
+                }
+              },
+              "header": {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "สรุปคะแนน",
+                    "weight": "bold",
+                    "color": "#ffffff",
+                    "size": "xl",
+                    "align": "center"
+                  }
+                ]
+              },
+              "body": {
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                    {
-                        "type": "text",
-                        "color":"#02D767",
-                        "text": "ข้อความ",
-                        "weight": "bold",
-                        "size": "xl"
-                    },
-                    {
+                  {
+                    "type": "text",
+                    "text": "ชุด :.$result_detail->id",
+                    "weight": "bold",
+                    "align": "center",
+                    "size": "sm"
+                  },
+                  {
+                    "type": "text",
+                    "text": "สร้างโดย : คุณครู B",
+                    "align": "center",
+                    "size": "xs",
+                    "wrap": true
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xl",
+                    "contents": [
+                      {
                         "type": "box",
                         "layout": "vertical",
-                        "margin": "lg",
-                        "spacing": "sm",
                         "contents": [
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Place",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "ข้อความ",
-                                        "wrap": true,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "ข้อความ",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "ข้อความ",
-                                        "wrap": true,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            }
+                          {
+                            "type": "text",
+                            "text": "วันที่สั่ง",
+                            "align": "center",
+                            "size": "xxs",
+                            "color": "#aaaaaa"
+                          },
+                          {
+                            "type": "text",
+                            "text": "1/11/2018",
+                            "align": "center",
+                            "size": "xxs",
+                            "color": "#aaaaaa"
+                          }
                         ]
-                    }
+                      },
+                      {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "margin": "xl",
+                        "contents": [
+                          {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                              {
+                                "type": "text",
+                                "text": "วันที่กำหนดส่ง",
+                                "align": "center",
+                                "size": "xxs",
+                                "color": "#aaaaaa"
+                              },
+                              {
+                                "type": "text",
+                                "text": "12/11/2018",
+                                "align": "center",
+                                "size": "xxs",
+                                "color": "#aaaaaa",
+                                "wrap": true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "separator",
+                    "margin": "xl"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xl",
+                    "contents": [
+                      {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "margin": "xl",
+                            "text": "คะแนน",
+                            "size": "sm",
+                            "flex": 3,
+                            "align": "center",
+                            "gravity": "bottom"
+                          },
+                          {
+                            "type": "text",
+                            "text": "1",
+                            "weight": "bold",
+                            "size": "xxl",
+                            "color": "#5FBCD1",
+                            "align": "end",
+                            "flex": 0
+                          },
+                          {
+                            "type": "text",
+                            "text": "/",
+                            "size": "sm",
+                            "color": "#555555",
+                            "gravity": "bottom",
+                            "flex": 0
+                          },
+                          {
+                            "type": "text",
+                            "text": "5",
+                            "size": "sm",
+                            "color": "#555555",
+                            "gravity": "bottom",
+                            "flex": 2
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
+              },
+              "footer": {
+                "type": "box",
+                "layout": "horizontal",
+                "margin": "xxl",
+                "contents": [
+                  {
+                    "type": "button",
+                    "flex": 2,
+                    "style": "primary",
+                    "color": "#5FBCD1",
+                    "action": {
+                      "type": "uri",
+                      "label": "เฉลยละเอียด",
+                      "uri": "https://linecorp.com"
+                    }
+                  }
+                ]
+              }
             },
-            "footer": {
+
+
+
+            {
+              "type": "bubble",
+              "styles": {
+                "header": {
+                  "backgroundColor": "#5FBCD1"
+                },
+                "footer": {
+                  "separator": false
+                }
+              },
+              "header": {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "สรุปคะแนน",
+                    "weight": "bold",
+                    "color": "#ffffff",
+                    "size": "xl",
+                    "align": "center"
+                  }
+                ]
+              },
+              "body": {
                 "type": "box",
                 "layout": "vertical",
-                "spacing": "sm",
                 "contents": [
-                    {
-                        "type": "button",
-                        "style": "link",
-                        "color":"#02D767",
-                        "height": "sm",
-                        "action": {
-                            "type": "uri",
-                            "label": "ข้อความ",
-                            "uri": "tel:0203229555"
-                        }
-                    },
-                    {
-                        "type": "spacer",
-                        "size": "sm"
-                    }
+                  {
+                    "type": "text",
+                    "text": "ชุด : test",
+                    "weight": "bold",
+                    "align": "center",
+                    "size": "sm"
+                  },
+                  {
+                    "type": "text",
+                    "text": "สร้างโดย : คุณครู B",
+                    "align": "center",
+                    "size": "xs",
+                    "wrap": true
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xl",
+                    "contents": [
+                      {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "text": "วันที่สั่ง",
+                            "align": "center",
+                            "size": "xxs",
+                            "color": "#aaaaaa"
+                          },
+                          {
+                            "type": "text",
+                            "text": "1/11/2018",
+                            "align": "center",
+                            "size": "xxs",
+                            "color": "#aaaaaa"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "margin": "xl",
+                        "contents": [
+                          {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                              {
+                                "type": "text",
+                                "text": "วันที่กำหนดส่ง",
+                                "align": "center",
+                                "size": "xxs",
+                                "color": "#aaaaaa"
+                              },
+                              {
+                                "type": "text",
+                                "text": "12/11/2018",
+                                "align": "center",
+                                "size": "xxs",
+                                "color": "#aaaaaa",
+                                "wrap": true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "separator",
+                    "margin": "xl"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xl",
+                    "contents": [
+                      {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "margin": "xl",
+                            "text": "คะแนน",
+                            "size": "sm",
+                            "flex": 3,
+                            "align": "center",
+                            "gravity": "bottom"
+                          },
+                          {
+                            "type": "text",
+                            "text": "1",
+                            "weight": "bold",
+                            "size": "xxl",
+                            "color": "#5FBCD1",
+                            "align": "end",
+                            "flex": 0
+                          },
+                          {
+                            "type": "text",
+                            "text": "/",
+                            "size": "sm",
+                            "color": "#555555",
+                            "gravity": "bottom",
+                            "flex": 0
+                          },
+                          {
+                            "type": "text",
+                            "text": "5",
+                            "size": "sm",
+                            "color": "#555555",
+                            "gravity": "bottom",
+                            "flex": 2
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
+              },
+              "footer": {
+                "type": "box",
+                "layout": "horizontal",
+                "margin": "xxl",
+                "contents": [
+                  {
+                    "type": "button",
+                    "flex": 2,
+                    "style": "primary",
+                    "color": "#5FBCD1",
+                    "action": {
+                      "type": "uri",
+                      "label": "เฉลยละเอียด",
+                      "uri": "https://linecorp.com"
+                    }
+                  }
+                ]
+              }
             }
+          ]
+
+
+
+
+
         }}]}';
+
+        //$date = "'".$data."'"
         $send_result = $this->sendReplyMessage_FLEX('/push',$data);
         echo "3>>";
     }
@@ -2108,45 +2412,7 @@ class BotController extends Controller
         // $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
         // $array = $result_detail->toArray();
 
-        // $md_array = array();
-        // $key=-1;
-        // foreach($query_sub as $value){
-        //     $md_array[($value->id)-1] = 
-        //         array (
-        //             ++$key => 
-        //             array (
-        //               'type' => 'box',
-        //               'layout' => 'baseline',
-        //               'contents' => 
-        //               array (
-        //                 0 => 
-        //                 array (
-        //                   'type' => 'text',
-        //                   'text' => $value->name,
-        //                   'action' => 
-        //                   array (
-        //                     'type' => 'message',
-        //                     'text' => $value->name,
-        //                   ),
-        //                   'size' => 'lg',
-        //                 ),
-        //               ),
-        //             ),
-        //             ++$key => 
-        //             array (
-        //               'type' => 'separator',
-        //               'color' => '#59BDD3',
-        //               'margin' => 'md',
-        //             ),
-        //         );
-        // }
-        // $suject_s =array();
-        // foreach($md_array as $md){
-        //     foreach($md as $key){
-        //         array_push($suject_s,$key);
-        //     }
-        // }
-
+        
 
         // foreach ($line_code_arr as $line_code){
         //     foreach ($array as $array_result){   
@@ -2961,10 +3227,9 @@ class BotController extends Controller
             ->get();
 
         
-
         $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
         $array = $result_detail->toArray();
-        //dd ($array);
+        // dd ($array);
         // foreach ($line_code_arr as $line_code){
         //     echo "<br>";
         //     foreach ($array as $array_result){   
