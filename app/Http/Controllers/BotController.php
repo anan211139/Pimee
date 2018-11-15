@@ -192,8 +192,9 @@ class BotController extends Controller
                                 ->update(['type' => "other"]);
                         }
                         else if($userMessage == "ลองRESULT" ){
-                                $this->replymessage7($replyToken,'flex_result',$userId);
-                                $replyData = new TextMessageBuilder("หัวข้อ");
+                            // $this->flex_result($replyToken);
+                            $this->flex_result_push();
+                            $replyData = new TextMessageBuilder("หัวข้อ");
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
@@ -1954,435 +1955,861 @@ class BotController extends Controller
         
         return $textMessageBuilder; 
     }
-    public function flex_result(){
+    public function flex_result_push(){
+
+        // $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
+        // $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => LINE_MESSAGE_CHANNEL_SECRET]);
+
+        // $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder('hello');
+        // $response = $bot->pushMessage('U038940166356c6b9fb0dcf051aded27f', $textMessageBuilder);
+
+        // echo $response->getHTTPStatus() . ' ' . $response->getRawBody();
+        
+        echo "1>>";
+        $data = '{"to":"U038940166356c6b9fb0dcf051aded27f","messages":[{"type":"flex","altText":"ชื่อ Title","contents":{
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "color":"#02D767",
+                        "text": "ข้อความ",
+                        "weight": "bold",
+                        "size": "xl"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "lg",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Place",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "ข้อความ",
+                                        "wrap": true,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "ข้อความ",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "ข้อความ",
+                                        "wrap": true,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "link",
+                        "color":"#02D767",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "ข้อความ",
+                            "uri": "tel:0203229555"
+                        }
+                    },
+                    {
+                        "type": "spacer",
+                        "size": "sm"
+                    }
+                ]
+            }
+        }}]}';
+        $send_result = $this->sendReplyMessage_FLEX('/push',$data);
+        echo "3>>";
+    }
+    public function sendReplyMessage_FLEX($method, $post_body){
+            $url = 'https://api.line.me/v2/bot/message';
+            $API_URL        = $url;  // URL API_Messgae LINE
+            $ACCESS_TOKEN   = LINE_MESSAGE_ACCESS_TOKEN;    // TOKEN of Account LINE DEV
+            $CHANNELSECRET  = LINE_MESSAGE_CHANNEL_SECRET;   // CHANNEL of Account LINE DEV
+            $POST_HEADER    = array('Content-Type: application/json', 'Authorization: Bearer ' . $ACCESS_TOKEN);
+
+            $ch = curl_init($API_URL.$method);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $POST_HEADER);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_body);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            echo "2>>";
+            return $result;
+
+
+        }
+    public function flex_result($replyToken){
+
+        // $mytime = Carbon::now();
+        // echo $mytime->toDateTimeString();
+    
+        // $result_detail = DB::table('send_groups')
+        //     ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+        //     ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+        //     ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.key_date as key_date','send_groups.created_at as created_date','send_groups.exp_date as exp_date','examgroups.id as id_group','examgroups.parent_id as parrent_id',
+
+        //             \DB::raw("(SELECT name FROM managers
+        //                   WHERE examgroups.parent_id = managers.id
+        //                 ) as parent_name"),
+        //             \DB::raw("(SELECT count(id) FROM info_examgroups
+        //                   WHERE info_examgroups.examgroup_id = examgroups.id
+        //                 ) as max_point"),
+        //             \DB::raw("(SELECT total FROM homework_result_news
+        //                   WHERE homework_result_news.examgroup_id = examgroups.id AND homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code
+        //                 ) as total_point")
+        //         )
+        //     ->where('send_groups.key_date','<=',$mytime )
+        //     ->get();
 
         
-        $textMessageBuilder = [ 
-            "type" => "flex",
-            "altText" => "this is a flex message",
-            "contents" => 
+
+        // $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
+        // $array = $result_detail->toArray();
+
+        // $md_array = array();
+        // $key=-1;
+        // foreach($query_sub as $value){
+        //     $md_array[($value->id)-1] = 
+        //         array (
+        //             ++$key => 
+        //             array (
+        //               'type' => 'box',
+        //               'layout' => 'baseline',
+        //               'contents' => 
+        //               array (
+        //                 0 => 
+        //                 array (
+        //                   'type' => 'text',
+        //                   'text' => $value->name,
+        //                   'action' => 
+        //                   array (
+        //                     'type' => 'message',
+        //                     'text' => $value->name,
+        //                   ),
+        //                   'size' => 'lg',
+        //                 ),
+        //               ),
+        //             ),
+        //             ++$key => 
+        //             array (
+        //               'type' => 'separator',
+        //               'color' => '#59BDD3',
+        //               'margin' => 'md',
+        //             ),
+        //         );
+        // }
+        // $suject_s =array();
+        // foreach($md_array as $md){
+        //     foreach($md as $key){
+        //         array_push($suject_s,$key);
+        //     }
+        // }
 
 
-            array (
-                  'type' => 'carousel',
-                  'contents' => 
-                  array (
-                    0 => 
-                    array (
-                      'type' => 'bubble',
-                      'styles' => 
-                      array (
-                        'header' => 
-                        array (
-                          'backgroundColor' => '#5FBCD1',
-                        ),
-                        'footer' => 
-                        array (
-                          'separator' => false,
-                        ),
-                      ),
-                      'header' => 
-                      array (
-                        'type' => 'box',
-                        'layout' => 'horizontal',
-                        'contents' => 
-                        array (
-                          0 => 
-                          array (
-                            'type' => 'text',
-                            'text' => 'สรุปคะแนน',
-                            'weight' => 'bold',
-                            'color' => '#ffffff',
-                            'size' => 'xl',
-                            'align' => 'center',
-                          ),
-                        ),
-                      ),
-                      'body' => 
-                      array (
-                        'type' => 'box',
-                        'layout' => 'vertical',
-                        'contents' => 
-                        array (
-                          0 => 
-                          array (
-                            'type' => 'text',
-                            'text' => 'ชุด : test',
-                            'weight' => 'bold',
-                            'align' => 'center',
-                            'size' => 'sm',
-                          ),
-                          1 => 
-                          array (
-                            'type' => 'text',
-                            'text' => 'สร้างโดย : คุณครู B',
-                            'align' => 'center',
-                            'size' => 'xs',
-                            'wrap' => true,
-                          ),
-                          2 => 
-                          array (
-                            'type' => 'box',
-                            'layout' => 'horizontal',
-                            'margin' => 'xl',
-                            'contents' => 
-                            array (
-                              0 => 
-                              array (
-                                'type' => 'box',
-                                'layout' => 'vertical',
-                                'contents' => 
-                                array (
-                                  0 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => 'วันที่สั่ง',
-                                    'align' => 'center',
-                                    'size' => 'xxs',
-                                    'color' => '#aaaaaa',
-                                  ),
-                                  1 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '1/11/2018',
-                                    'align' => 'center',
-                                    'size' => 'xxs',
-                                    'color' => '#aaaaaa',
-                                  ),
-                                ),
-                              ),
-                              1 => 
-                              array (
-                                'type' => 'box',
-                                'layout' => 'horizontal',
-                                'margin' => 'xl',
-                                'contents' => 
-                                array (
-                                  0 => 
-                                  array (
-                                    'type' => 'box',
-                                    'layout' => 'vertical',
-                                    'contents' => 
-                                    array (
-                                      0 => 
-                                      array (
-                                        'type' => 'text',
-                                        'text' => 'วันที่กำหนดส่ง',
-                                        'align' => 'center',
-                                        'size' => 'xxs',
-                                        'color' => '#aaaaaa',
-                                      ),
-                                      1 => 
-                                      array (
-                                        'type' => 'text',
-                                        'text' => '12/11/2018',
-                                        'align' => 'center',
-                                        'size' => 'xxs',
-                                        'color' => '#aaaaaa',
-                                        'wrap' => true,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          3 => 
-                          array (
-                            'type' => 'separator',
-                            'margin' => 'xl',
-                          ),
-                          4 => 
-                          array (
-                            'type' => 'box',
-                            'layout' => 'horizontal',
-                            'margin' => 'xl',
-                            'contents' => 
-                            array (
-                              0 => 
-                              array (
-                                'type' => 'box',
-                                'layout' => 'horizontal',
-                                'contents' => 
-                                array (
-                                  0 => 
-                                  array (
-                                    'type' => 'text',
-                                    'margin' => 'xl',
-                                    'text' => 'คะแนน',
-                                    'size' => 'sm',
-                                    'flex' => 3,
-                                    'align' => 'center',
-                                    'gravity' => 'bottom',
-                                  ),
-                                  1 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '1',
-                                    'weight' => 'bold',
-                                    'size' => 'xxl',
-                                    'color' => '#5FBCD1',
-                                    'align' => 'end',
-                                    'flex' => 0,
-                                  ),
-                                  2 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '/',
-                                    'size' => 'sm',
-                                    'color' => '#555555',
-                                    'gravity' => 'bottom',
-                                    'flex' => 0,
-                                  ),
-                                  3 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '5',
-                                    'size' => 'sm',
-                                    'color' => '#555555',
-                                    'gravity' => 'bottom',
-                                    'flex' => 2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      'footer' => 
-                      array (
-                        'type' => 'box',
-                        'layout' => 'horizontal',
-                        'margin' => 'xxl',
-                        'contents' => 
-                        array (
-                          0 => 
-                          array (
-                            'type' => 'button',
-                            'flex' => 2,
-                            'style' => 'primary',
-                            'color' => '#5FBCD1',
-                            'action' => 
-                            array (
-                              'type' => 'uri',
-                              'label' => 'เฉลยละเอียด',
-                              'uri' => 'https://linecorp.com',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    1 => 
-                    array (
-                      'type' => 'bubble',
-                      'styles' => 
-                      array (
-                        'header' => 
-                        array (
-                          'backgroundColor' => '#5FBCD1',
-                        ),
-                        'footer' => 
-                        array (
-                          'separator' => false,
-                        ),
-                      ),
-                      'header' => 
-                      array (
-                        'type' => 'box',
-                        'layout' => 'horizontal',
-                        'contents' => 
-                        array (
-                          0 => 
-                          array (
-                            'type' => 'text',
-                            'text' => 'สรุปคะแนน',
-                            'weight' => 'bold',
-                            'color' => '#ffffff',
-                            'size' => 'xl',
-                            'align' => 'center',
-                          ),
-                        ),
-                      ),
-                      'body' => 
-                      array (
-                        'type' => 'box',
-                        'layout' => 'vertical',
-                        'contents' => 
-                        array (
-                          0 => 
-                          array (
-                            'type' => 'text',
-                            'text' => 'ชุด : test',
-                            'weight' => 'bold',
-                            'align' => 'center',
-                            'size' => 'sm',
-                          ),
-                          1 => 
-                          array (
-                            'type' => 'text',
-                            'text' => 'สร้างโดย : คุณครู B',
-                            'align' => 'center',
-                            'size' => 'xs',
-                            'wrap' => true,
-                          ),
-                          2 => 
-                          array (
-                            'type' => 'box',
-                            'layout' => 'horizontal',
-                            'margin' => 'xl',
-                            'contents' => 
-                            array (
-                              0 => 
-                              array (
-                                'type' => 'box',
-                                'layout' => 'vertical',
-                                'contents' => 
-                                array (
-                                  0 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => 'วันที่สั่ง',
-                                    'align' => 'center',
-                                    'size' => 'xxs',
-                                    'color' => '#aaaaaa',
-                                  ),
-                                  1 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '1/11/2018',
-                                    'align' => 'center',
-                                    'size' => 'xxs',
-                                    'color' => '#aaaaaa',
-                                  ),
-                                ),
-                              ),
-                              1 => 
-                              array (
-                                'type' => 'box',
-                                'layout' => 'horizontal',
-                                'margin' => 'xl',
-                                'contents' => 
-                                array (
-                                  0 => 
-                                  array (
-                                    'type' => 'box',
-                                    'layout' => 'vertical',
-                                    'contents' => 
-                                    array (
-                                      0 => 
-                                      array (
-                                        'type' => 'text',
-                                        'text' => 'วันที่กำหนดส่ง',
-                                        'align' => 'center',
-                                        'size' => 'xxs',
-                                        'color' => '#aaaaaa',
-                                      ),
-                                      1 => 
-                                      array (
-                                        'type' => 'text',
-                                        'text' => '12/11/2018',
-                                        'align' => 'center',
-                                        'size' => 'xxs',
-                                        'color' => '#aaaaaa',
-                                        'wrap' => true,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          3 => 
-                          array (
-                            'type' => 'separator',
-                            'margin' => 'xl',
-                          ),
-                          4 => 
-                          array (
-                            'type' => 'box',
-                            'layout' => 'horizontal',
-                            'margin' => 'xl',
-                            'contents' => 
-                            array (
-                              0 => 
-                              array (
-                                'type' => 'box',
-                                'layout' => 'horizontal',
-                                'contents' => 
-                                array (
-                                  0 => 
-                                  array (
-                                    'type' => 'text',
-                                    'margin' => 'xl',
-                                    'text' => 'คะแนน',
-                                    'size' => 'sm',
-                                    'flex' => 3,
-                                    'align' => 'center',
-                                    'gravity' => 'bottom',
-                                  ),
-                                  1 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '1',
-                                    'weight' => 'bold',
-                                    'size' => 'xxl',
-                                    'color' => '#5FBCD1',
-                                    'align' => 'end',
-                                    'flex' => 0,
-                                  ),
-                                  2 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '/',
-                                    'size' => 'sm',
-                                    'color' => '#555555',
-                                    'gravity' => 'bottom',
-                                    'flex' => 0,
-                                  ),
-                                  3 => 
-                                  array (
-                                    'type' => 'text',
-                                    'text' => '5',
-                                    'size' => 'sm',
-                                    'color' => '#555555',
-                                    'gravity' => 'bottom',
-                                    'flex' => 2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      'footer' => 
-                      array (
-                        'type' => 'box',
-                        'layout' => 'horizontal',
-                        'margin' => 'xxl',
-                        'contents' => 
-                        array (
-                          0 => 
-                          array (
-                            'type' => 'button',
-                            'flex' => 2,
-                            'style' => 'primary',
-                            'color' => '#5FBCD1',
-                            'action' => 
-                            array (
-                              'type' => 'uri',
-                              'label' => 'เฉลยละเอียด',
-                              'uri' => 'https://linecorp.com',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
+        // foreach ($line_code_arr as $line_code){
+        //     foreach ($array as $array_result){   
+        //         if($array_result->line_code == $line_code){
+                    
+        //             0 => 
+        //             array (
+        //               'type' => 'bubble',
+        //               'styles' => 
+        //               array (
+        //                 'header' => 
+        //                 array (
+        //                   'backgroundColor' => '#5FBCD1',
+        //                 ),
+        //                 'footer' => 
+        //                 array (
+        //                   'separator' => false,
+        //                 ),
+        //               ),
+        //               'header' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'horizontal',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'สรุปคะแนน',
+        //                     'weight' => 'bold',
+        //                     'color' => '#ffffff',
+        //                     'size' => 'xl',
+        //                     'align' => 'center',
+        //                   ),
+        //                 ),
+        //               ),
+        //               'body' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'vertical',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'ชุด : test',
+        //                     'weight' => 'bold',
+        //                     'align' => 'center',
+        //                     'size' => 'sm',
+        //                   ),
+        //                   1 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'สร้างโดย : คุณครู B',
+        //                     'align' => 'center',
+        //                     'size' => 'xs',
+        //                     'wrap' => true,
+        //                   ),
+        //                   2 => 
+        //                   array (
+        //                     'type' => 'box',
+        //                     'layout' => 'horizontal',
+        //                     'margin' => 'xl',
+        //                     'contents' => 
+        //                     array (
+        //                       0 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'vertical',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => 'วันที่สั่ง',
+        //                             'align' => 'center',
+        //                             'size' => 'xxs',
+        //                             'color' => '#aaaaaa',
+        //                           ),
+        //                           1 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '1/11/2018',
+        //                             'align' => 'center',
+        //                             'size' => 'xxs',
+        //                             'color' => '#aaaaaa',
+        //                           ),
+        //                         ),
+        //                       ),
+        //                       1 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'horizontal',
+        //                         'margin' => 'xl',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'box',
+        //                             'layout' => 'vertical',
+        //                             'contents' => 
+        //                             array (
+        //                               0 => 
+        //                               array (
+        //                                 'type' => 'text',
+        //                                 'text' => 'วันที่กำหนดส่ง',
+        //                                 'align' => 'center',
+        //                                 'size' => 'xxs',
+        //                                 'color' => '#aaaaaa',
+        //                               ),
+        //                               1 => 
+        //                               array (
+        //                                 'type' => 'text',
+        //                                 'text' => '12/11/2018',
+        //                                 'align' => 'center',
+        //                                 'size' => 'xxs',
+        //                                 'color' => '#aaaaaa',
+        //                                 'wrap' => true,
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ),
+        //                   3 => 
+        //                   array (
+        //                     'type' => 'separator',
+        //                     'margin' => 'xl',
+        //                   ),
+        //                   4 => 
+        //                   array (
+        //                     'type' => 'box',
+        //                     'layout' => 'horizontal',
+        //                     'margin' => 'xl',
+        //                     'contents' => 
+        //                     array (
+        //                       0 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'horizontal',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'margin' => 'xl',
+        //                             'text' => 'คะแนน',
+        //                             'size' => 'sm',
+        //                             'flex' => 3,
+        //                             'align' => 'center',
+        //                             'gravity' => 'bottom',
+        //                           ),
+        //                           1 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '1',
+        //                             'weight' => 'bold',
+        //                             'size' => 'xxl',
+        //                             'color' => '#5FBCD1',
+        //                             'align' => 'end',
+        //                             'flex' => 0,
+        //                           ),
+        //                           2 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '/',
+        //                             'size' => 'sm',
+        //                             'color' => '#555555',
+        //                             'gravity' => 'bottom',
+        //                             'flex' => 0,
+        //                           ),
+        //                           3 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '5',
+        //                             'size' => 'sm',
+        //                             'color' => '#555555',
+        //                             'gravity' => 'bottom',
+        //                             'flex' => 2,
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ),
+        //               'footer' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'horizontal',
+        //                 'margin' => 'xxl',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'button',
+        //                     'flex' => 2,
+        //                     'style' => 'primary',
+        //                     'color' => '#5FBCD1',
+        //                     'action' => 
+        //                     array (
+        //                       'type' => 'uri',
+        //                       'label' => 'เฉลยละเอียด',
+        //                       'uri' => 'https://linecorp.com',
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+
+        //         }  
+        //     }
+        // }
+
+
+        // $url = 'https://api.line.me/v2/bot/message/reply';
+        // $data = [
+        //     'replyToken' => $replyToken,
+        //     'messages' => [
+
+        
+    
+        // $textMessageBuilder = [ 
+        //     "type" => "flex",
+        //     "altText" => "this is a flex message",
+        //     "contents" => 
+
+
+        //     array (
+        //           'type' => 'carousel',
+        //           'contents' => 
+        //           array (
+        //             0 => 
+        //             array (
+        //               'type' => 'bubble',
+        //               'styles' => 
+        //               array (
+        //                 'header' => 
+        //                 array (
+        //                   'backgroundColor' => '#5FBCD1',
+        //                 ),
+        //                 'footer' => 
+        //                 array (
+        //                   'separator' => false,
+        //                 ),
+        //               ),
+        //               'header' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'horizontal',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'สรุปคะแนน',
+        //                     'weight' => 'bold',
+        //                     'color' => '#ffffff',
+        //                     'size' => 'xl',
+        //                     'align' => 'center',
+        //                   ),
+        //                 ),
+        //               ),
+        //               'body' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'vertical',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'ชุด : test',
+        //                     'weight' => 'bold',
+        //                     'align' => 'center',
+        //                     'size' => 'sm',
+        //                   ),
+        //                   1 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'สร้างโดย : คุณครู B',
+        //                     'align' => 'center',
+        //                     'size' => 'xs',
+        //                     'wrap' => true,
+        //                   ),
+        //                   2 => 
+        //                   array (
+        //                     'type' => 'box',
+        //                     'layout' => 'horizontal',
+        //                     'margin' => 'xl',
+        //                     'contents' => 
+        //                     array (
+        //                       0 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'vertical',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => 'วันที่สั่ง',
+        //                             'align' => 'center',
+        //                             'size' => 'xxs',
+        //                             'color' => '#aaaaaa',
+        //                           ),
+        //                           1 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '1/11/2018',
+        //                             'align' => 'center',
+        //                             'size' => 'xxs',
+        //                             'color' => '#aaaaaa',
+        //                           ),
+        //                         ),
+        //                       ),
+        //                       1 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'horizontal',
+        //                         'margin' => 'xl',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'box',
+        //                             'layout' => 'vertical',
+        //                             'contents' => 
+        //                             array (
+        //                               0 => 
+        //                               array (
+        //                                 'type' => 'text',
+        //                                 'text' => 'วันที่กำหนดส่ง',
+        //                                 'align' => 'center',
+        //                                 'size' => 'xxs',
+        //                                 'color' => '#aaaaaa',
+        //                               ),
+        //                               1 => 
+        //                               array (
+        //                                 'type' => 'text',
+        //                                 'text' => '12/11/2018',
+        //                                 'align' => 'center',
+        //                                 'size' => 'xxs',
+        //                                 'color' => '#aaaaaa',
+        //                                 'wrap' => true,
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ),
+        //                   3 => 
+        //                   array (
+        //                     'type' => 'separator',
+        //                     'margin' => 'xl',
+        //                   ),
+        //                   4 => 
+        //                   array (
+        //                     'type' => 'box',
+        //                     'layout' => 'horizontal',
+        //                     'margin' => 'xl',
+        //                     'contents' => 
+        //                     array (
+        //                       0 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'horizontal',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'margin' => 'xl',
+        //                             'text' => 'คะแนน',
+        //                             'size' => 'sm',
+        //                             'flex' => 3,
+        //                             'align' => 'center',
+        //                             'gravity' => 'bottom',
+        //                           ),
+        //                           1 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '1',
+        //                             'weight' => 'bold',
+        //                             'size' => 'xxl',
+        //                             'color' => '#5FBCD1',
+        //                             'align' => 'end',
+        //                             'flex' => 0,
+        //                           ),
+        //                           2 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '/',
+        //                             'size' => 'sm',
+        //                             'color' => '#555555',
+        //                             'gravity' => 'bottom',
+        //                             'flex' => 0,
+        //                           ),
+        //                           3 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '5',
+        //                             'size' => 'sm',
+        //                             'color' => '#555555',
+        //                             'gravity' => 'bottom',
+        //                             'flex' => 2,
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ),
+        //               'footer' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'horizontal',
+        //                 'margin' => 'xxl',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'button',
+        //                     'flex' => 2,
+        //                     'style' => 'primary',
+        //                     'color' => '#5FBCD1',
+        //                     'action' => 
+        //                     array (
+        //                       'type' => 'uri',
+        //                       'label' => 'เฉลยละเอียด',
+        //                       'uri' => 'https://linecorp.com',
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //             1 => 
+        //             array (
+        //               'type' => 'bubble',
+        //               'styles' => 
+        //               array (
+        //                 'header' => 
+        //                 array (
+        //                   'backgroundColor' => '#5FBCD1',
+        //                 ),
+        //                 'footer' => 
+        //                 array (
+        //                   'separator' => false,
+        //                 ),
+        //               ),
+        //               'header' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'horizontal',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'สรุปคะแนน',
+        //                     'weight' => 'bold',
+        //                     'color' => '#ffffff',
+        //                     'size' => 'xl',
+        //                     'align' => 'center',
+        //                   ),
+        //                 ),
+        //               ),
+        //               'body' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'vertical',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'ชุด : test',
+        //                     'weight' => 'bold',
+        //                     'align' => 'center',
+        //                     'size' => 'sm',
+        //                   ),
+        //                   1 => 
+        //                   array (
+        //                     'type' => 'text',
+        //                     'text' => 'สร้างโดย : คุณครู B',
+        //                     'align' => 'center',
+        //                     'size' => 'xs',
+        //                     'wrap' => true,
+        //                   ),
+        //                   2 => 
+        //                   array (
+        //                     'type' => 'box',
+        //                     'layout' => 'horizontal',
+        //                     'margin' => 'xl',
+        //                     'contents' => 
+        //                     array (
+        //                       0 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'vertical',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => 'วันที่สั่ง',
+        //                             'align' => 'center',
+        //                             'size' => 'xxs',
+        //                             'color' => '#aaaaaa',
+        //                           ),
+        //                           1 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '1/11/2018',
+        //                             'align' => 'center',
+        //                             'size' => 'xxs',
+        //                             'color' => '#aaaaaa',
+        //                           ),
+        //                         ),
+        //                       ),
+        //                       1 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'horizontal',
+        //                         'margin' => 'xl',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'box',
+        //                             'layout' => 'vertical',
+        //                             'contents' => 
+        //                             array (
+        //                               0 => 
+        //                               array (
+        //                                 'type' => 'text',
+        //                                 'text' => 'วันที่กำหนดส่ง',
+        //                                 'align' => 'center',
+        //                                 'size' => 'xxs',
+        //                                 'color' => '#aaaaaa',
+        //                               ),
+        //                               1 => 
+        //                               array (
+        //                                 'type' => 'text',
+        //                                 'text' => '12/11/2018',
+        //                                 'align' => 'center',
+        //                                 'size' => 'xxs',
+        //                                 'color' => '#aaaaaa',
+        //                                 'wrap' => true,
+        //                               ),
+        //                             ),
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ),
+        //                   3 => 
+        //                   array (
+        //                     'type' => 'separator',
+        //                     'margin' => 'xl',
+        //                   ),
+        //                   4 => 
+        //                   array (
+        //                     'type' => 'box',
+        //                     'layout' => 'horizontal',
+        //                     'margin' => 'xl',
+        //                     'contents' => 
+        //                     array (
+        //                       0 => 
+        //                       array (
+        //                         'type' => 'box',
+        //                         'layout' => 'horizontal',
+        //                         'contents' => 
+        //                         array (
+        //                           0 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'margin' => 'xl',
+        //                             'text' => 'คะแนน',
+        //                             'size' => 'sm',
+        //                             'flex' => 3,
+        //                             'align' => 'center',
+        //                             'gravity' => 'bottom',
+        //                           ),
+        //                           1 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '1',
+        //                             'weight' => 'bold',
+        //                             'size' => 'xxl',
+        //                             'color' => '#5FBCD1',
+        //                             'align' => 'end',
+        //                             'flex' => 0,
+        //                           ),
+        //                           2 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '/',
+        //                             'size' => 'sm',
+        //                             'color' => '#555555',
+        //                             'gravity' => 'bottom',
+        //                             'flex' => 0,
+        //                           ),
+        //                           3 => 
+        //                           array (
+        //                             'type' => 'text',
+        //                             'text' => '5',
+        //                             'size' => 'sm',
+        //                             'color' => '#555555',
+        //                             'gravity' => 'bottom',
+        //                             'flex' => 2,
+        //                           ),
+        //                         ),
+        //                       ),
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ),
+        //               'footer' => 
+        //               array (
+        //                 'type' => 'box',
+        //                 'layout' => 'horizontal',
+        //                 'margin' => 'xxl',
+        //                 'contents' => 
+        //                 array (
+        //                   0 => 
+        //                   array (
+        //                     'type' => 'button',
+        //                     'flex' => 2,
+        //                     'style' => 'primary',
+        //                     'color' => '#5FBCD1',
+        //                     'action' => 
+        //                     array (
+        //                       'type' => 'uri',
+        //                       'label' => 'เฉลยละเอียด',
+        //                       'uri' => 'https://linecorp.com',
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //           ),
+        //         )
             
-              
-            ];   
-        return $textMessageBuilder; 
+        //       ],
+        //     ],
+        // ];
+        
+
+
+        // $access_token = LINE_MESSAGE_ACCESS_TOKEN;
+        // $post = json_encode($data);
+        // $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        // curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        // $result = curl_exec($ch);
+        // curl_close($ch);
     }
     public function notification() {
         $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
@@ -2538,17 +2965,17 @@ class BotController extends Controller
         $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
         $array = $result_detail->toArray();
         //dd ($array);
-        foreach ($line_code_arr as $line_code){
-            echo "<br>";
-            foreach ($array as $array_result){   
-                if($array_result->line_code == $line_code){
-                    echo $line_code;
-                    $this->replymessage7($replyToken,'flex_result',$userId);
-                }  
-            }
-        }
+        // foreach ($line_code_arr as $line_code){
+        //     echo "<br>";
+        //     foreach ($array as $array_result){   
+        //         if($array_result->line_code == $line_code){
+        //             echo $line_code;
+        //             $this->replymessage7($replyToken,'flex_result',$userId);
+        //         }  
+        //     }
+        // }
            
-        
+
         
         // //     if($room_id_hw->key_date <= $mytime){//เวลาส่งเฉลยที่เคยทำการบ้าน
         // //         DB::table('send_groups')
