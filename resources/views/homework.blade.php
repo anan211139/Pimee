@@ -10,6 +10,7 @@
         <link rel="shortcut icon" href="picture/bear_N.png">
     </head>
     <body>
+        <?php dd($dt_not_yet); ?>
         <h1>รายการการบ้าน</h1>
         <div class="box">
             <input type="text" name="line_code" id="useridprofilefield" style ="display:none;"></p>
