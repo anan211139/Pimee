@@ -1967,7 +1967,6 @@ class BotController extends Controller
 
 
         $mytime = Carbon::now();
-        // echo $mytime->toDateTimeString();
     
         $result_detail = DB::table('send_groups')
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
@@ -1988,20 +1987,37 @@ class BotController extends Controller
             ->get();
             // ->first();
 
+        // dd($result_detail);
+
         
 
-        // $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
-        // $array = $result_detail->toArray();
+        $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
+        // dd($line_code_arr);
         
+        foreach ($line_code_arr as $line_code_arr) {
+            echo $line_code_arr."<br>";
+            $result_detail_me = DB::table('send_groups')
+            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.key_date as key_date','send_groups.created_at as created_date','send_groups.exp_date as exp_date','examgroups.id as id_group','examgroups.parent_id as parrent_id',
 
-       // dd($result_detail);
+                    \DB::raw("(SELECT name FROM managers
+                          WHERE examgroups.parent_id = managers.id
+                        ) as parent_name"),
+                    \DB::raw("(SELECT count(id) FROM info_examgroups
+                          WHERE info_examgroups.examgroup_id = examgroups.id
+                        ) as max_point"),
+                    \DB::raw("(SELECT total FROM homework_result_news
+                          WHERE homework_result_news.examgroup_id = examgroups.id AND homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code
+                        ) as total_point")
+                )
+            ->where('send_groups.key_date','<=',$mytime )
+            ->where('info_classrooms.line_code','=',$line_code_arr)
+            ->get();
 
-        // $text = "ddd";
-        // echo "1>>";
 
-
-        $data = array(
-                'to' => 'U038940166356c6b9fb0dcf051aded27f',
+             $data = array(
+                'to' => $line_code_arr,
                 'messages' => 
                 array (
                     array (
@@ -2022,109 +2038,165 @@ class BotController extends Controller
 
         // dd(json_encode($data));
 
-        // foreach ($result_detail as $result_detail) {  
-        for($i=0;$i<=1;$i++){
-            $data['messages'][0]['contents']['contents'][] = array(
-                'type' => "bubble",
-                'styles' => array(
-                        'header' => array(
-                            'backgroundColor' => "#5FBCD1"
-                        ),
-                        'footer' => array(
-                            'separator' => false
-                        ),
-                    ),
-                'header' => array(
-                        'type' => "box",
-                        'layout' => "horizontal",
-                        'contents' => array (
-                            array (
-                                'type' => 'text',
-                                // 'text' => 'สรุปคะแนน',
-                                'text' => 'aa',
-                                'weight' => 'bold',
-                                'color' => '#ffffff',
-                                'size' => 'xl',
-                                'align' => 'center',
-                            ),
-                        ),
+            foreach ($result_detail_me as $result_detail) {
+                if($result_detail->total_point === null){
+                    $result_detail->total_point = 0;
+                }
+                $result_detail->exp_date =  date("d/m/Y", strtotime($result_detail->exp_date));
+                $result_detail->created_date =  date("d/m/Y", strtotime($result_detail->created_date));
 
-                    ),
-                'body' => array (
-                    'type' => 'box',
-                    'layout' => 'vertical',
-                    'contents' => 
-                        array (
-                            array (
-                                'type' => 'text',
-                                'text' => 'aa',
-                                // 'text' => "ชุด :fff",
-                                'weight' => 'bold',
-                                'align' => 'center',
-                                'size' => 'sm',
+                $data['messages'][0]['contents']['contents'][] = array(
+                    'type' => "bubble",
+                    'styles' => array(
+                            'header' => array(
+                                'backgroundColor' => "#5FBCD1"
                             ),
-                            array (
-                                'type' => 'text',
-                                'text' => 'aa',
-                                // 'text' => 'สร้างโดย : คุณครู B',
-                                'align' => 'center',
-                                'size' => 'xs',
-                                'wrap' => true,
+                            'footer' => array(
+                                'separator' => false
                             ),
+                        ),
+                    'header' => array(
+                            'type' => "box",
+                            'layout' => "horizontal",
+                            'contents' => array (
+                                array (
+                                    'type' => 'text',
+                                    'text' => 'สรุปคะแนน',
+                                    'weight' => 'bold',
+                                    'color' => '#ffffff',
+                                    'size' => 'xl',
+                                    'align' => 'center',
+                                ),
+                            ),
+
+                        ),
+                    'body' => array (
+                        'type' => 'box',
+                        'layout' => 'vertical',
+                        'contents' => 
                             array (
-                                'type' => 'box',
-                                'layout' => 'horizontal',
-                                'margin' => 'xl',
-                                'contents' => 
-                                    array (
+                                array (
+                                    'type' => 'text',
+                                    'text' => "ชุด : ".$result_detail->title_hw,
+                                    'weight' => 'bold',
+                                    'align' => 'center',
+                                    'size' => 'sm',
+                                ),
+                                array (
+                                    'type' => 'text',
+                                    'text' => "สร้างโดย : ".$result_detail->parent_name,
+                                    'align' => 'center',
+                                    'size' => 'xs',
+                                    'wrap' => true,
+                                ),
+                                array (
+                                    'type' => 'box',
+                                    'layout' => 'horizontal',
+                                    'margin' => 'xl',
+                                    'contents' => 
+                                        array (
+                                            array (
+                                                'type' => 'box',
+                                                'layout' => 'vertical',
+                                                'contents' => 
+                                                array ( 
+                                                    array (
+                                                        'type' => 'text',
+                                                        'text' => 'วันที่สั่ง',
+                                                        'align' => 'center',
+                                                        'size' => 'xxs',
+                                                        'color' => '#aaaaaa',
+                                                    ),
+                                                    array (
+                                                        'type' => 'text',
+                                                        'text' => " ".$result_detail->created_date." ",
+                                                        // date("d/m/Y", strtotime($str));
+                                                        'align' => 'center',
+                                                        'size' => 'xxs',
+                                                        'color' => '#aaaaaa',
+                                                    ),
+                                                ),
+                                            ),
                                         array (
                                             'type' => 'box',
-                                            'layout' => 'vertical',
+                                            'layout' => 'horizontal',
+                                            'margin' => 'xl',
                                             'contents' => 
-                                            array ( 
                                                 array (
-                                                    'type' => 'text',
-                                                    'text' => 'aa',
-                                                    // 'text' => 'วันที่สั่ง',
-                                                    'align' => 'center',
-                                                    'size' => 'xxs',
-                                                    'color' => '#aaaaaa',
-                                                ),
-                                                array (
-                                                    'type' => 'text',
-                                                    'text' => '1/11/2018',
-                                                    'align' => 'center',
-                                                    'size' => 'xxs',
-                                                    'color' => '#aaaaaa',
+                                                    array (
+                                                        'type' => 'box',
+                                                        'layout' => 'vertical',
+                                                        'contents' => 
+                                                            array (
+                                                                array (
+                                                                    'type' => 'text',
+                                                                    'text' => 'วันที่กำหนดส่ง',
+                                                                    'align' => 'center',
+                                                                    'size' => 'xxs',
+                                                                    'color' => '#aaaaaa',
+                                                                ), 
+                                                                array (
+                                                                    'type' => 'text',
+                                                                    'text' => " ".$result_detail->exp_date." ",
+                                                                    'align' => 'center',
+                                                                    'size' => 'xxs',
+                                                                    'color' => '#aaaaaa',
+                                                                    'wrap' => true,
+                                                                ),
+                                                            ),
+                                                        ),
+                                                    ),
                                                 ),
                                             ),
                                         ),
-                                    array (
-                                        'type' => 'box',
-                                        'layout' => 'horizontal',
-                                        'margin' => 'xl',
-                                        'contents' => 
+                                        array (
+                                            'type' => 'separator',
+                                            'margin' => 'xl',
+                                        ),
+                                        array (
+                                            'type' => 'box',
+                                            'layout' => 'horizontal',
+                                            'margin' => 'xl',
+                                            'contents' => 
                                             array (
                                                 array (
                                                     'type' => 'box',
-                                                    'layout' => 'vertical',
+                                                    'layout' => 'horizontal',
                                                     'contents' => 
                                                         array (
                                                             array (
                                                                 'type' => 'text',
-                                                                'text' => 'aa',
-                                                                // 'text' => 'วันที่กำหนดส่ง',
+                                                                'margin' => 'xl',
+                                                                'text' => 'คะแนน',
+                                                                'size' => 'sm',
+                                                                'flex' => 3,
                                                                 'align' => 'center',
-                                                                'size' => 'xxs',
-                                                                'color' => '#aaaaaa',
+                                                                'gravity' => 'bottom',
+                                                            ),
+                                                            array (
+                                                                'type' => 'text',
+                                                                'text' => " ".$result_detail->total_point." ",
+                                                                'weight' => 'bold',
+                                                                'size' => 'xxl',
+                                                                'color' => '#5FBCD1',
+                                                                'align' => 'end',
+                                                                'flex' => 0,
                                                             ), 
                                                             array (
                                                                 'type' => 'text',
-                                                                'text' => '12/11/2018',
-                                                                'align' => 'center',
-                                                                'size' => 'xxs',
-                                                                'color' => '#aaaaaa',
-                                                                'wrap' => true,
+                                                                'text' => '/',
+                                                                'size' => 'sm',
+                                                                'color' => '#555555',
+                                                                'gravity' => 'bottom',
+                                                                'flex' => 0,
+                                                            ),
+                                                            array (
+                                                                'type' => 'text',
+                                                                'text' => " ".$result_detail->max_point." ",
+                                                                'size' => 'sm',
+                                                                'color' => '#555555',
+                                                                'gravity' => 'bottom',
+                                                                'flex' => 2,
                                                             ),
                                                         ),
                                                     ),
@@ -2132,90 +2204,35 @@ class BotController extends Controller
                                             ),
                                         ),
                                     ),
-                                    array (
-                                        'type' => 'separator',
-                                        'margin' => 'xl',
-                                    ),
-                                    array (
-                                        'type' => 'box',
-                                        'layout' => 'horizontal',
-                                        'margin' => 'xl',
-                                        'contents' => 
-                                        array (
-                                            array (
-                                                'type' => 'box',
-                                                'layout' => 'horizontal',
-                                                'contents' => 
-                                                    array (
-                                                        array (
-                                                            'type' => 'text',
-                                                            'margin' => 'xl',
-                                                            'text' => 'aa',
-                                                            // 'text' => 'คะแนน',
-                                                            'size' => 'sm',
-                                                            'flex' => 3,
-                                                            'align' => 'center',
-                                                            'gravity' => 'bottom',
-                                                        ),
-                                                        array (
-                                                            'type' => 'text',
-                                                            'text' => '1',
-                                                            'weight' => 'bold',
-                                                            'size' => 'xxl',
-                                                            'color' => '#5FBCD1',
-                                                            'align' => 'end',
-                                                            'flex' => 0,
-                                                        ), 
-                                                        array (
-                                                            'type' => 'text',
-                                                            'text' => '/',
-                                                            'size' => 'sm',
-                                                            'color' => '#555555',
-                                                            'gravity' => 'bottom',
-                                                            'flex' => 0,
-                                                        ),
-                                                        array (
-                                                            'type' => 'text',
-                                                            'text' => '5',
-                                                            'size' => 'sm',
-                                                            'color' => '#555555',
-                                                            'gravity' => 'bottom',
-                                                            'flex' => 2,
-                                                        ),
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                'footer' => 
-                    array (
-                        'type' => 'box',
-                        'layout' => 'horizontal',
-                        'margin' => 'xxl',
-                        'contents' => 
+                    'footer' => 
                         array (
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'margin' => 'xxl',
+                            'contents' => 
                             array (
-                                'type' => 'button',
-                                'flex' => 2,
-                                'style' => 'primary',
-                                'color' => '#5FBCD1',
-                                'action' => 
-                                    array (
-                                        'type' => 'uri',
-                                        'label' => 'aa',
-                                        // 'label' => 'เฉลยละเอียด',
-                                        'uri' => 'https://linecorp.com',
-                                    ),
+                                array (
+                                    'type' => 'button',
+                                    'flex' => 2,
+                                    'style' => 'primary',
+                                    'color' => '#5FBCD1',
+                                    'action' => 
+                                        array (
+                                            'type' => 'uri',
+                                            'label' => 'เฉลยละเอียด',
+                                            'uri' => 'https://linecorp.com',
+                                        ),
+                                ),
                             ),
                         ),
-                    ),
-            );
-        }
-        $data =json_encode($data);
-        // echo $data;
+                );
+            }
+            $data =json_encode($data);
 
-        $send_result = $this->sendReplyMessage_FLEX('/push',$data);
+            $send_result = $this->sendReplyMessage_FLEX('/push',$data);
+
+        }
+
     }
     public function sendReplyMessage_FLEX($method, $post_body){
             $url = 'https://api.line.me/v2/bot/message';
