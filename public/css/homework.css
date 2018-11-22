@@ -52,6 +52,9 @@ table.first{
 .tabs th{
     font-size: .8em;
 }
+.tabs table tr{
+    border-bottom: 1px solid grey;
+}
 .tabs [class^="tab"] [type="radio"],.tabs [class*=" tab"] [type="radio"] {
     border-bottom: 1px solid rgba(239, 237, 239, 0.5);
     cursor: pointer;
@@ -122,4 +125,16 @@ table.first{
     display: inline-flex;
     justify-content: space-around;
 }
-
+.homework_detail h1{
+    margin-bottom: 0px;
+}
+.homework_detail h3{
+    color:#5bbcd2;
+}
+.homework_detail .title p{
+    padding: 0px 30px;
+    color: rgb(233, 233, 233);
+}
+.homework_detail table{
+    width: 100%;
+}

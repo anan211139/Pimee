@@ -10,9 +10,6 @@
         <link rel="shortcut icon" href="picture/bear_N.png">
     </head>
     <body>
-        <?php
-            dd($dt_not_yet);
-        ?>
         <h1>รายการการบ้าน</h1>
         <div class="box">
             <input type="text" name="line_code" id="useridprofilefield" style ="display:none;"></p>
@@ -28,14 +25,12 @@
                                 <th>คุณครู</th>
                                 <th>กำหนดส่ง</th>
                             </tr>
-                            @foreach($dt_not_yet as $dt_not_yet)
                             <tr>
                                 <!-- <td>คณิตศาสตร์</td> -->
-                                <td>{{ $dt_not_yet->title_hw }}</td> 
-                                <td>{{ $dt_not_yet->parent_name }}</td>
-                                <td>{{ $dt_not_yet->exp_date }}</td>
+                                <td>สมการ</td> 
+                                <td>กลมฉัตร</td>
+                                <td>10/11/2018</td>
                             </tr>
-                            @endforeach
                         </table>
                     </div>
                 </div>

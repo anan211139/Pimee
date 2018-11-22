@@ -1,0 +1,66 @@
+.flex{
+    display: inline-flex;
+    justify-content: space-around;
+}
+.homework_detail h1{
+    margin-bottom: 0px;
+}
+.homework_detail h3{
+    color:#5bbcd2;
+}
+.homework_detail .title p{
+    padding: 0px 30px;
+    color: rgb(233, 233, 233);
+}
+.homework_detail table{
+    width: 100%;
+    display: block;
+    color: grey;
+}
+.show_img{
+    width: 80%;
+}
+.homework_detail .box{
+    text-align: center;
+}
+.homework_detail h3{
+    font-size: 1.4em;
+}
+.homework_detail table .index{
+    width: 50px;
+}
+.homework_detail table .detail{
+    width: calc(50% - 50px);
+}
+.homework_detail table img{
+    width: 30px;
+    height: auto;
+    position: absolute;
+    margin-left: -16px;
+    margin-top: -3px;
+}
+.homework_detail table .index{
+    text-align: center;
+}
+hr{
+    border: none;
+    border: 0.2px solid lightgrey;
+}
+.key_detail > p.detail{
+    color: grey;
+}
+.key_detail .principle{
+    text-align: center;
+    background-color: red;
+    padding: 10px 20px;
+    border-radius: 40px;
+    margin: 30px auto;
+    width: 70px;
+    background-color:#5bbcd2;
+    color: white;
+    font-size: 2em;
+}
+
+.key_detail .principle a{
+    font-size: 0.7em;
+}

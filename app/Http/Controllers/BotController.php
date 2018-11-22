@@ -486,7 +486,7 @@ class BotController extends Controller
                         
                         else if($userMessage == "ลองHW"){
                             $examgroup_id = 1;
-                            $send_groups_id = 1;
+                            $send_groups_id = 2;
 
                             DB::table('students')
                                 ->where('line_code', $userId)
@@ -1984,22 +1984,20 @@ class BotController extends Controller
                         ) as total_point")
                 )
             ->where('send_groups.key_date','<=',$mytime )
+            ->where('send_groups.key_status','=',0)
             ->get();
             // ->first();
 
-        // dd($result_detail);
-
-        
-
+            // dd($result_detail);
+    
         $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
-        // dd($line_code_arr);
         
         foreach ($line_code_arr as $line_code_arr) {
-            echo $line_code_arr."<br>";
             $result_detail_me = DB::table('send_groups')
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
             ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
             ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.key_date as key_date','send_groups.created_at as created_date','send_groups.exp_date as exp_date','examgroups.id as id_group','examgroups.parent_id as parrent_id',
+                'send_groups.key_status as key_status',
 
                     \DB::raw("(SELECT name FROM managers
                           WHERE examgroups.parent_id = managers.id
@@ -2013,7 +2011,9 @@ class BotController extends Controller
                 )
             ->where('send_groups.key_date','<=',$mytime )
             ->where('info_classrooms.line_code','=',$line_code_arr)
+            ->where('send_groups.key_status','=',0)
             ->get();
+
 
 
              $data = array(
@@ -2220,7 +2220,7 @@ class BotController extends Controller
                                         array (
                                             'type' => 'uri',
                                             'label' => 'เฉลยละเอียด',
-                                            'uri' => 'https://linecorp.com',
+                                            'uri' => 'https://pimee.softbot.ai/detail_homework/'.$result_detail->line_code.'/'.$result_detail->id,
                                         ),
                                 ),
                             ),
@@ -2232,6 +2232,10 @@ class BotController extends Controller
             $send_result = $this->sendReplyMessage_FLEX('/push',$data);
 
         }
+
+        DB::table('send_groups')
+            ->where('key_date','<=',$mytime )
+            ->update(['key_status' => 1]);
 
     }
     public function sendReplyMessage_FLEX($method, $post_body){

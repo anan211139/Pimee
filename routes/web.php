@@ -37,6 +37,7 @@ Route::post('/addchildsubmit','addchildcontroller@addchild');
 
 Route::get('/leaderboard/{id}','SqlController@leaderboard');
 Route::get('/homework/{id}','SqlController@homework');
+Route::get('/detail_homework/{id}/{send_group_id}','SqlController@detail_homework');
 // Route::get('/leaderboard','SqlController@rank_ms');
 
 
