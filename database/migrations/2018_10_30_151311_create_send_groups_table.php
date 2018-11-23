@@ -17,6 +17,7 @@ class CreateSendGroupsTable extends Migration
             $table->increments('id');
             $table->Integer('examgroup_id');
             $table->Integer('room_id');
+            $table->boolean('exp_status')->default(false);
             $table->dateTimeTz('exp_date');
             $table->boolean('noti_status')->default(false);
             $table->dateTimeTz('noti_date');

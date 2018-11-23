@@ -483,10 +483,17 @@ class BotController extends Controller
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
                         }
+                        else if($userMessage == "ลองadd_null"){
+                            $this->add_null_to_exp_log();
+                            $replyData = new TextMessageBuilder("flex_sub");
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
+                        }
                         
                         else if($userMessage == "ลองHW"){
                             $examgroup_id = 1;
-                            $send_groups_id = 2;
+                            $send_groups_id = 1;
 
                             DB::table('students')
                                 ->where('line_code', $userId)
@@ -1966,8 +1973,9 @@ class BotController extends Controller
         // echo $response->getHTTPStatus() . ' ' . $response->getRawBody();
 
 
+        // $mytime = Carbon::now();
         $mytime = Carbon::now();
-    
+
         $result_detail = DB::table('send_groups')
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
             ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
@@ -2356,6 +2364,59 @@ class BotController extends Controller
             }
             
         }
+    }
+    public function add_null_to_exp_log(){
+        $mytime = Carbon::now();
+        // ->addMinutes(2)
+        $end_hw = DB::table('send_groups')
+            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.key_date as key_date','send_groups.created_at as created_date','send_groups.exp_date as exp_date','examgroups.id as id_group','examgroups.parent_id as parrent_id',
+
+                    \DB::raw("(SELECT name FROM managers
+                          WHERE examgroups.parent_id = managers.id
+                        ) as parent_name"),
+                    \DB::raw("(SELECT count(id) FROM info_examgroups
+                          WHERE info_examgroups.examgroup_id = examgroups.id
+                        ) as max_point"),
+                    \DB::raw("(SELECT total FROM homework_result_news
+                          WHERE homework_result_news.examgroup_id = examgroups.id AND homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code
+                        ) as total_point")
+                )
+            ->where('send_groups.exp_date','<=',$mytime )
+            ->where('send_groups.exp_status','=',0)
+            ->get();
+        
+        foreach ($end_hw as $end_hw) {
+            DB::table('send_groups')
+                ->where('id',$end_hw->id)
+                ->update(['exp_status' => "1"]);
+            $count_do_quiz = DB::table('homework_logs')
+                ->where('line_code',$end_hw->line_code)
+                ->where('group_hw_id',$end_hw->id_group)
+                ->where('send_groups_id',$end_hw->id)
+                ->count();
+           
+            $count_max_quiz = DB::table('info_examgroups')
+                ->where('examgroup_id',$end_hw->id_group)
+                ->count();
+
+            for($i=($count_do_quiz+1);$i<=$count_max_quiz;$i++){
+                $next = DB::table('info_examgroups')
+                    ->where('examgroup_id', 1)
+                    ->offset($i-1)
+                    ->first();
+                DB::table('homework_logs')->insert([
+                    'line_code' => $end_hw->line_code,
+                    'send_groups_id' => $end_hw->id,
+                    'group_hw_id' => $end_hw->id_group,
+                    'exam_id' => $next->exam_id,
+                    'created_at' => Carbon::now()
+                ]);
+            }
+        
+        }
+
     }
     // public function notification_homework_exp_date() {
     //     $httpClient = new CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
