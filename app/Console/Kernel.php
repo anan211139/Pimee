@@ -29,6 +29,8 @@ class Kernel extends ConsoleKernel
         $schedule->call('\App\Http\Controllers\BotController@notification')->timezone('Asia/Bangkok')->dailyAt('18:00');
         $schedule->call('\App\Http\Controllers\BotController@notification_homework')->cron('* * * * *');
         $schedule->call('\App\Http\Controllers\BotController@flex_result_push')->cron('* * * * *');
+        $schedule->call('\App\Http\Controllers\BotController@add_null_to_exp_log')->cron('* * * * *');
+        
         // $schedule->call('\App\Http\Controllers\BotController@notification_homework_exp_date')->timezone('Asia/Bangkok')->dailyAt('07:30');
         
     }

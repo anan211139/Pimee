@@ -9,17 +9,50 @@ label{
     margin: 0;
 }
 table{
-    width: 300%;
-    -webkit-border-horizontal-spacing: 0px;
+    width: 230%;
+  
+    /*border-collapse: separate; */
+    border-collapse: collapse; 
+    -webkit-border-horizontal-spacing: 10px;
     -webkit-border-vertical-spacing: 7px;
 }
-th,tr{
+tr{
     width: 25%;
     text-align: center;
     border: none;
+    border-top: 1px solid lightgrey;
+    /*padding: 10px 0px;*/
+}
+tr .date{
+    font-size: 0.7em;
+}
+tr:first-child{
+    border: none;
 }
 table.first{
-    width: 205%;
+    width: 140%;
+}
+a{
+    text-decoration: none;
+    color: white;
+}
+/* .first tbody tr:nth-child(even) {
+    background-color: rgba(91, 188, 210, 0.38);
+   border-top-left-radius: 10px;
+}*/
+div.do_hw{
+    padding: 5px 10px;
+    background-color:#5bbcd2;
+    color: white;
+    border-radius: 20px;
+    margin: 3px 0px;
+}
+.head_table{
+    padding: 10px 0;
+}
+.head{
+    font-size: 1.3em;
+    color:#5bbcd2;
 }
 .tabs {
     display: block;
@@ -33,7 +66,7 @@ table.first{
     overflow: hidden;
 }
 .tabs .ready{
-    color:#5bbcd2;
+    color:#d21117;
 }
 .tabs .done{
     color:rgb(75, 227, 142);
@@ -51,9 +84,6 @@ table.first{
 }
 .tabs th{
     font-size: .8em;
-}
-.tabs table tr{
-    border-bottom: 1px solid grey;
 }
 .tabs [class^="tab"] [type="radio"],.tabs [class*=" tab"] [type="radio"] {
     border-bottom: 1px solid rgba(239, 237, 239, 0.5);
@@ -83,10 +113,10 @@ table.first{
     transition: all 0.3s ease-in-out;
 }
 .tabs .tab-1 {
-    color:#5bbcd2;
+    color:#d21117;
 }
 .tabs .tab-2 {
-    width: 33.33%;
+    width: 50%;
 }
 .tabs .tab-2:first-child [type="radio"] + div {
     width: 200%;
@@ -96,18 +126,12 @@ table.first{
     margin-left: 0;
     width: 138%;
 }
-.tabs .tab-2 [type="radio"] + div {
-    width: 100%;
-    margin-left: 100%;
-}
-.tabs .tab-2 [type="radio"]:checked + div {
-    margin-left: -100%;
-}
+
 .tabs .tab-2:last-child [type="radio"] + div {
-    margin-left: 200%; 
+    margin-left: 100%; 
 }
 .tabs .tab-2:last-child [type="radio"]:checked + div {
-    margin-left: -200%; 
+    margin-left: -100%; 
 }
 .lb-myself{
 /*    height: 70px;*/

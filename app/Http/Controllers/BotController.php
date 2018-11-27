@@ -712,13 +712,13 @@ class BotController extends Controller
                 ->where('examgroup_id', $group_hw)
                 ->where('send_groups_id',$send_groups_id)
                 ->update(['status' => 1]);
-            DB::table('homework_result_news')->insert([
-                    'line_code' => $userId,
-                    'send_groups_id' => $send_groups_id,
-                    'examgroup_id' => $group_hw,
-                    'total' => $count_quiz_true,
-                    'created_at' => Carbon::now()
-                ]);
+            // DB::table('homework_result_news')->insert([
+            //         'line_code' => $userId,
+            //         'send_groups_id' => $send_groups_id,
+            //         'examgroup_id' => $group_hw,
+            //         'total' => $count_quiz_true,
+            //         'created_at' => Carbon::now()
+            //     ]);
 
             echo "ทำครบแล้ว";
             $textReplyMessage = "น้องๆทำการบ้านชุดนี้เสร็จเรียบร้อยแล้วครับ เก่งจังเลย\n พี่หมีจะบอกคะแนนและเฉลยตอนวันหมดเขตส่งนะจ๊ะ รอพี่หมีหน่อยนะ";
@@ -2386,11 +2386,53 @@ class BotController extends Controller
             ->where('send_groups.exp_date','<=',$mytime )
             ->where('send_groups.exp_status','=',0)
             ->get();
-        
+        // dd($end_hw);
         foreach ($end_hw as $end_hw) {
             DB::table('send_groups')
                 ->where('id',$end_hw->id)
                 ->update(['exp_status' => "1"]);
+
+            $count_quiz_true = DB::table('homework_logs')
+                ->where('group_hw_id', $end_hw->id_group)
+                ->where('send_groups_id',$end_hw->id)
+                ->where('line_code',$end_hw->line_code)
+                ->where('is_correct', 1)
+                ->count();
+
+            $count_exam_test_groups = DB::table('exam_test_groups')
+                ->where('examgroup_id', $end_hw->id_group)
+                ->where('send_groups_id',$end_hw->id)
+                ->where('line_code',$end_hw->line_code)
+                ->count();
+            echo ">>".$count_exam_test_groups."<<";
+
+            if($count_exam_test_groups == 1){
+                DB::table('exam_test_groups')
+                    ->where('examgroup_id', $end_hw->id_group)
+                    ->where('send_groups_id',$end_hw->id)
+                    ->where('line_code',$end_hw->line_code)
+                    ->update(['status' => 1]);
+            }
+            else if($count_exam_test_groups == 0){
+                DB::table('exam_test_groups')->insert([
+                    'line_code' => $end_hw->line_code,
+                    'send_groups_id' => $end_hw->id,
+                    'examgroup_id' => $end_hw->id_group,
+                    'status' => 1,
+                    'created_at' => Carbon::now()
+                ]);
+            }
+
+           
+
+            DB::table('homework_result_news')->insert([
+                'line_code' => $end_hw->line_code,
+                'send_groups_id' => $end_hw->id,
+                'examgroup_id' => $end_hw->id_group,
+                'total' => $count_quiz_true,
+                'created_at' => Carbon::now()
+            ]);
+
             $count_do_quiz = DB::table('homework_logs')
                 ->where('line_code',$end_hw->line_code)
                 ->where('group_hw_id',$end_hw->id_group)
