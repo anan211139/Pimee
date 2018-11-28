@@ -31,9 +31,10 @@ class SqlController extends Controller
         return View::make('leaderboard')->with('top_students',$top_students)->with('rank_ms',$rank_ms);
     }
     public function homework(Request $request){    
-        dd($request);
-        $id = '1234';
-
+        // dd($request);
+        // $id = 'U038940166356c6b9fb0dcf051aded27f';
+        $id = $request->input('value');
+        // dd($id);
         $mytime = Carbon::now();
 
 
@@ -48,9 +49,67 @@ class SqlController extends Controller
             )
             ->where('info_classrooms.line_code',$id)
             ->get();
+            // dd($homework_me);
+        $de_homewrk = json_decode($homework_me,true);
+        $output ="";
+        foreach($de_homewrk as $homework_notyet){
+            $homework_notyet['exp_date'] =  date("d/m/Y", strtotime($homework_notyet['exp_date']));
+            if($homework_notyet['finish_status'] === null){
+                    $output .=                 
+                    '<tr>
+                        <td>'.$homework_notyet['title_hw'].'</td> 
+                        <td class="date">'.$homework_notyet['parent_name'].'</td>
+                        <td class="date">'.$homework_notyet['exp_date'].'</td>
+                        <td>
+                            <div class="do_hw">
+                                <a href="aa">ทำ</a>
+                            </div>
+                        </td>
+                    </tr>';          
+                }
+                            
+                                
+            }
     
-        return View::make('homework')->with('homework',$homework_me);
-        // return View::make('homework')->with('dt_not_yet',$dt_not_yet)->with('dt_finish',$dt_finish);
+        return $output;
+    }
+    public function homework2(Request $request){
+        // dd($request);
+        // $id = 'U038940166356c6b9fb0dcf051aded27f';
+        $id = $request->input('value');
+        // dd($id);
+        $mytime = Carbon::now();
+
+
+        $homework_me = DB::table('send_groups') //การบ้านทั้งหมดของเด็กคนนั้น
+            ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
+            ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
+            // ->leftJoin('homework_result_news','homework_result_news.send_groups_id','=','send_groups.id')
+            ->select('send_groups.id as id','info_classrooms.classroom_id as room_id','info_classrooms.line_code as line_code','examgroups.name as title_hw','send_groups.id as send_group_id','send_groups.noti_date as noti_date'
+                ,'send_groups.exp_date as exp_date','examgroups.id as exam_id',\DB::raw("(SELECT name FROM managers WHERE examgroups.parent_id = managers.id) as parent_name")
+                ,\DB::raw("(SELECT total FROM homework_result_news WHERE homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code)as total")
+                ,\DB::raw("(SELECT status FROM exam_test_groups WHERE exam_test_groups.send_groups_id = send_groups.id AND exam_test_groups.line_code = info_classrooms.line_code)as finish_status")
+            )
+            ->where('info_classrooms.line_code',$id)
+            ->get();
+            // dd($homework_me);
+        $de_homewrk = json_decode($homework_me,true);
+        $output ="";
+        foreach($de_homewrk as $homework_finish){
+            if($homework_finish['finish_status'] == 1){
+                    $output .=     
+                        '<tr>
+                            <td>'.$homework_finish['title_hw'].'</td> 
+                            <td class="date">'.$homework_finish['parent_name'].'</td>
+                            <td class="date">'.$homework_finish['total'].'</td>
+                          
+                        </tr>';
+                }
+            }
+        return $output;
+    }
+    public function callhomeworkpage(){
+        return view('homework');
     }
     public function detail_homework($id,$send_group_id){ 
         // echo $id;

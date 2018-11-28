@@ -11,42 +11,7 @@
         <link rel="shortcut icon" href="picture/bear_N.png">
         <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script>
-            window.onload = function (e) {
-
-                liff.init(function (data) {
-                    initializeApp(data);
-                });
-            };
-            function initializeApp(data) {
-                document.getElementById('useridfield').textContent = data.context.userId; 
-            }
-
-
-            $(document).ready(function()
-            {
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-
-                var _token = $('input[name="_token"]').val(); 
-                $.ajax({
-                    type: "POST",
-                    url: "{{route('homework')}}",
-                    contentType: "application/json; charset=utf-8",
-                    data: {
-                        // key : data.context.userId 
-                        id : data.context.userId,
-                        _token:_token
-                    },
-                    success: function (result) {
-                        return result;
-                    }
-                });
-            };
-        </script>
+       
     </head>
 
     <body>
@@ -67,28 +32,7 @@
                                 <th></th>
                                 
                             </tr>
-                            @foreach($homework as $homework_notyet)
-                                <?php
-                                    $homework_notyet->exp_date =  date("d/m/Y", strtotime($homework_notyet->exp_date));
-                                    if($homework_notyet->finish_status === null){
-                                ?> 
-                                    <tr>
-                                        <!-- <td>คณิตศาสตร์</td> -->
-                                        <td>{{$homework_notyet->title_hw}}</td> 
-                                        <td class="date">{{$homework_notyet->parent_name}}</td>
-                                        <td class="date">{{$homework_notyet->exp_date}}</td>
-                                        <td>
-                                            <div class="do_hw">
-                                                <a href="aa">ทำ</a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php
-
-                                    }
-                                ?>
-                                
-                            @endforeach
+                            
 
                         </table>
 
@@ -106,29 +50,56 @@
                                 <th>คุณครู</th>
                                 <th>คะแนน</th>
                             </tr>
-                            @foreach($homework as $homework_finish)
-                               <?php
-                                    if($homework_finish->finish_status == 1){
-                                ?>
-                                    <tr>
-                                        <!-- <td>คณิตศาสตร์</td> -->
-                                        <td>{{$homework_finish->title_hw}}</td> 
-                                        <td>{{$homework_finish->parent_name}}</td>
-                                        <td>{{$homework_finish->total}}</td>
-                                    </tr>
-                                <?php
-
-                                    }
-                                ?>
-                                
-                            @endforeach
                         </table>
                     </div>
 
                 </div>
+               
              
             </div>
         </div> 
-        <div id="useridfield"></div>
+        <div style="display: none" id="useridfield"></div>
+        <div style="display: none" id="useridfield1"></div>
+        {{csrf_field()}}
     </body>
+    <script>
+            var test = 1;
+            var globalProfile ;
+            window.onload = function (e) {
+                liff.init(function (data) {
+                    getProfile();
+                });
+            };
+            function getProfile(){
+                liff.getProfile().then(function (profile) {
+                    document.getElementById('useridfield').innerHTML = profile.userId + "hello" + (test++);
+                    globalProfile = profile;
+                }).then(function(send_value){
+                    var value = globalProfile.userId;
+                    var _token = $('input[name="_token"]').val();
+                    $.ajax({
+                        url:"{{route('homework_value')}}",
+                        method:"POST",
+                        data:{value:value,_token:_token},
+                        success:function(result){
+                            console.log(result);
+                            $('.first').append(result);
+                        }
+                    })
+                        $.ajax({
+                            url:"{{route('homework_value2')}}",
+                            method:"POST",
+                            data:{value:value,_token:_token},
+                            success:function(result){
+                                console.log(result);
+                                $('.last').append(result);
+                            }
+                        })
+
+                })
+            }
+
+            
+        </script>
+    
 </html>
