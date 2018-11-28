@@ -58,6 +58,7 @@
              
             </div>
         </div> 
+        <div id="test">ddd</div>
         <div style="display: none" id="useridfield"></div>
         <div style="display: none" id="useridfield1"></div>
         {{csrf_field()}}
@@ -85,18 +86,37 @@
                             $('.first').append(result);
                         }
                     })
-                        $.ajax({
-                            url:"{{route('homework_value2')}}",
-                            method:"POST",
-                            data:{value:value,_token:_token},
-                            success:function(result){
-                                console.log(result);
-                                $('.last').append(result);
-                            }
-                        })
+                    $.ajax({
+                        url:"{{route('homework_value2')}}",
+                        method:"POST",
+                        data:{value:value,_token:_token},
+                        success:function(result){
+                            console.log(result);
+                            $('.last').append(result);
+                        }
+                    })
+
+                }).then(function(send_message){
+                    document.getElementById('test').addEventListener('click', function () {
+                        https://developers.line.me/en/reference/liff/#liffsendmessages()
+                        liff.sendMessages([{
+                            type: 'text',
+                            text: "Send text message"
+                        }, {
+                            type: 'sticker',
+                            packageId: '2',
+                            stickerId: '144'
+                        }]).then(function () {
+                            window.alert("Sent");
+                        }).catch(function (error) {
+                            window.alert("Error sending message: " + error);
+                        });
+                        liff.closeWindow()
+                    });
 
                 })
             }
+
 
             
         </script>
