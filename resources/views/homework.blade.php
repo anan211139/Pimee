@@ -63,7 +63,6 @@
         {{csrf_field()}}
     </body>
     <script>
-            var test = 1;
             var globalProfile ;
             window.onload = function (e) {
                 liff.init(function (data) {
@@ -72,7 +71,7 @@
             };
             function getProfile(){
                 liff.getProfile().then(function (profile) {
-                    document.getElementById('useridfield').innerHTML = profile.userId + "hello" + (test++);
+                    document.getElementById('useridfield').innerHTML = profile.userId;
                     globalProfile = profile;
                 }).then(function(send_value){
                     var value = globalProfile.userId;
