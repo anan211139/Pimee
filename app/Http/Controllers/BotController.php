@@ -492,6 +492,7 @@ class BotController extends Controller
                         }
                         
                         else if($userMessage == "ลองHW"){
+                            // $this->test_homework();
                             $examgroup_id = 1;
                             $send_groups_id = 1;
 
@@ -683,6 +684,27 @@ class BotController extends Controller
             $response = $bot->replyMessage($replyToken,$replyData);
         }
         //echo "2";
+    }
+    public function test_homework(){
+        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
+        $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => LINE_MESSAGE_CHANNEL_SECRET]);
+        
+        $examgroup_id = 1;
+        $send_groups_id = 1;
+        $userId = "U038940166356c6b9fb0dcf051aded27f";
+
+        DB::table('students')
+            ->where('line_code', $userId)
+            ->update(['send_groups_id' =>$send_groups_id,'hw_group_id' => $examgroup_id]);
+        DB::table('user_sequences')
+            ->where('line_code',$userId)
+            ->update(['type' => "homework"]);
+
+        // $textReplyMessage = $this->start_homework($replyToken,$userId,$send_groups_id,$examgroup_id);
+
+        $textReplyMessage = "การบ้าน";
+        $replyData = new TextMessageBuilder($textReplyMessage);
+        $response = $bot->pushMessage($userId,$replyData);
     }
     public function query_next_hw($replyToken,$send_groups_id,$group_hw,$userId)
     {   

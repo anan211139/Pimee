@@ -58,7 +58,7 @@
              
             </div>
         </div> 
-        <div id="test">ddd</div>
+        <div class="btn_hw">ddd</div>
         <div style="display: none" id="useridfield"></div>
         <div style="display: none" id="useridfield1"></div>
         {{csrf_field()}}
@@ -70,12 +70,14 @@
                     getProfile();
                 });
             };
+            
             function getProfile(){
                 liff.getProfile().then(function (profile) {
                     document.getElementById('useridfield').innerHTML = profile.userId;
                     globalProfile = profile;
                 }).then(function(send_value){
                     var value = globalProfile.userId;
+                    document.getElementById('useridfield1').innerHTML =value;
                     var _token = $('input[name="_token"]').val();
                     $.ajax({
                         url:"{{route('homework_value')}}",
@@ -96,28 +98,35 @@
                         }
                     })
 
-                }).then(function(send_message){
-                    document.getElementById('test').addEventListener('click', function () {
-                        https://developers.line.me/en/reference/liff/#liffsendmessages()
-                        liff.sendMessages([{
-                            type: 'text',
-                            text: "Send text message"
-                        }, {
-                            type: 'sticker',
-                            packageId: '2',
-                            stickerId: '144'
-                        }]).then(function () {
-                            window.alert("Sent");
-                        }).catch(function (error) {
-                            window.alert("Error sending message: " + error);
-                        });
-                        liff.closeWindow()
-                    });
+                })
+                .then(function(click_test){
+                    $('.btn_hw').on('click', function(){
+                        // var _token = $('input[name="_token"]').val(); 
+                        //     $.ajax({
+                        //         url:"{{route('homework_value')}}",
+                        //         method:"POST",
+                        //          data:{doctor_id:"kk",_token:_token},
+                        //     }).then(function () {
 
+                                 liff.sendMessages([{
+                                    type: 'text',
+                                    text: "กด"
+                                }]).catch(function (error) {
+                                    window.alert("Error sending message: " + error);
+                                }).then(function(){
+                                    liff.closeWindow()
+                                });
+                                
+
+                            // })
+                      
+                    });
                 })
             }
+            
+            
 
-
+          
             
         </script>
     

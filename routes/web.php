@@ -40,6 +40,7 @@ Route::get('/homeworkpage','SqlController@callhomeworkpage');
 // Route::get('/homework/{id}','SqlController@homework');
 Route::post('/homework','SqlController@homework')->name('homework_value');
 Route::post('/homework2','SqlController@homework2')->name('homework_value2');
+// Route::post('/homework','BotController@homework');
 Route::get('/detail_homework/{id}/{send_group_id}','SqlController@detail_homework');
 // Route::get('/leaderboard','SqlController@rank_ms');
 
