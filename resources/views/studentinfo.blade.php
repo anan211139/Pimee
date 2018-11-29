@@ -7,62 +7,78 @@
         <link href="https://fonts.googleapis.com/css?family=Athiti|Kanit|Mitr|Roboto" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Prompt" rel="stylesheet">
         <link rel="shortcut icon" href="picture/bear_N.png">
+        <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
     </head>
-    <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
-    
     <body>
-        <p id="useridprofilefield"></p>
         <h1>บันทึกประวัติ</h1>
         <div class="box">
-            <label>ชื่อ</label>
-            <div class="con-input">
-                <input id="name" type="text" name="name" required>
-            </div>
-            <label>นามสกุล</label>
-            <div class="con-input">
-                <input type="text" name="surname" required>
-            </div>
-            <label>โรงเรียน</label>
-            <div class="con-input">
-                <input type="text" name="school" required>
-            </div>
-            <label>ห้อง</label>
-            <div class="con-input">
-                <input type="text" name="class" required>
-            </div>
-            <div class="layout-btn">
-                <button id="sendmessagebutton" class="save-btn">บันทึก</button>
-            </div>
+                <input type="text" name="line_code" id="useridprofilefield" style ="display:none;"></p>
+                <label>ชื่อ</label>
+                <div class="con-input">
+                    <input id ="name" type="text" name="name" required>
+                </div>
+                <!-- <label>นามสกุล</label>
+                <div class="con-input">
+                    <input type="text" name="surname" required>
+                </div>
+                <label>โรงเรียน</label>
+                <div class="con-input">
+                    <input type="text" name="school" required>
+                </div> -->
+                <!-- <label>ห้อง</label>
+                <div class="con-input">
+                    <input type="text" name="class" required>
+                </div> -->
+                <div class="layout-btn">
+                    <button class="save-btn">บันทึก</button>
+                </div>
         </div>
+        <script>
+
+            $('.save-btn').on('click', function(){
+                var line_code = document.getElementById("useridprofilefield").value;
+                var name = document.getElementById("name").value;
+                if(name != ""){
+                    var _token =$('input[name="_token"]').val(); 
+                    $.ajax({
+                        url:"{{route('sent_studentdata')}}",
+                        method:"POST",
+                        data:{name:name,line_code:line_code,_token:_token},
+                        success:function(){
+                            liff.sendMessages(
+                            [
+                                {
+                                    type: 'text',
+                                    text: "[ลงทะเบียนเรียบร้อยแล้ว]"
+                                }, {
+                                    type: 'sticker',
+                                    packageId: '2',
+                                    stickerId: '144'
+                                }
+                            ])
+                            .then(function () {
+                                liff.closeWindow();
+                                
+                            });
+                        },
+                    })
+                }else{
+                    alert('กรุณากรอกข้อมูล');
+                }
+            });
+
+            window.onload = function (e) {
+                liff.init(function (data) {
+                    getProfile();
+                });
+            };
+            function getProfile(){
+                liff.getProfile().then(function (profile) {
+                    document.getElementById('useridprofilefield').textContent = profile.userId;
+                })
+            }   
+
+        </script>
+
     </body>
 </html>
-<script>
-    window.onload = function (e) {
-        liff.init(function (data) {
-            getProfile();
-        });
-        document.getElementById('sendmessagebutton').addEventListener('click', function () {
-            liff.sendMessages(
-            [
-                {
-                    type: 'text',
-                    text: "[ลงทะเบียนเรียบร้อยแล้ว]"
-                }, {
-                    type: 'sticker',
-                    packageId: '2',
-                    stickerId: '144'
-                }
-            ])
-            .then(function () {
-                liff.closeWindow();
-                
-            });
-        });
-    };
-    function getProfile(){
-    liff.getProfile().then(function (profile) {
-        document.getElementById('useridprofilefield').textContent = profile.userId;
-    })
-}
-
-</script>

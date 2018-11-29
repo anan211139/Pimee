@@ -1,0 +1,179 @@
+body{
+    margin: 0;
+    background-image: url("../picture/boat.png");
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: bottom right; 
+    /* font-family: 'Prompt', sans-serif; */
+    font-family: 'Kanit', sans-serif;
+    text-align: center;
+    background-color: #f7f7f7;      
+    padding-top: calc(100px + 1vw);
+}
+.header{
+    font-size: calc(15px + 1vw);
+    padding: 0 calc(5px + 1vw);
+    color: white;
+    background-color: #5bbcd2;
+    border-radius: 100px;
+}
+.layoutSelectPage{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    margin-top: calc(5px + 1vw);
+}
+.class-name{
+    position: relative;
+    margin: calc(2px + 1vw);
+    padding: calc(1px + 1vw);
+    text-align: center;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: calc(1px + 0.2vw);
+    font-size: calc(10px + 1vw);
+    color: #5bbcd2;
+    background-color: white;
+    width: calc(130px + 1vw);
+    height: calc(130px + 1vw);
+    border: 3px solid transparent;
+}
+.plus{
+    margin: calc(1px + 1vw);
+    padding: calc(1px + 1vw);
+    text-align: center;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    width: calc(130px + 1vw);
+    height: calc(130px + 1vw);
+}
+.plus > img{
+    width: calc(50px + 1vw);
+    height: auto;
+    margin: auto;
+}
+.plus > img:hover{
+    opacity: 0.7;
+}
+.class-name:hover{
+    -ms-transform: scale(1.2);
+    -webkit-transform: scale(1.2); 
+    transform: scale(1.2);
+    border: 3px solid #5bbcd2;
+}
+.logo{
+    width: calc(20px + 0.5vw);
+    height: auto;
+}
+/* Add Name Class */
+.input-name{
+    width: calc(300px + 1vw);
+    margin: calc(20px + 1vw) calc(5px + 1vw);
+    padding: calc(5px + 0.5vw);
+    border-radius: 100px;
+    border: 2px solid #5bbcd2;
+    outline: none;
+    font-family: 'Kanit', sans-serif;
+}
+.add-header{
+    font-size: calc(15px + 1vw);
+    color: #5bbcd2;
+    border-radius: 100px;
+}
+.add-btn{
+    padding: calc(2px + 0.5vw) calc(10px + 0.5vw);
+    border-radius: 100px;
+    border: 0;
+    background-color: #5bbcd2;
+    color: white;
+    font-family: 'Kanit', sans-serif;
+    font-size: calc(10px + 0.5vw);
+    outline: none;
+}
+.add-btn2{
+    padding: calc(2px + 0.5vw) calc(10px + 0.5vw);
+    border-radius: 100px;
+    border: 0;
+    background-color: #a3a3a3;
+    color: white;
+    font-family: 'Kanit', sans-serif;
+    font-size: calc(10px + 0.5vw);
+    outline: none;
+}
+.topnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    background-color: #f7f7f7;      
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    min-width: 300px;
+}
+.topnav a {
+    float: left;
+    display: block;
+    color: #5bbcd2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    cursor: pointer;
+}
+.topnav .icon2 {
+    display: none;
+}
+.logo-nav > a{
+    display: flex;
+    align-items: center;
+}
+.menu-nav > a{
+    display: flex;
+    align-items: center;
+}
+.topnav p {
+    margin: 0;
+    margin-left: 10px;
+}
+.cancel-btn{
+	text-decoration: none;
+	color:#f13939;
+	padding: 10px;
+}
+.delete-btn{
+    position:absolute;
+    bottom:0;
+    right:0;
+    background-color: transparent;
+    border: 0;
+    outline: none;
+    padding: calc(2px + 0.5vw);
+    border-radius: calc(1px + 0.2vw);
+}
+.delete-btn:hover{
+    background-color: #eeeeee;
+}
+.delete-btn > img{
+    width: calc(15px + 0.5vw);
+    height: calc(15px + 0.5vw);
+}
+.class-a{
+    width: calc(130px + 1vw);
+    height: calc(130px + 1vw);
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    text-decoration: none;
+    color: #5bbcd2;
+}
+#return-space{
+    color : red;
+    margin: 3vw;
+}
+

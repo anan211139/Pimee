@@ -9,7 +9,7 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <!-- Styles -->
         <style>
             html, body {
@@ -89,6 +89,33 @@
                     <a href="https://forge.laravel.com">Forge</a>
                     <a href="https://github.com/laravel/laravel">GitHub</a>
                 </div>
+                <div>
+                    <select name="id" id="id">
+                        <option value="0">เลือกดิ</option>
+                        <option value="1">01</option>
+                        <option value="2">04</option>
+                        <option value="3">03</option>
+                        <option value="4">02</option>
+                    </select>
+                </div>
+                {{csrf_field()}}
+                <script>
+                    $('#id').change(function(){
+                        var id = $(this).val();
+                        if($('#id').val() > 0){
+                            console.log(id);
+                            var _token =$('input[name="_token"]').val(); 
+                            $.ajax({
+                                url:"{{route('selectexam')}}",
+                                method:"POST",
+                                data:{id:id,_token:_token},
+                                success:function(result){
+                                    console.log("Successfull  "+result);
+                                },
+                            })
+                        }
+                    });
+                </script>
             </div>
         </div>
     </body>

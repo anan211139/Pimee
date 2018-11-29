@@ -20,6 +20,7 @@ class CreateManagersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->string('email')->nullable();
+            $table->Integer('userlevel')->default(0);
             $table->timestampsTz();
         });
     }

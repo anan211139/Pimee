@@ -31,8 +31,11 @@ body{
     padding: 5px;
 }
 .navRight{
-    margin-right: calc(5px + 0.8vw);
+    /* margin-right: calc(5px + 0.8vw); */
     color: #5bbcd2;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
 }.navRight .name{
     color: #5bbcd2;
 }
@@ -96,6 +99,7 @@ body{
     background-color: transparent;
     border-width: 0;
     margin: calc(1px + 0.5vw);
+    cursor: pointer;
 }
 .imgHome{
     width: calc(8px + 1.5vw);
@@ -296,6 +300,7 @@ body{
 .homeBtn-flex{
     margin: calc(1px + 0.5vw);
     text-align: left;
+    display: flex;
 }
 
 .legend{

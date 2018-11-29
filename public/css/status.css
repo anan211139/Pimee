@@ -1,0 +1,13 @@
+body{
+    margin: 0;
+    background-image: url("../picture/bear_N.png");
+    background-size: auto 60%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: bottom center; 
+    font-family: 'Kanit', sans-serif;
+    text-align: center;
+    background-color: #5bbcd2;
+    color: white;      
+    padding-top: calc(100px + 1vw);
+}

@@ -4,6 +4,15 @@
   $chapther_list = session('chapter_list', 'default');
   $chapterCh = session('chapterCh','default');
   $choosechilddata =session('choosechilddata','default');
+
+  function setimage($url){
+    if(!file($url)){
+      echo " picture/bear_Nffff.png";
+    }else{
+      echo $url;
+    }
+  }
+
  ?>
 <html>
     <head>
@@ -24,7 +33,13 @@
                     <img class="imgHome" src="picture/home.png">
                   </a>
                 </div>
-                <img class="profileImg" src="@if($choosechilddata[0]['local_pic']){{$choosechilddata[0]['local_pic']}}@else picture/bear_Nffff.png @endif">
+                <img class="profileImg" src="
+                @if($choosechilddata[0]['local_pic'])
+                  {{$choosechilddata[0]['local_pic']}}
+                @else
+                  picture/bear_Nffff.png
+                @endif"
+                onerror='this.src="picture/bear_Nffff.png"'>
                 <p>{{$choosechilddata[0]['name']}}</p>
 
 
@@ -77,7 +92,13 @@
                     <img class="imgHome" src="picture/home.png">
                   </a>
                 </div>
-                <img class="profileImg" src="@if($choosechilddata[0]['local_pic']){{$choosechilddata[0]['local_pic']}}@else picture/bear_Nffff.png @endif">
+                <img class="profileImg" src="
+                @if($choosechilddata[0]['local_pic'])
+                  {{$choosechilddata[0]['local_pic']}}
+                @else
+                  picture/bear_Nffff.png
+                @endif"
+                onerror='this.src="picture/bear_Nffff.png"'>
                 <p>{{$choosechilddata[0]['name']}}</p>
                 <div class="layoutMenu">
                   <div class="menuBtn">
@@ -125,8 +146,11 @@
                             <div id="hamberger" onclick="openNav()"><img class="logo" src="picture/hamberger.png"></div>
                         </div>
                     <div class="navRight">
-                        <a class="name" href="/dashboard">{{session('name','default')}}</a>
-                        <a href="/logout" class="navLogOut">ออกจากระบบ</a>
+                      <a class="name" href="/dashboard">{{session('name','default')}}</a>
+                        {{-- <a href="/logout" class="navLogOut">ออกจากระบบG</a> --}}
+                      <a href ="/logout">
+                        <img class="logo" src="picture/exit-to-app-button.png">
+                      </a>
                     </div>
                     
                 </div>

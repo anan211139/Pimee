@@ -48,88 +48,96 @@ class Pagecontroller extends Controller
     }
     public function dashboard(){
       if(session()->has('username')){
-        $id = session('id', 'default');
-        // query child
-        $jsonresult = DB::table('students')
-        ->leftjoin('studentparents','students.line_code','=','studentparents.line_code')
-        ->leftjoin('managers','studentparents.parent_id','=','managers.id')
-        // ->leftjoin('info_classrooms', 'student.line_code','=', 'info_classrooms.line_code') เชื่อมเด็กที่อยู่ในห้อง
-        ->select(DB::raw('students.line_code,students.line_code,students.local_pic,students.name'))
-        ->where('studentparents.parent_id',$id)
-        // ->where('info_classrooms.classromm_id',$id) ห้องที่เลือก
-        ->orderBy('students.name','asc')
-        ->get();
-        $arrayresult = json_decode($jsonresult, true);
-        Session::put('childdata',$arrayresult);
-        // return $jsonresult;
-        $student_mean_sub1 = DB::table('groups')
-        ->leftjoin('chapters', 'chapter_id', '=', 'chapters.id')
-        ->leftjoin('subjects', 'subject_id', '=', 'subjects.id')
-        ->leftjoin('studentparents','groups.line_code','=','studentparents.line_code')
-         // ->leftjoin('info_classrooms', 'groups.line_code','=', 'info_classrooms.line_code') เชื่อมเด็กที่อยู่ในห้อง
-        ->rightjoin('students','groups.line_code','=','students.line_code')
-        ->select(DB::raw('groups.line_code,students.name,subjects.name as subject_name, sum(score) / count(score) as mean'))
-        ->where('parent_id', '=', $id )
-        // ->where('info_classrooms.classromm_id',$id) ห้องที่เลือก
-        ->where('subject_id', '=', '1' )
-        ->where('status', '=', '1' )
-        ->groupBy('groups.line_code','students.name')
-        ->get();
-        // return $student_mean_sub1;
-        $arrayresult = json_decode($student_mean_sub1, true);
-        Session::put('sub1',$arrayresult);
+        if(session()->has('classstatus')){
+          $id = session('id', 'default');
+          $classid = session('classstatus', 'default');
+          $queryclasscode = DB::table('classrooms')->select('classroom_code','name')->where('id',$classid)->get();
+          $codeclass = json_decode($queryclasscode,true);
+          Session::put('classcode',$codeclass);
+          // query child
+          $jsonresult = DB::table('students')
+          ->leftjoin('info_classrooms','students.line_code','=','info_classrooms.line_code')
+          ->select(DB::raw('students.line_code,students.line_code,students.local_pic,students.name,info_classrooms.id'))
+          ->where('info_classrooms.classroom_id',$classid)
+          ->orderBy('students.name','asc')
+          ->get();
+          $arrayresult = json_decode($jsonresult, true);
+          Session::put('childdata',$arrayresult);
+          // return $arrayresult; 
+          $student_mean_sub1 = DB::table('groups')
+          ->leftjoin('info_classrooms','groups.line_code','=','info_classrooms.line_code')
+          ->leftjoin('chapters', 'groups.chapter_id', '=', 'chapters.id')
+          ->leftjoin('subjects', 'chapters.subject_id', '=', 'subjects.id')
+          ->leftjoin('studentparents','groups.line_code','=','studentparents.line_code')
+          ->rightjoin('students','groups.line_code','=','students.line_code')
+          ->select(DB::raw('groups.line_code,students.name,subjects.name as subject_name, sum(score) / count(score) as mean'))
+          ->where('info_classrooms.classroom_id',$classid)
+          ->where('chapters.subject_id', '=', '1' )
+          // ->where('status', '=', '1' )
+          ->groupBy('groups.line_code','students.name')
+          ->get();
+          // return $student_mean_sub1;
+          $arrayresult = json_decode($student_mean_sub1, true);
+          Session::put('sub1',$arrayresult);
+          Session::put('sub1_json',$student_mean_sub1);
 
-        $student_mean_sub2 = DB::table('groups')
-        ->select(DB::raw('groups.line_code,students.name,subjects.name as subject_name, sum(score) / count(score) as mean'))
-        ->leftjoin('chapters', 'chapter_id', '=', 'chapters.id')
-        ->leftjoin('subjects', 'subject_id', '=', 'subjects.id')
-        ->leftjoin('studentparents','groups.line_code','=','studentparents.line_code')
-         // ->leftjoin('info_classrooms', 'groups.line_code','=', 'info_classrooms.line_code') เชื่อมเด็กที่อยู่ในห้อง
-        ->rightjoin('students','groups.line_code','=','students.line_code')
-        ->where('parent_id', '=', $id )
-        ->where('subject_id', '=', '2' )
-        ->where('status', '=', '1' )
-        // ->where('info_classrooms.classromm_id',$id) ห้องที่เลือก
-        ->groupBy('groups.line_code','students.name')
-        ->get();
-        // return $student_mean_sub2;
-        $arrayresult = json_decode($student_mean_sub2, true);
-        Session::put('sub2',$arrayresult);
+          $student_mean_sub2 = DB::table('groups')
+          ->select(DB::raw('groups.line_code,students.name,subjects.name as subject_name, sum(score) / count(score) as mean'))
+          ->leftjoin('info_classrooms','groups.line_code','=','info_classrooms.line_code')
+          ->leftjoin('chapters', 'groups.chapter_id', '=', 'chapters.id')
+          ->leftjoin('subjects', 'chapters.subject_id', '=', 'subjects.id')
+          ->leftjoin('studentparents','groups.line_code','=','studentparents.line_code')
+          ->rightjoin('students','groups.line_code','=','students.line_code')
+          ->where('info_classrooms.classroom_id',$classid)
+          ->where('chapters.subject_id', '=', '2' )
+          // ->where('status', '=', '1' )
+          ->groupBy('groups.line_code','students.name')
+          ->get();
+          // return $student_mean_sub2;
+          $arrayresult = json_decode($student_mean_sub2, true);
+          Session::put('sub2',$arrayresult);
+          Session::put('sub2_json',$student_mean_sub2);
 
-        $meanoverall = DB::table(DB::raw("(select groups.line_code,subjects.name,sum(score) / count(score) as score from groups
-                                          left join chapters on chapter_id = chapters.id
-                                          left join subjects on subject_id = subjects.id
-                                          left join studentparents on groups.line_code = studentparents.line_code
-                                          where subject_id = 1 and parent_id = $id
-                                          group by groups.line_code
-                                          order by groups.id) total"))
-                                          //leftjoin info_classrooms on groups.line_code = info_classrooms.line_code เชื่อมเด็กที่อยู่ในห้อง
-                                          //where info_classrooms.classromm_id = $id ห้องที่เลือก
-        ->select(DB::raw('sum(score) / count(score) as mean'))
-        ->get();
-        $arrayresult = json_decode($meanoverall, true);
-        Session::put('meansub1',$arrayresult);
-        $meanoverall2 = DB::table(DB::raw("(select groups.line_code,subjects.name,sum(score) / count(score) as score from groups
-                                          left join chapters on chapter_id = chapters.id
-                                          left join subjects on subject_id = subjects.id
-                                          left join studentparents on groups.line_code = studentparents.line_code
-                                          where subject_id = 2 and parent_id = $id
-                                          group by groups.line_code
-                                          order by groups.id) total"))
-                                          //leftjoin info_classrooms on groups.line_code = info_classrooms.line_code เชื่อมเด็กที่อยู่ในห้อง
-                                          //where info_classrooms.classromm_id = $id ห้องที่เลือก
-        ->select(DB::raw('sum(score) / count(score) as mean'))
-        ->get();
-        $arrayresult = json_decode($meanoverall2, true);
-        Session::put('meansub2',$arrayresult);
-        return view('dashboard');
+          $meanoverall = DB::table(DB::raw("(select groups.line_code,subjects.name,sum(score) / count(score) as score from groups
+                                            left join info_classrooms on groups.line_code = info_classrooms.line_code
+                                            left join chapters on chapter_id = chapters.id
+                                            left join subjects on subject_id = subjects.id
+                                            left join studentparents on groups.line_code = studentparents.line_code
+                                            where subject_id = 1 and info_classrooms.classroom_id = $classid
+                                            group by groups.line_code
+                                            order by groups.id) total"))
+          ->select(DB::raw('sum(score) / count(score) as mean'))
+          ->get();
+          $arrayresult = json_decode($meanoverall, true);
+          Session::put('meansub1',$arrayresult);
+          $meanoverall2 = DB::table(DB::raw("(select groups.line_code,subjects.name,sum(score) / count(score) as score from groups
+                                            left join info_classrooms on groups.line_code = info_classrooms.line_code
+                                            left join chapters on chapter_id = chapters.id
+                                            left join subjects on subject_id = subjects.id
+                                            left join studentparents on groups.line_code = studentparents.line_code
+                                            where subject_id = 2 and info_classrooms.classroom_id = $classid
+                                            group by groups.line_code
+                                            order by groups.id) total"))
+          ->select(DB::raw('sum(score) / count(score) as mean'))
+          ->get();
+          $arrayresult = json_decode($meanoverall2, true);
+          Session::put('meansub2',$arrayresult);
+          
+          return view('dashboard');
+        }else{
+          return redirect('/selectclass');
+        }
       }else{
         return redirect('/');
       }
     }
     public function gethome(){
         if(session()->has('username')){
+          if(session()->has('classstatus')){
             return redirect('/dashboard');
+          }else{
+            return redirect('/selectclass');
+          }
         }else{
             return view('home');
         }
@@ -146,18 +154,132 @@ class Pagecontroller extends Controller
           Session::put('local_pic',$result);
           return redirect('/addchild')->with('code',$id);
         }else{
-          return 'Linecode not found';
+          return redirect('/error')->with('reporttype','Error')->with('reportdetail','Linecode not found');
         }
     }
-    // public function studentinfo($id){
-    //   return view('studentinfo');
-    // }
     public function studentinfo(){
       return view('studentinfo');
     }
+    public function connectpage(){
+      return view('connectstu');
+    }
+    public function selectclass(){
+      $id = session('id', 'default');
+      $query = DB::table('classrooms')->select('name','id')->where('parent_id','=',$id)->get();
+      $listclass = json_decode($query, true);
+      Session::put('listclass',$listclass);
+      return view('select_class');
+    }
+    public function newclass(){
+      if(session()->has('id')){
+        return view('newclass');
+      }else{
+        return redirect('/');
+      }
+    }
+    public function newgroupexam(){
+      if(session()->has('id')){
+        return view('newgroupexam');
+      }else{
+        return redirect('/');
+      }
+    }
+    public function chooesclassroom($id){
+      Session::put('classstatus',$id);
+      return redirect('dashboard');
+    }
+    public function status(){
+      return view('status');
+    }
+    public function error(){
+      return view('status');
+    }
+    public function aboutexam(){
+      if(session()->has('id')){
+        $jsonsubject = DB::table('subjects')->get();
+        $jsonchapter = DB::table('chapters')->get();
+        $parent_id = session('id','default');
+        // $queryresult = DB::table('exam_news')
+        //   ->select(DB::raw('level_id,question,choice_a,choice_b,choice_c,choice_d,local_pic,exam_news.answer,principle_id'))
+        //   ->leftjoin('logChildrenQuizzes','exam_news.id','=','logChildrenQuizzes.exam_id')
+        //   ->groupBy('exam_news.id')
+        //   ->orderby('exam_news.id','asc')
+        //   ->get();
+        $queryresult = DB::table("exam_news")
+          ->select('id','question','choice_a','choice_b','choice_c','choice_d','local_pic','answer','updated_at')
+          ->orderBy('id','asc')
+          ->get();
+        $jsoncorrect = DB::table('logChildrenQuizzes')
+        ->select(DB::raw('count(is_correct) as num,exam_id'))
+        ->groupBy('exam_id')
+        ->where('is_correct','=','1')
+        ->get();
+        $jsonwrong = DB::table('logChildrenQuizzes')
+        ->select(DB::raw('count(is_correct) as num,exam_id'))
+        ->groupBy('exam_id')
+        ->where('is_correct','=','0')
+        ->get();
+        // return $jsoncorrect;
+        $jsongroup = DB::table('examgroups')
+        ->leftjoin('send_groups','examgroups.id','=','send_groups.examgroup_id')
+        ->select('examgroups.id','examgroups.parent_id','examgroups.name')
+        ->where('parent_id','=',$parent_id)
+        ->whereNull('send_groups.examgroup_id')
+        ->get();
+        $readgroup = DB::table('examgroups')
+        ->select('examgroups.id','examgroups.parent_id','examgroups.name')
+        ->where('parent_id','=',$parent_id)
+        ->get();
+        // dd($readgroup);
+        $listgroup = DB::table('classrooms')
+        ->select('classrooms.id','classrooms.name')
+        ->where('classrooms.parent_id','=',$parent_id)
+        ->get();
+        // dd($listgroup);
+        return view('exam')
+        ->with('readgroup',$readgroup)
+        ->with('listgroup',$listgroup)
+        ->with('jsonsubject',$jsonsubject)
+        ->with('jsonchapter',$jsonchapter)
+        ->with('jsoncorrect',$jsoncorrect)
+        ->with('jsonwrong',$jsonwrong)
+        ->with('jsongroup',$jsongroup)
+        ->with('queryresult',$queryresult);
+      }else{
+        return view('home');
+      }
+    }
+    public function loginadminpage(){
+      return view('login_ad');
+      if(session()->has('admin_id')){
+        return redirect('/adminpage');
+      }else{
+        return view('login_ad');
+      }
+    }
+    public function adminpage(){
 
-    public function leaderboard(){
-      return view('leaderboard');
+    }
+    public function detailN(){
+      return view('detailN');
+    }
+    public function detailchapter(){
+      return view('detailChapter');
+    }
+    public function addFeedback(Request $request){
+      $user_id = session('id', 'default');
+      $type_id = $request->input('type_id');
+      $head = $request->input('head');
+      $detail = $request->input('detail');
+      // dd($type_id, $head, $detail);
+
+      DB::table('feedbacks')->insert([
+        'typereport_id' => $type_id,
+        'head' => $head,
+        'details' => $detail,
+        'parent_id' => $user_id
+      ]);
+      return back()->withErrors(['ส่งการรายงานปัญหาเรียบร้อย']);
     }
 
 }

@@ -1,0 +1,543 @@
+body{
+    margin: 0;
+    background-color: #f7f7f7;
+    font-family: 'Kanit', sans-serif;
+}
+.main-container {
+    min-height: 100vh;
+    overflow: hidden;
+    display: block;
+    position: relative;
+}
+.topnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    background-color: #ffffff;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    min-width: 300px;
+    box-shadow: 0px 2px 10px 2px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+.topnav a {
+    float: left;
+    display: block;
+    color: #5bbcd2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    cursor: pointer;
+}
+.topnav .icon2 {
+    display: none;
+}
+.logo-nav > a{
+    display: flex;
+    align-items: center;
+}
+.menu-nav > a{
+    display: flex;
+    align-items: center;
+}
+.topnav p {
+    margin: 0;
+    margin-left: 10px;
+}
+.logo{
+    width: calc(20px + 0.5vw);
+    height: calc(20px + 0.5vw);
+}
+@media screen and (max-width: 800px) {
+    .menu-nav a{display: none;}
+    .topnav a.icon2 {
+        float: right;
+        display: block;
+    }
+}
+@media screen and (max-width: 800px) {
+    .topnav.responsive {
+        position: fixed;
+        display: block;
+    }
+    .topnav.responsive .icon {
+        display: flex;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+    .topnav.responsive a {
+        float: none;
+        display: flex;
+        text-align: left;
+    }
+}  
+.menu-a:hover{
+    /* background-color: #eeeeee; */
+    opacity: 0.7;
+}
+.filter-con{
+    display: grid;
+    grid-template-columns: 27% 27% 27% 27%;
+    width: 60%;
+    margin: auto;
+    grid-gap: 10px;
+    margin-top: 80px;
+    justify-content: space-around;
+}
+@media screen and (max-width: 980px) {
+    .filter-con {
+        grid-template-columns: 100%;
+    }
+}
+table{
+    margin: auto;
+    margin-top: 20px;
+    text-align: center;
+    width: 70%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #f7f7f7;
+    cursor: pointer;
+}
+th {
+    background-color: #5bbcd2;
+    border-left: 2px solid #f7f7f7;    
+    color: white;
+    padding: 15px;
+    font-weight: normal;
+}
+tr + tr {
+    border-top: 2px solid #f7f7f7;
+}
+td {
+    /* border-left: 2px solid #000; */
+    background-color: white;
+    padding: 10px;
+}
+
+td + td {
+    border-left: 2px solid #f7f7f7;
+}
+table td:nth-child(2){
+  text-align: left;
+}
+table td:nth-child(3){
+  color: rgb(46, 204, 46);
+}
+table td:nth-child(4){
+    color: rgb(238, 70, 70);
+}
+tr:hover td{
+    background-color: #e9e9e9;
+}
+
+.pagecontrol-con{
+    display: flex;
+    justify-content: center;
+}
+.pagecontrol-con > div {
+    margin: 10px;
+}
+.rotate180{
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+.tabcontent {
+    display: none;
+}
+
+.active {
+    background-color: #e9e9e9;
+}
+.sideMenu{
+    position: fixed;
+    width: calc(230px + 2vw);
+    height: 100%;
+    background-color: #5bbcd2;
+    text-align: center;
+    color: white;
+    overflow: auto;
+    overflow-x:hidden;
+    padding-top: 80px;
+    transition: 0.5s;
+}
+/* #sideMenu{
+    position: fixed;
+    width: calc(230px + 2vw);
+    height: 100%;
+    background-color: #5bbcd2;
+    text-align: center;
+    color: white;
+    overflow: auto;
+    overflow-x:hidden;
+    padding-top: 80px;
+    transition: 0.5s;
+} */
+#sideMenu-res{
+    /* display: none; */
+    width: 0;
+}
+.menuBtn{
+    font-family: 'Kanit', sans-serif;
+    font-size: 18px;
+    background-color: white;
+    width: 90%;
+    margin: 5px;
+    border-radius: calc(1px + 0.2vw);
+    padding: calc(5px + 1vw);
+    color: #5bbcd2;
+    border: 0;
+    /* -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s; */
+    white-space: nowrap;
+    outline: none;
+    cursor: pointer;
+}
+.add{
+    display: flex;
+    align-items: center;
+    margin: 5px auto;
+    font-family: 'Kanit', sans-serif;
+    cursor: pointer;
+    width: 90%;
+}
+.add > p {
+    margin: 0;
+    margin-left: 10px;
+}
+.manage-con{
+    padding-top: 60px;
+    margin-left: calc(230px + 2vw);
+    text-align: center;
+}
+.manage-grid{
+    display: grid;
+    grid-template-columns: auto auto;
+    width: 80%;
+    margin: auto;
+    grid-gap: 10px;
+    /* background-color: white; */
+}
+.manage-grid > div{
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid rgb(240, 240, 240);
+    text-align: left;
+    padding: 0px 18px 18px 18px;
+    cursor: pointer;
+}
+.manage-grid h3 {
+    color: #5bbcd2;
+}
+.send-con{
+    text-align: right;
+    width: 80%;
+    margin: 20px auto;
+}
+.send-btn{
+    border-width: 0;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Kanit', sans-serif;
+    background-color: #5bbcd2;
+    font-size: 18px;
+    padding: 5px 15px;
+    /* border: 3px solid transparent; */
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+    outline: none;
+}
+.icon-menu{
+    display: none;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+}
+.icon-menu > img{
+    width: 50px;
+    height: auto;
+}
+@media screen and (max-width: 800px) {
+    #sideMenu {
+        width: 0;
+    }
+    .manage-con{
+        margin-left: 0;
+    }
+    .icon-menu{
+        display: block;
+    }
+}
+@media screen and (max-width: 600px) {
+    .manage-grid{
+        grid-template-columns: auto;
+    }
+}
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 7; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
+    padding-top: 90px;
+}
+.modal2 {
+    display: none; 
+    position: fixed; 
+    z-index: 7; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
+    padding-top: 90px;
+}
+/* Modal Content/Box */
+.modal-content {
+    /* font-size: 12px;  */
+    /* background-color: #ffffff; */
+    margin: auto;
+    border-width: 0;
+    border-radius: 10px;
+    width: 650px;
+    height: 400px;
+    overflow: hidden;
+    /* padding: 10px; */
+}
+
+/* The Close Button (x) */
+.close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    color: rgb(238, 70, 70);
+}
+
+.pup-container{
+    display: grid;
+    position: relative;
+    grid-template-columns: 60% 40%;
+    height: 100%;
+}
+/* .pup-container > div {
+    padding: 10px 20px;
+} */
+.pup-content{
+    background-color: white;
+    position: relative;
+    /* overflow: auto; */
+}
+.checkbox-con{
+    background-color: #5bbcd2;
+    color: white;
+    position: relative;
+    /* overflow: auto; */
+}
+.overflow{
+    height: 200px;
+    overflow: auto;
+    padding: 10px 10px;
+}
+.overflow-send{
+    height: 255px;
+    overflow: auto;
+    padding: 10px 10px;
+}
+.overflow2{
+    height: 100%;
+    overflow: auto;
+}
+.checkbox-layout{
+    display: flex;
+    align-items: center;
+    background-color: white;
+    color: #5bbcd2;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10;
+    border: 0;
+}
+.checkbox-layout > input{
+    margin-right: 10px;
+}
+.pup-content b{
+    color: #5bbcd2;
+}
+.pup-padding{
+    padding: 10px 20px;
+}
+.p-padding {
+    padding-left: 10px;
+}
+.btn-report{
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 130px;
+}
+.report-style{
+    color: white;
+    background-color: rgb(238, 70, 70);
+    border-width: 0;
+    border-radius: 5px;
+    padding: 5px;
+    outline: none;
+}
+@media screen and (max-width: 700px) {
+    .pup-container{
+        grid-template-columns: auto;
+    }
+    .overflow2{
+        height: auto;
+    }
+    .modal-content {
+        width: 80%;
+        overflow: auto;
+    }
+}
+textarea {
+    width: 90%;
+    height: 150px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    font-size: 16px;
+    resize: none;
+    padding: 10px;
+    outline: none;
+}
+.cursor{
+    cursor: pointer;
+}
+/* .btn-checkbox{
+    background-color: #5bbcd2;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+} */
+/* Add Zoom Animation */
+.animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+    from {-webkit-transform: scale(0)} 
+    to {-webkit-transform: scale(1)}
+}
+    
+@keyframes animatezoom {
+    from {transform: scale(0)} 
+    to {transform: scale(1)}
+}
+
+.style-select{
+    padding:10px 16px; 
+    width:100%;
+    border-radius:5px;
+    border-width: 0;
+    background-color: white;
+    color: #5bbcd2;
+    font-family: 'Kanit', sans-serif;
+    outline: none;
+    font-size: 18px;
+}
+.DONE{
+    width: 100%;
+    border-radius:0;
+}
+
+.btn-send{
+    /* background-color: #5bbcd2; */
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+} 
+.btn-send2{
+    margin-top: 20px;
+}
+.modal-content-send {
+    margin: auto;
+    position: relative;
+    border-width: 0;
+    border-radius: 10px;
+    width: 50%;
+    max-width: 550px;
+    height: 430px;
+    overflow: hidden;
+    background-color: #5bbcd2;
+    color: white;
+}
+.modal-content-send h2 {
+    padding-left: 10px;
+}
+.grid-send{
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+.time{
+    /* display: flex; */
+    align-items: center;
+    /* background-color: white; */
+    color: #5bbcd2;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10;
+    border: 0;
+}
+.time > p {
+    margin: 0;
+    margin-bottom: 10;
+}
+.input-date{
+    width: 100%;
+    font-family: 'Kanit', sans-serif;
+    padding: 10px;
+    border: 1px solid #5bbcd2;
+    border-radius: 10px;
+    outline: none;
+}
+.date-con{
+    padding: 10px;
+    background-color: #ffffff;
+}
+.btn-center{
+    justify-content: center;
+}
+@media screen and (max-width: 900px) {
+    .modal-content-send{
+        width: 80%;
+    }
+}
+@media screen and (max-width: 650px) {
+    .modal-content-send{
+        width: 90%;
+    }
+}
+@media screen and (max-width: 550px) {
+    .grid-send{
+        grid-template-columns: auto;
+    }
+    .modal-content-send {
+        overflow: auto;
+    }
+    .btn-send2{
+        margin-top: 10px;
+    }
+}

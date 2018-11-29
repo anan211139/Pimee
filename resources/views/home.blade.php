@@ -12,7 +12,7 @@
             </div>
         </div>
         <a href="#detail" id ="arrowBtn"class="plus"><img id ="plus" src="picture/arrow.png"></a>
-        <div id="login" style='background-image: url("picture/topbg.png"); background-size: 100% auto; background-repeat: no-repeat;
+        <div id="login" style='background-image: url("picture/topbgforweb.png"); background-size: 100% auto; background-repeat: no-repeat;
         background-position: bottom right;
         height: 100%; '>
             <div class="layout">
@@ -30,13 +30,18 @@
                 <!-- </form> -->
                 {!! Form::close() !!}
                 <a class="forgot" href="">Forgot Password?</a><br>
-                <span>Don't have an account?</span>
+                <span class="span">Don't have an account?</span>
                 <a class="forgot" onclick="document.getElementById('id01').style.display='block'">Sign up</a>
                 @include('inc.message')
                 @include('inc.loginmessage')
             </div>
         </div>
-        <div id="detail" class="detail">
+        <div id="detail" class="detail" 
+        style='
+        background-image: url("picture/duck.png"),url("picture/ball.png");
+        background-repeat: no-repeat,no-repeat;
+        background-position: 5% 90%,90%,100%; 
+        background-size: 110px 140px,155px 160px; '>
             <div class="iconContainer">
                 <div class="iconStyle">
                     <img class="icon" src="picture/1024px-LINE_logo.svg.png">
@@ -66,7 +71,61 @@
         <div class="detail2">
             <img style="width: 100%;height: auto;" src="picture/lowbg.png">
         </div>
+        {{-- <div class="detail3">
+            <div class="layoutVideo">
+                <div class="intrinsic-container intrinsic-container-16x9">
+                    <iframe width="auto" height="auto" src="https://www.youtube.com/embed/Yad6t_EgwVw" allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div> --}}
         <div class="detail3">
+            <div class="content">
+                {{-- <h1>เริ่มต้นใช้งาน</h1> --}}
+                <div class="layoutContentTutor">
+                    <div>
+                        <img class="imgContentTutor" src="picture/com.png">
+                    </div>
+                    <div class="layoutContentLeft">
+                        <span class="button spanfont">เพิ่มห้องเรียน</span>
+                        <h2>ในการใช้งานคุณครู 1 ท่าน สามารถติดตามผลห้องเรียนตนเองได้มากกว่า 1 ห้องเรียน</h2>
+                        <p>โดยคุณครูต้องทำการ <b>เพิ่มห้องเรียน</b> ให้เรียบร้อย</p>
+                        {{-- <p><b>หลังจากเพิ่มเรีย</b></p> --}}
+                    </div>
+                    <div class="layoutContentRight layoutContentBackground">
+                        <span class="button spanfont">เลือกห้องเรียน</span>                        
+                        <h2>คุณครูสามารถเลือกห้องเรียนที่มีอยู่เพื่อติดตามผล</h2>
+                        <p>หลังจากเพิ่มห้องเรียนเรียบร้อยแล้ว <b>จะมีรายการห้องเรียนขึ้นให้เลือก</b></p> 
+                        {{-- <p></p>                      --}}
+                    </div>
+                    <div class="layoutContentBackground">
+                        <img class="imgContentTutor" src="picture/com-2.png">
+                    </div>
+                    <div>
+                        <img class="imgContentTutor" src="picture/com-2.png">
+                    </div>
+                    <div class="layoutContentLeft">
+                        <span class="button spanfont">ติดตามผล</span>                        
+                        <h2>คุณครูสามารถ<br>ติดตามผลของห้องเรียนในแต่ละห้องได้</h2>
+                        <p>โดยจะแสดง <b>คะแนนโดยรวมของห้องนั้นๆ</b> และลำดับของห้องเรียน</p>                         
+                    </div>
+                    <div class="layoutContentRight layoutContentBackground">
+                        <span class="button spanfont">ติดตามผลรายบุคคล</span>                        
+                        <h2>คุณครูจะสามารถดูคะแนนของนักเรียนรายคนได้</h2>
+                        <p>โดยกดเข้าไปที่ <b>รายชื่อของนักเรียน</b> บนตารางรายชื่อ</p>
+                    </div>
+                    <div class="layoutContentBackground">
+                        <img class="imgContentTutor" src="picture/com-2.png">
+                    </div>
+                        {{-- <div>
+                            <img class="imgContentTutor2" src="picture/phone5.png">
+                        </div> --}}
+                        {{-- <div class="layoutContentLeft">
+                            <h2>หรือ Scan QR Code</h2>
+                            <p>Scan QR Code บริเวณ <b>หมายเลข 5</b> เพื่อเข้าสู่หน้าเพิ่มนักเรียน</p>                         
+                        </div> --}}
+                </div>
+            </div>
             <div class="layoutVideo">
                 <div class="intrinsic-container intrinsic-container-16x9">
                     <iframe width="auto" height="auto" src="https://www.youtube.com/embed/Yad6t_EgwVw" allowfullscreen>
@@ -74,8 +133,11 @@
                 </div>
             </div>
         </div>
-        @include('inc.footer')
-      </div>
+        @include('inc.footer');
+        @if($errors->any())
+        <script type='text/javascript'>alert('{{$errors->first()}}');</script>
+        @endif
+    </div>
 
         @include('inc.pop-up-regis')
 @endsection

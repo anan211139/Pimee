@@ -30,13 +30,31 @@ class DatabaseSeeder extends Seeder
         $this->command->info("Exam & Principle table seeded :)");
 
         //other fixed table
+        DB::table('chapters')->delete();
         DB::table('chapters')->insert([
-          ['subject_id' => 1, 'name' => 'MathChapter1'],
-          ['subject_id' => 1, 'name' => 'MathChapter2'],
-          ['subject_id' => 2, 'name' => 'EnglishChapter1'],
-          ['subject_id' => 2, 'name' => 'EnglishChapter2']
+          ['subject_id' => 1, 'name' => 'สมการ'],
+          ['subject_id' => 1, 'name' => 'ห.ร.ม./ค.ร.ม.'],
+          ['subject_id' => 2, 'name' => 'Tenses'],
+          ['subject_id' => 2, 'name' => 'Comparison'],
+          ['subject_id' => 2, 'name' => 'Articles'],
+          ['subject_id' => 2, 'name' => 'If clauses'],
+          ['subject_id' => 2, 'name' => 'Connective'],
+          ['subject_id' => 1, 'name' => 'ตัวประกอบของจำนวนนับ'],
+          ['subject_id' => 1, 'name' => 'มุมและส่วนของเส้นตรง'],
+          ['subject_id' => 1, 'name' => 'เส้นขนาน'],
+          ['subject_id' => 1, 'name' => 'ทิศและแผนผัง'],
+          ['subject_id' => 1, 'name' => 'ทศนิยม'],
+          ['subject_id' => 1, 'name' => 'รูปสี่เหลี่ยม'],
+          ['subject_id' => 1, 'name' => 'รูปวงกลม'],
+          ['subject_id' => 1, 'name' => 'รูปเรขาคณิตสามมิติ'],
+          ['subject_id' => 1, 'name' => 'ปริมาตรของทรงสี่เหลี่ยมมุมฉาก'],
+          ['subject_id' => 1, 'name' => 'สถิติ และ ความน่าจะเป็นเบื้องต้น ']
         ]);
-        DB::table('subjects')->insert([['name' => 'Math'],['name' => 'English']]);
+        DB::table('subjects')->delete();
+        DB::table('levels')->delete();
+        DB::table('types')->delete();
+        DB::table('codes')->delete();
+        DB::table('subjects')->insert([['name' => 'วิชาคณิตศาสตร์'],['name' => 'วิชาภาษาอังกฤษ']]);
         DB::table('levels')->insert([['name' => 'easy'],['name' => 'medium'],['name' => 'hard']]);
         DB::table('types')->insert([['name' => 'code'],['name' => 'delivery']]);
         DB::table('codes')->insert([['prize_id' => 1,'code' => 'hitherethisisacat'],['prize_id' => 1,'code' => 'a8e3f3f'],
@@ -45,5 +63,12 @@ class DatabaseSeeder extends Seeder
                                     ['prize_id' => 3,'code' => 'khunICE'],['prize_id' => 4,'code' => 'khunANAN'],
                                     ['prize_id' => 4,'code' => 'khunPEI'],['prize_id' => 5,'code' => 'khunOAT'],
                                     ['prize_id' => 5,'code' => 'khunTON']]);
+
+        DB::table('typereports')->delete();
+        DB::table('typereports')->insert([
+          ['name' => 'aboutexam'],
+          ['name' => 'aboutchatbot'],
+          ['name' => 'aboutwebsite']
+        ]);
     }
 }
