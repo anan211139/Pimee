@@ -60,7 +60,7 @@
         </div> 
         <div class="btn_hw">ddd</div>
         <div style="display: none" id="useridfield"></div>
-        <div style="display: none" id="useridfield1"></div>
+        <div id="useridfield1"></div>
         {{csrf_field()}}
     </body>
     <script>
@@ -99,14 +99,18 @@
                     })
 
                 })
-                .then(function(click_test){
-                    $('.btn_hw').on('click', function(){
+                // .then(function(click_test){
+                    
+                // })
+            }
+            $('.btn_hw').on('click', function(){
+                        document.getElementById('useridfield1').innerHTML ="กด";
                         // var _token = $('input[name="_token"]').val(); 
                         //     $.ajax({
                         //         url:"{{route('homework_value')}}",
                         //         method:"POST",
                         //          data:{doctor_id:"kk",_token:_token},
-                        //     }).then(function () {
+                            // }).then(function () {
 
                                  liff.sendMessages([{
                                     type: 'text',
@@ -121,8 +125,6 @@
                             // })
                       
                     });
-                })
-            }
             
             
 

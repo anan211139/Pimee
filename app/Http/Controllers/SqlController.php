@@ -62,7 +62,7 @@ class SqlController extends Controller
                         <td class="date">'.$homework_notyet['exp_date'].'</td>
                         <td>
                             <div class="do_hw">
-                                <a class="btn_hw">ทำ</a>
+                                <div class="btn_hw">ทำ</div>
                             </div>
                         </td>
                     </tr>';          
