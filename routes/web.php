@@ -10,6 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 Route::get('/test', 'Pagecontroller@getLaravelpage');
 Route::get('/', 'Pagecontroller@gethome');
 Route::get('/Laravel', 'Pagecontroller@getLaravelpage');
@@ -64,6 +65,7 @@ Route::post('/selectchapterAjax','Ajaxcontroller@selectchapterAjax')->name('sele
 Route::post('/updateexamlist','Ajaxcontroller@updateexamlist')->name('updateexamlist');
 Route::post('/Ajaxsendreport','Ajaxcontroller@Ajaxsendreport')->name('Ajaxsendreport');
 Route::post('/Ajaxquerygroupexam','Ajaxcontroller@Ajaxquerygroupexam')->name('Ajaxquerygroupexam');
+Route::post('/Ajaxquerygroupexam_name','Ajaxcontroller@Ajaxquerygroupexam_name')->name('Ajaxquerygroupexam_name');
 Route::post('/addtogroup','groupexamController@addtogroup');
 Route::post('/change_chapter', 'detail_new_Controller@change_chapter');
 Route::post('/queryhomeworkresult','Ajaxcontroller@queryhomeworkresult')->name('queryhomeworkresult');
@@ -76,12 +78,16 @@ Route::post('/addExamSubmit', 'AdminPageController@addExamSubmit');
 Route::post('/mail/sort', 'AdminPageController@sort') ->name('dropdown.mail_ad'); //เลือกoptionหน้าจดหมายของแอดมิน
 
 
-Route::get('/leaderboard/{id}','SqlController@leaderboard');
-Route::get('/homeworkpage','SqlController@callhomeworkpage');
-Route::post('/homework','SqlController@homework')->name('homework_value');
-Route::post('/homework2','SqlController@homework2')->name('homework_value2');
-Route::get('/detail_homework/{id}/{send_group_id}','SqlController@detail_homework');
-
+// Route::get('/homeworkpage','SqlController@callhomeworkpage');
+// Route::get('/leaderboard/{id}','SqlController@leaderboard');
+// Route::post('/homework','SqlController@homework')->name('homework_value');
+// Route::post('/homework2','SqlController@homework2')->name('homework_value2');
+// Route::get('/detail_homework/{id}/{send_group_id}','SqlController@detail_homework');
+Route::get('/homeworkpage','regisController@callhomeworkpage');
+Route::get('/leaderboard/{id}','regisController@leaderboard');
+Route::post('/homework','regisController@homework')->name('homework_value');
+Route::post('/homework2','regisController@homework2')->name('homework_value2');
+Route::get('/detail_homework/{id}/{send_group_id}','regisController@detail_homework');
 
 Route::resource('Line','LineController');  //call path ที่กำหนด
 

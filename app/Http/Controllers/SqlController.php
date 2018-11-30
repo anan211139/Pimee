@@ -6,22 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use View;
 
-
-class SqlController extends Controller
-{   
+class SqlController extends Controller{   
 
     public function leaderboard($id){    
 
         $top_students = DB::select(
 					        DB::raw("SELECT `id`, `name`, `point`, `local_pic`, FIND_IN_SET( `point`, (SELECT GROUP_CONCAT( `point` ORDER BY `point` DESC ) FROM students )) AS rank FROM students ORDER BY rank")
 					    );
-        // $rank_ms = DB::select(
-					   //      DB::raw("SELECT `id`, `name`, `point`, `local_pic`, FIND_IN_SET( `point`, (SELECT GROUP_CONCAT( `point` ORDER BY `point` DESC ) FROM students )) AS rank FROM students")
-
-					   //  )
-        //                 ->where('line_code', '=',$id)
-        //                 ->orderBy('rank', 'desc')
-        //                 ->get(); 
+      
                     
         $rank_ms = DB::select(
                             DB::raw("SELECT `id`, `name`, `point`, `local_pic`, FIND_IN_SET( `point`, (SELECT GROUP_CONCAT( `point` ORDER BY `point` DESC ) FROM students )) AS rank FROM students where `line_code` = :userid ORDER BY rank DESC"),array('userid'=>$id)
@@ -31,10 +23,8 @@ class SqlController extends Controller
         return View::make('leaderboard')->with('top_students',$top_students)->with('rank_ms',$rank_ms);
     }
     public function homework(Request $request){    
-        // dd($request);
-        // $id = 'U038940166356c6b9fb0dcf051aded27f';
+
         $id = $request->input('value');
-        // dd($id);
         $mytime = Carbon::now();
 
 
@@ -49,7 +39,7 @@ class SqlController extends Controller
             )
             ->where('info_classrooms.line_code',$id)
             ->get();
-            // dd($homework_me);
+        dd($homework_me);
         $de_homewrk = json_decode($homework_me,true);
         $output ="";
         foreach($de_homewrk as $homework_notyet){
@@ -74,10 +64,8 @@ class SqlController extends Controller
         return $output;
     }
     public function homework2(Request $request){
-        // dd($request);
-        // $id = 'U038940166356c6b9fb0dcf051aded27f';
+
         $id = $request->input('value');
-        // dd($id);
         $mytime = Carbon::now();
 
 
@@ -111,6 +99,8 @@ class SqlController extends Controller
     public function callhomeworkpage(){
         return view('homework');
     }
+
+    
     public function detail_homework($id,$send_group_id){ 
         // echo $id;
         $examgroup_id = DB::table('send_groups')
@@ -133,20 +123,13 @@ class SqlController extends Controller
             ->select('examgroups.name as subject','managers.name as name_parent')
             ->where('examgroups.id',$examgroup_id->examgroup_id)
             ->get();
-        // dd($exam_topic);
-
-        
-
-        // dd($exam_id);
+  
         $count_quiz = 1;
         $count_true = 0;
         $result = array();
-        // dd($result);
-        // echo $count_quiz ;        
-        // dd($exam_log);
+       
         foreach($exam_log as $exam_log){
-            // echo ($exam_log->is_correct);
-            // echo ($exam_log->exam_id);
+           
             if($exam_log->is_correct == 0){
                
                 $exam_detail = DB::table('exam_news')
@@ -175,8 +158,7 @@ class SqlController extends Controller
             $count_quiz++;
             
         } 
-        // dd($result);
-        // dd($result);
+      
         return View::make('detail_homework')->with('result',$result)->with('exam_topic',$exam_topic);
     }
 }

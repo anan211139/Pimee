@@ -2415,8 +2415,25 @@ class BotController extends Controller
                     ->where('line_code', $room_id_hw->line_code)
                     ->update(['type' => "other"]);
 
-                $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
-                $replyData = new TextMessageBuilder($textReplyMessage);
+
+                $actionBuilder = array(
+                                new UriTemplateActionBuilder(
+                                    'ดูการบ้านทั้งหมด', // ข้อความแสดงในปุ่ม
+                                    'line://app/1602719598-1A6ZJ3Pb'
+                                ),
+                            );
+                            $imageUrl = null;
+                            $replyData = new TemplateMessageBuilder('Button Template',
+                                new ButtonTemplateBuilder(
+                                        'การบ้าน', // กำหนดหัวเรื่อง
+                                        'วันนี้น้องๆมีการบ้านใหม่เรื่อง'.$room_id_hw->title_hw.'อย่าลืมเข้ามาทำนะครับ', // กำหนดรายละเอียด
+                                        $imageUrl, // กำหนด url รุปภาพ
+                                        $actionBuilder  // กำหนด action object
+                                )
+                            ); 
+
+                // $textReplyMessage = "วันนี้น้องๆมีการบ้านใหม่เรื่อง".$room_id_hw->title_hw."อย่าลืมเข้ามาทำนะครับ";
+                // $replyData = new TextMessageBuilder($textReplyMessage);
                 $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
             }
             
