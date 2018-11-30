@@ -11,9 +11,10 @@
         <link rel="shortcut icon" href="picture/bear_N.png">
         <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vconsole@3.2.0/dist/vconsole.min.js"></script>
+        <script> var vConsole = new VConsole();</script>
        
     </head>
-
     <body>
         <h1>รายการการบ้าน</h1>
         <div class="box">
@@ -58,9 +59,8 @@
              
             </div>
         </div> 
-        <div class="btn_hw">ddd</div>
         <div style="display: none" id="useridfield"></div>
-        <div id="useridfield1"></div>
+        <div style="display: none" id="useridfield1"></div>
         {{csrf_field()}}
     </body>
     <script>
@@ -70,7 +70,20 @@
                     getProfile();
                 });
             };
-            
+
+            function send_value(exam_id,group_id){ 
+                     
+                liff.sendMessages([{
+                    type: 'text',
+                    text: "[homework:"+exam_id+","+group_id+"]"
+                }]).catch(function (error) {
+                    window.alert("Error sending message: " + error);
+                }).then(function(){
+                    liff.closeWindow()
+                });
+             
+            }
+
             function getProfile(){
                 liff.getProfile().then(function (profile) {
                     document.getElementById('useridfield').innerHTML = profile.userId;
@@ -85,6 +98,7 @@
                         data:{value:value,_token:_token},
                         success:function(result){
                             console.log(result);
+                            // alert(result);
                             $('.first').append(result);
                         }
                     })
@@ -93,7 +107,7 @@
                         method:"POST",
                         data:{value:value,_token:_token},
                         success:function(result){
-                            console.log(result);
+                            // console.log(result);
                             $('.last').append(result);
                         }
                     })
@@ -104,27 +118,27 @@
                 // })
             }
             $('.btn_hw').on('click', function(){
-                        document.getElementById('useridfield1').innerHTML ="กด";
-                        // var _token = $('input[name="_token"]').val(); 
-                        //     $.ajax({
-                        //         url:"{{route('homework_value')}}",
-                        //         method:"POST",
-                        //          data:{doctor_id:"kk",_token:_token},
-                            // }).then(function () {
+                document.getElementById('useridfield1').innerHTML ="กด";
+                // var _token = $('input[name="_token"]').val(); 
+                //     $.ajax({
+                //         url:"{{route('homework_value')}}",
+                //         method:"POST",
+                //          data:{doctor_id:"kk",_token:_token},
+                    // }).then(function () {
 
-                                 liff.sendMessages([{
-                                    type: 'text',
-                                    text: "กด"
-                                }]).catch(function (error) {
-                                    window.alert("Error sending message: " + error);
-                                }).then(function(){
-                                    liff.closeWindow()
-                                });
-                                
+                         liff.sendMessages([{
+                            type: 'text',
+                            text: "กด"
+                        }]).catch(function (error) {
+                            window.alert("Error sending message: " + error);
+                        }).then(function(){
+                            liff.closeWindow()
+                        });
+                        
 
-                            // })
-                      
-                    });
+                    // })
+              
+            });
             
             
 

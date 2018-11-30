@@ -62,7 +62,7 @@ class SqlController extends Controller
                         <td class="date">'.$homework_notyet['exp_date'].'</td>
                         <td>
                             <div class="do_hw">
-                                <div class="btn_hw">ทำ</div>
+                                <div class="btn_hw" onclick="send_value(\''.$homework_notyet['exam_id'].'\',\''.$homework_notyet['send_group_id'].'\')">ทำ</div>
                             </div>
                         </td>
                     </tr>';          
@@ -121,7 +121,7 @@ class SqlController extends Controller
 
         $exam_log = DB::table('info_examgroups')
             ->join('homework_logs','info_examgroups.exam_id','=','homework_logs.exam_id')
-            ->select('info_examgroups.exam_id as exam_id','homework_logs.answer as answer','homework_logs.is_correct as is_correct')
+            ->select('info_examgroups.exam_id as exam_id','homework_logs.answer as answer','homework_logs.is_correct as is_correct','homework_logs.send_groups_id as send_group','info_examgroups.examgroup_id as exam_group','homework_logs.line_code as line_code')
             ->where('homework_logs.send_groups_id',$send_group_id)
             ->where('info_examgroups.examgroup_id',$examgroup_id->examgroup_id)
             ->where('homework_logs.line_code',$id)
@@ -141,16 +141,19 @@ class SqlController extends Controller
         $count_quiz = 1;
         $count_true = 0;
         $result = array();
+        // dd($result);
         // echo $count_quiz ;        
         // dd($exam_log);
         foreach($exam_log as $exam_log){
-            
+            // echo ($exam_log->is_correct);
+            // echo ($exam_log->exam_id);
             if($exam_log->is_correct == 0){
+               
                 $exam_detail = DB::table('exam_news')
                     ->select('question','choice_a','choice_b','choice_c','choice_d','local_pic','answer as true_answer','principle_id')
                     ->where('id',$exam_log->exam_id)
                     ->first();
-         
+                // dd( $exam_detail );
                 $principle_detail = DB::table('principle_news')
                     ->select('local_pic','detail')
                     ->where('id',$exam_detail->principle_id)
@@ -167,13 +170,13 @@ class SqlController extends Controller
                 $result[$count_true]['ans_selec'] = $exam_log->answer;
                 $result[$count_true]['local_pic_princ'] = $principle_detail->local_pic;
                 $result[$count_true]['princ_detail'] = $principle_detail->detail;
-
+                $count_true++;
             }
-            
             $count_quiz++;
-            $count_true++;
-        }
-         // dd($result);
+            
+        } 
+        // dd($result);
+        // dd($result);
         return View::make('detail_homework')->with('result',$result)->with('exam_topic',$exam_topic);
     }
 }

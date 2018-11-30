@@ -277,7 +277,9 @@ class Pagecontroller extends Controller
         'typereport_id' => $type_id,
         'head' => $head,
         'details' => $detail,
-        'parent_id' => $user_id
+        'parent_id' => $user_id,
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s')
       ]);
       return back()->withErrors(['ส่งการรายงานปัญหาเรียบร้อย']);
     }

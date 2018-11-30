@@ -43,7 +43,9 @@ class addExamTeacherController extends Controller
       'answer' => $answer,
       'level_id' => $level_id,
       'local_pic' => $path,
-        'parent_id' => $user_id
+        'parent_id' => $user_id,
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s')
         ]
     );
     return redirect('/addExam_teacher');

@@ -22,7 +22,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>พี่หมีติวเตอร์</title>
         <link rel="stylesheet" href="css/detailChapter.css" />
-        <link rel="stylesheet" href="css/footer2.css" />
+        <link rel="stylesheet" href="css/footer.css" />
         <link href="https://fonts.googleapis.com/css?family=Athiti|Kanit|Mitr|Roboto" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Prompt" rel="stylesheet">
         <link rel="shortcut icon" href="picture/bear_N.png">
@@ -169,7 +169,7 @@
                     </div>
                 </div>
             </div>
-            <div class="footer">
+            <!-- <div class="footer">
                     <div class="footerCenter">
                         <div class="tooltip">
                             <img class="imgContact" src="picture/facebook-logo-button.png">
@@ -187,7 +187,8 @@
                     <div class="footerLeft">
                             <img class="nectecLogo" src="picture/Nectec_logo.png">
                     </div>
-                </div>
+                </div> -->
+                @include('inc.footer');
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
         <script>

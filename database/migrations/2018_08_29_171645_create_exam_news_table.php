@@ -17,13 +17,14 @@ class CreateExamNewsTable extends Migration
             $table->increments('id');
             $table->Integer('chapter_id');
             $table->Integer('level_id');
-            $table->string('question');
+            $table->longText('question');
             $table->string('choice_a');
             $table->string('choice_b');
             $table->string('choice_c');
             $table->string('choice_d');
             $table->string('local_pic')->nullable();
             $table->smallInteger('answer'); //1,2,3,4
+            $table->Integer('parent_id')->nullable();
             $table->Integer('principle_id');
             // $table->foreign('level_id')->references('id')->on('levels');
             // $table->foreign('principle_id')->references('id')->on('printciples');

@@ -219,7 +219,7 @@ tr:hover td{
 }
 .manage-grid{
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: 50% 50%;
     width: 80%;
     margin: auto;
     grid-gap: 10px;

@@ -1,7 +1,7 @@
 
-button:focus,input:focus,textarea:focus,select:focus{
+/*button:focus,input:focus,textarea:focus,select:focus{
     outline: none;
-}
+}*/
 body{
     padding-bottom: 70px;
 }
@@ -18,7 +18,7 @@ body{
 }
 .tabs [class^="tab"] label,.tabs [class*=" tab"] label {
     color: #5bbcd2;
-    cursor: pointer;
+/*    cursor: pointer;*/
     display: block;
     font-size: 1.1em;
     font-weight: 300;
@@ -26,16 +26,16 @@ body{
 }
 .tabs [class^="tab"] [type="radio"],.tabs [class*=" tab"] [type="radio"] {
     border-bottom: 1px solid rgba(239, 237, 239, 0.5);
-    cursor: pointer;
+/*    cursor: pointer;*/
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     display: block;
     width: 100%;
 }
-.tabs [class^="tab"] [type="radio"]:hover, .tabs [class^="tab"] [type="radio"]:focus,.tabs [class*=" tab"] [type="radio"]:hover,.tabs [class*=" tab"] [type="radio"]:focus {
+/*.tabs [class^="tab"] [type="radio"]:hover, .tabs [class^="tab"] [type="radio"]:focus,.tabs [class*=" tab"] [type="radio"]:hover,.tabs [class*=" tab"] [type="radio"]:focus {
     border-bottom: 1px solid #5bbcd2;
-}
+}*/
 .tabs [class^="tab"] [type="radio"]:checked,.tabs [class*=" tab"] [type="radio"]:checked {
     border-bottom: 2px solid #5bbcd2;
 }

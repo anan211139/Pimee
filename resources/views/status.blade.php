@@ -30,12 +30,13 @@
                         [
                             {
                                 type: 'text',
-                                text: "[ลงทะเบียนเรียบร้อยแล้ว]"
-                            }, {
-                                type: 'sticker',
-                                packageId: '2',
-                                stickerId: '144'
+                                text: "[เพิ่มห้องเรียบร้อยแล้ว]"
                             }
+                            // , {
+                            //     type: 'sticker',
+                            //     packageId: '2',
+                            //     stickerId: '144'
+                            // }
                         ])
                             .then(function () {
                             liff.closeWindow();

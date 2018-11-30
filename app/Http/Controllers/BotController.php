@@ -199,6 +199,13 @@ class BotController extends Controller
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
                         }
+                        else if($userMessage == "กด" ){
+                            // $this->flex_result($replyToken);
+                            $replyData = new TextMessageBuilder("รับ".$userId);
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
+                        }
                         else if($userMessage =="ดูคะแนน"){
                             $arr_replyData = array();
                             $arr_replyData[] = $this->declare_point($userId);
@@ -274,22 +281,37 @@ class BotController extends Controller
                                 ->update(['type' => "other"]);
                         }
                         else if ($userMessage == "ดู Code") {
-                            $arr_replyData = array();
-                            $textReplyMessage = "ข้อมูลด้านล่างใช้เพื่อเชื่อมต่อเว็บไซต์ โดยน้องสามารถกดลิงค์ด้านล่างได้เลยจ้า แต่หากไม่สะดวกกดลิงค์พี่หมีแนะนำว่าให้ใช QR Code เพื่อป้องกันความผิดพลาดจ้า";
-                            $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
-                            $connectChild = SERV_NAME.'connectchild/'. $userId;
-                            $dataQR = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . $connectChild . '&choe=UTF-8';
-                            $arr_replyData[] = new TextMessageBuilder($connectChild);
-                            //------QR CODE-----------
-                            $picFullSize = $dataQR;
-                            $picThumbnail = $dataQR . '/240';
-                            $arr_replyData[] = new ImageMessageBuilder($picFullSize, $picThumbnail);
-                            //--------REPLY----------
-                            $multiMessage = new MultiMessageBuilder;
-                            foreach ($arr_replyData as $arr_Reply) {
-                                $multiMessage->add($arr_Reply);
-                            }
-                            $replyData = $multiMessage;
+                            // $arr_replyData = array();
+                            // $textReplyMessage = "ข้อมูลด้านล่างใช้เพื่อเชื่อมต่อเว็บไซต์ โดยน้องสามารถกดลิงค์ด้านล่างได้เลยจ้า แต่หากไม่สะดวกกดลิงค์พี่หมีแนะนำว่าให้ใช QR Code เพื่อป้องกันความผิดพลาดจ้า";
+                            // $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
+                            // $connectChild = SERV_NAME.'connectchild/'. $userId;
+                            // $dataQR = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . $connectChild . '&choe=UTF-8';
+                            // $arr_replyData[] = new TextMessageBuilder($connectChild);
+                            // //------QR CODE-----------
+                            // $picFullSize = $dataQR;
+                            // $picThumbnail = $dataQR . '/240';
+                            // $arr_replyData[] = new ImageMessageBuilder($picFullSize, $picThumbnail);
+                            // //--------REPLY----------
+                            // $multiMessage = new MultiMessageBuilder;
+                            // foreach ($arr_replyData as $arr_Reply) {
+                            //     $multiMessage->add($arr_Reply);
+                            // }
+                            // $replyData = $multiMessage;
+                            $actionBuilder = array(
+                                new UriTemplateActionBuilder(
+                                    'เพิ่มห้องเรียน', // ข้อความแสดงในปุ่ม
+                                    'line://app/1602719598-5XVZGJ3x'
+                                ),   
+                            );
+                            $imageUrl = null;
+                            $replyData = new TemplateMessageBuilder('Button Template',
+                                new ButtonTemplateBuilder(
+                                        'เพิ่มห้องเรียน', // กำหนดหัวเรื่อง
+                                        'น้องๆสามารถกรองรหัส เพื่อทำการเพิ่มห้องเรียนได้เลยจ้า', // กำหนดรายละเอียด
+                                        $imageUrl, // กำหนด url รุปภาพ
+                                        $actionBuilder  // กำหนด action object
+                                )
+                            );    
 
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
@@ -432,6 +454,7 @@ class BotController extends Controller
                                     $ansst = false;       
                                 }
                                 DB::table('homework_logs')
+                                        ->where('line_code', $currentlog_hw->line_code)
                                         ->where('group_hw_id', $currentlog_hw->group_hw_id)
                                         ->where('exam_id', $currentlog_hw->exam_id)
                                         ->where('send_groups_id',$currentlog_hw->send_groups_id)
@@ -450,6 +473,13 @@ class BotController extends Controller
 
                             $replyData = new TextMessageBuilder($content);
 
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
+                        }
+                        else if ($userMessage == "[เพิ่มห้องเรียบร้อยแล้ว]") {
+
+                            $replyData = new TextMessageBuilder("ขอบคุณครับบ");
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
@@ -491,10 +521,12 @@ class BotController extends Controller
                                 ->update(['type' => "other"]);
                         }
                         
-                        else if($userMessage == "ลองHW"){
-                            // $this->test_homework();
-                            $examgroup_id = 1;
-                            $send_groups_id = 1;
+                        else if(strpos($userMessage,"[homework:") !== false){
+                            $sub_string = substr($userMessage,10,-1);//2,3
+                            $data = explode(',',$sub_string,2);
+                            
+                            $examgroup_id = $data[0];
+                            $send_groups_id = $data[1];
 
                             DB::table('students')
                                 ->where('line_code', $userId)
@@ -504,6 +536,7 @@ class BotController extends Controller
                                 ->update(['type' => "homework"]);
 
                             $textReplyMessage = $this->start_homework($replyToken,$userId,$send_groups_id,$examgroup_id);
+                            // $textReplyMessage ="เจอแล้ว";
                             $replyData = new TextMessageBuilder($textReplyMessage);
                             
                         }
@@ -533,7 +566,7 @@ class BotController extends Controller
                             $actionBuilder = array(
                                 new UriTemplateActionBuilder(
                                     'ดูการบ้านทั้งหมด', // ข้อความแสดงในปุ่ม
-                                    SERV_NAME.'homework/'.$userId
+                                    'line://app/1602719598-1A6ZJ3Pb'
                                 ),
                             );
                             $imageUrl = null;
@@ -712,6 +745,7 @@ class BotController extends Controller
         $count_quiz = DB::table('homework_logs')
             ->where('group_hw_id', $group_hw)
             ->where('send_groups_id',$send_groups_id)
+            ->where('line_code',$userId)
             ->count();
         // echo "countquiz_fornext>>";
         // dd($count_quiz);
@@ -724,6 +758,7 @@ class BotController extends Controller
             $count_quiz_true = DB::table('homework_logs')
                 ->where('group_hw_id', $group_hw)
                 ->where('send_groups_id',$send_groups_id)
+                ->where('line_code',$userId)
                 ->where('is_correct', 1)
                 ->count();
             //dd($count_quiz_true);
@@ -2400,7 +2435,8 @@ class BotController extends Controller
                         ) as parent_name"),
                     \DB::raw("(SELECT count(id) FROM info_examgroups
                           WHERE info_examgroups.examgroup_id = examgroups.id
-                        ) as max_point"),
+                        ) as max_point")
+                    ,
                     \DB::raw("(SELECT total FROM homework_result_news
                           WHERE homework_result_news.examgroup_id = examgroups.id AND homework_result_news.send_groups_id = send_groups.id AND homework_result_news.line_code = info_classrooms.line_code
                         ) as total_point")
@@ -2467,7 +2503,7 @@ class BotController extends Controller
 
             for($i=($count_do_quiz+1);$i<=$count_max_quiz;$i++){
                 $next = DB::table('info_examgroups')
-                    ->where('examgroup_id', 1)
+                    ->where('examgroup_id',$end_hw->id_group)
                     ->offset($i-1)
                     ->first();
                 DB::table('homework_logs')->insert([

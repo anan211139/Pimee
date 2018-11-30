@@ -2,7 +2,7 @@
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>พี่หมีติวเตอร์ ADMIN</title>
+        <title>พี่หมีติวเตอร์</title>
         <link rel="stylesheet" href="css/exam.css" />
         <link rel="stylesheet" href="css/footer.css" />
         <link href="https://fonts.googleapis.com/css?family=Athiti|Kanit|Mitr|Roboto" rel="stylesheet">
@@ -33,6 +33,12 @@
                             <img class="logo" src="picture/44373119_2244581095823176_3268087396310188032_n.png">
                         </div>
                         <p>จัดการแบบฝึกหัด</p>     
+                    </a>
+                    <a class="menu-a">
+                        <div>
+                            <img class="logo" src="picture/file.png">
+                        </div>
+                        <p>เพิ่มแบบฝึกหัด</p>     
                     </a>
                 </div>
                 <div class="icon">
@@ -137,7 +143,7 @@
                       @endforeach
                     </tbody>
                 </table>
-                <div class="pagecontrol-con">
+                <!-- <div class="pagecontrol-con">
                     <div class="cursor">
                         <img class="logo rotate180" src="picture/next.png">
                     </div>
@@ -147,7 +153,7 @@
                     <div class="cursor">
                         <img class="logo" src="picture/next.png">
                     </div>
-                </div>
+                </div> -->
                 @include('inc.footer')
             </div>
             <div id="manage" class="tabcontent">
