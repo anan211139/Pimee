@@ -80,6 +80,7 @@ class BotController extends Controller
                 $replyToken = $event['replyToken'];
                 $replyInfo = $event['type'];
                 $userId = $event['source']['userId'];
+                 
                 if ($replyInfo == "postback") {
                     $postbackData = $event['postback']['data'];
                     list($postback_action_part, $postback_id_part) = explode("&", $postbackData, 2);
@@ -469,6 +470,16 @@ class BotController extends Controller
                                     ->update(['type' => "other"]);
                             }   
                         }
+
+                        
+                        // else if ($userMessage == "test_reply_pic") {
+                        //     $this->replymessage_princ($replyToken,'flex_principle',53,$userId);
+                        //     $replyData = new TextMessageBuilder($content);
+
+                        //     DB::table('user_sequences')
+                        //         ->where('line_code', $userId)
+                        //         ->update(['type' => "other"]);
+                        // }
                         else if ($userMessage == "content") {
 
                             $replyData = new TextMessageBuilder($content);
@@ -1725,7 +1736,7 @@ class BotController extends Controller
                           0 => 
                           array (
                             'type' => 'text',
-                            'text' => $princ_check->dtail,
+                            'text' => $princ_check->detail,
                             'gravity' => 'top',
                             'size' => 'sm',
                             'wrap' => true,
