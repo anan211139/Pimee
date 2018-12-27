@@ -85,6 +85,18 @@ class BotController extends Controller
                     $postbackData = $event['postback']['data'];
                     list($postback_action_part, $postback_id_part) = explode("&", $postbackData, 2);
                     list($postback_title, $postback_action) = explode("=", $postback_action_part);
+
+
+                    // ADD SEQUENCE_CHAT
+                    DB::table('chat_sequences')->insert([
+                        'send' => $userId,
+                        'type_reply' => 4,
+                        'to' => "PM",
+                        'detail' => $postback_action,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+                    //
                     if ($postback_action == "exchange") {
 
                         DB::table('user_sequences')
@@ -128,17 +140,38 @@ class BotController extends Controller
                         } else {
                             $replyData = "แต้มไม่พอนี่นา แลกไม่ได้นะเนี่ย";
                         }
+                        // ADD SEQUENCE_CHAT
+                        DB::table('chat_sequences')->insert([
+                            'send' => "PM",
+                            'type_reply' => 1,
+                            'to' => $userId,
+                            'detail' => $replyData,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ]);
+                        //
                         $bot->replyMessage($replyToken, new TextMessageBuilder($replyData));
                     }
                     continue;
                 }
                 else if ($replyInfo == "message") {
-                    
 
                     $typeMessage = $event['message']['type'];
                     
                     if($event['message']['type'] == 'sticker'){
                         echo "sticker";
+
+                        // ADD SEQUENCE_CHAT
+                        DB::table('chat_sequences')->insert([
+                            'send' => $userId,
+                            'type_reply' => 2,
+                            'to' => "PM",
+                            'detail' => "packageId:".$event['message']['packageId'].",stickerId:".$event['message']['stickerId'],
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ]);
+                        //
+
                         $randpack = rand(1,3);
                         if($randpack == 1){
                             $randsub = rand(1,3);
@@ -169,11 +202,36 @@ class BotController extends Controller
                         $stickerID = $sticker_id;
                         $packageID = $randpack;
                         $replyData = new StickerMessageBuilder($packageID,$stickerID);
+
+
+                        // ADD SEQUENCE_CHAT
+                        DB::table('chat_sequences')->insert([
+                            'send' => "PM",
+                            'type_reply' => 2,
+                            'to' => $userId,
+                            'detail' => "packageId:".$packageID.",stickerId:".$stickerID,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ]);
+                        //
                     
                     }
                     else if($event['message']['type'] == 'text'){
                         $userMessage = $event['message']['text'];
                         // echo "text";
+
+
+                        // ADD SEQUENCE_CHAT
+                        DB::table('chat_sequences')->insert([
+                            'send' => $userId,
+                            'type_reply' => 1,
+                            'to' => "PM",
+                            'detail' => $userMessage,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ]);
+                        //
+
                         if ($userMessage == "เปลี่ยนวิชา") {
                             $this->replymessage7($replyToken,'flex_message_sub',$userId);
                             $replyData = new TextMessageBuilder("วิชา");
@@ -236,7 +294,7 @@ class BotController extends Controller
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
                         }
-                        else if ($userMessage == "สะสมแต้ม") {
+                        else if ($userMessage == "แลกของรางวัล") {
                             $score = DB::table('students')
                                 ->where('line_code', $userId)
                                 ->first();
@@ -244,7 +302,7 @@ class BotController extends Controller
                             $actionBuilder = array(
                                 new MessageTemplateActionBuilder(
                                     'แลกของรางวัล', // ข้อความแสดงในปุ่ม
-                                    'แลกของรางวัล'
+                                    "[แลกของรางวัล]"
                                 )
                             );
                             $replyData = new TemplateMessageBuilder('Button Template',
@@ -260,7 +318,7 @@ class BotController extends Controller
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
                         }
-                        else if ($userMessage == "แลกของรางวัล") {
+                        else if ($userMessage == "[แลกของรางวัล]") {
                             $re_prizes = Prize::all()->toArray();
                             $columnTemplateBuilders = array();
                             foreach ($re_prizes as $prize) {
@@ -281,7 +339,7 @@ class BotController extends Controller
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
                         }
-                        else if ($userMessage == "ดู Code") {
+                        else if ($userMessage == "เพิ่มห้องเรียน") {
                             // $arr_replyData = array();
                             // $textReplyMessage = "ข้อมูลด้านล่างใช้เพื่อเชื่อมต่อเว็บไซต์ โดยน้องสามารถกดลิงค์ด้านล่างได้เลยจ้า แต่หากไม่สะดวกกดลิงค์พี่หมีแนะนำว่าให้ใช QR Code เพื่อป้องกันความผิดพลาดจ้า";
                             // $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
@@ -552,7 +610,8 @@ class BotController extends Controller
                             
                         }
                     
-                        else if($userMessage == "leaderboard"){
+                        else if($userMessage == "จัดอันดับ"){
+                            echo "BT";
                             $actionBuilder = array(
                                 new UriTemplateActionBuilder(
                                     'ดูลำดับ', // ข้อความแสดงในปุ่ม
@@ -562,18 +621,20 @@ class BotController extends Controller
                             $imageUrl = null;
                             $replyData = new TemplateMessageBuilder('Button Template',
                                 new ButtonTemplateBuilder(
-                                        'Leaderdoard', // กำหนดหัวเรื่อง
+                                        'จัดอันดับ', // กำหนดหัวเรื่อง
                                         'ดูลำดับคะแนนของน้องๆ ของทั้งระบบ และภายในห้องเรียน', // กำหนดรายละเอียด
                                         $imageUrl, // กำหนด url รุปภาพ
                                         $actionBuilder  // กำหนด action object
                                 )
                             );  
+
+                            // dd($replyData);
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);     
                             // $replyData = new TextMessageBuilder("https://pimee.softbot.ai/leaderboard/".$userId);// softbot
                         }
-                        else if($userMessage == "homework"){
+                        else if($userMessage == "การบ้าน"){
                             $actionBuilder = array(
                                 new UriTemplateActionBuilder(
                                     'ดูการบ้านทั้งหมด', // ข้อความแสดงในปุ่ม
@@ -595,6 +656,71 @@ class BotController extends Controller
                                 ->update(['type' => "other"]);      
                             // $replyData = new TextMessageBuilder("https://pimee.softbot.ai/leaderboard/".$userId);// softbot
                         }
+
+
+
+                        else if ($userMessage == "ถัดไป") {
+                            $replyData = new TextMessageBuilder("เปลี่ยนหน้าเรียบร้อยแล้วครับบบ");
+                            // $url = 'https://api.line.me/v2/bot/user/U038940166356c6b9fb0dcf051aded27f/richmenu/richmenu-497a0063e8f64379da843bd4e59b3076';
+
+                            // $access_token = LINE_MESSAGE_ACCESS_TOKEN;
+                            // $headers = array('Authorization: Bearer ' . $access_token);
+
+                            // $ch = curl_init();
+                            // curl_setopt($ch,CURLOPT_URL,$url);
+                            // curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+                            // curl_setopt($ch, CURLOPT_POST, true);
+                            // curl_setopt($ch, CURLOPT_HEADER, true);
+                            // curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+                            // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                            // curl_setopt($ch, CURLOPT_FOLLOWLOCATION,true);
+                            // // dd($ch);
+                            // $output=curl_exec($ch);
+                            // dd($output);
+                            // curl_close($ch);
+
+
+                            $access_token = LINE_MESSAGE_ACCESS_TOKEN;
+
+                            $sh = <<< EOF
+                            curl -X POST \
+                            -H 'Authorization: Bearer $access_token' \
+                            -H 'Content-Length: 0' \
+                            https://api.line.me/v2/bot/user/$userId/richmenu/richmenu-497a0063e8f64379da843bd4e59b3076
+EOF;
+                            $result = json_decode(shell_exec(str_replace('\\', '', str_replace(PHP_EOL, '', $sh))), true);
+
+                            // $access_token = LINE_MESSAGE_ACCESS_TOKEN;
+                            // $url = 'https://api.line.me/v2/bot/user/U038940166356c6b9fb0dcf051aded27f/richmenu/richmenu-497a0063e8f64379da843bd4e59b3076';
+                            // $headers = array('Authorization: Bearer ' . $access_token);
+                            // $ch = curl_init($url);
+                            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+                            // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                            // curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+                            // curl_setopt($ch, CURLOPT_POST, true);
+                            // $result = curl_exec($ch);
+                            // dd($result);
+                            // curl_close($ch);
+
+                            
+                    
+                        }
+                
+                   
+                        else if ($userMessage == "ก่อนหน้า") {
+                            $replyData = new TextMessageBuilder("เปลี่ยนหน้าเรียบร้อยแล้วครับบบ");
+                            $access_token = LINE_MESSAGE_ACCESS_TOKEN;
+
+                            $sh = <<< EOF
+                            curl -X POST \
+                            -H 'Authorization: Bearer $access_token' \
+                            -H 'Content-Length: 0' \
+                            https://api.line.me/v2/bot/user/$userId/richmenu/richmenu-0fca5ca998edd876b6db81a1925aa403
+EOF;
+                            $result = json_decode(shell_exec(str_replace('\\', '', str_replace(PHP_EOL, '', $sh))), true);
+                        }
+
                         else {
                             $chap_name_count = DB::table('chapters')
                                 ->where('name',$userMessage)
@@ -647,10 +773,24 @@ class BotController extends Controller
                                 $replyData = new TextMessageBuilder($userMessage);
 
                                 
-                            }   
+                            } 
+
+                           
                         }
 
                     }
+                     // dd($replyData);
+
+                            // ADD SEQUENCE_CHAT
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 1,
+                                'to' => $userId,
+                                'detail' => $replyData,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
+                            //  
                 }
                 else if ($replyInfo == "follow") {
                 	echo "follow";
@@ -723,9 +863,13 @@ class BotController extends Controller
                     }
                 }
             }
+
+            
+
             
             // ส่วนของคำสั่งตอบกลับข้อความ
             $response = $bot->replyMessage($replyToken,$replyData);
+
         }
         //echo "2";
     }
@@ -1120,6 +1264,7 @@ class BotController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $result = curl_exec($ch);
+        // dd($ch);
         curl_close($ch);
     }
     public function replymessage_princ($replyToken,$fn_json,$princ_id,$userId){   
