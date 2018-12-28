@@ -41,7 +41,7 @@
                                     }
                                 ?>
                                 <tr class="<?php echo($class_rank) ?>">
-                                    <td><img class="img_leader" src="{{ $top_students->local_pic }}"/></td>
+                                    <td><img class="img_leader" src="https://pimee.softbot.ai/{{ $top_students->local_pic }}"/></td>
                                     <td>{{ $top_students->name }}</td> 
                                     <td>{{ $top_students->point }}</td>
                                     <?php if($top_students->rank <= 3) {?>
@@ -61,7 +61,7 @@
             @foreach($rank_ms as $rank_ms)
                 <table class="ms">
                     <tr>
-                        <td><img class="img_leader" src="{{ $rank_ms->local_pic }}"/></td>
+                        <td><img class="img_leader" src="https://pimee.softbot.ai/{{ $rank_ms->local_pic }}"/></td>
                         <td>{{ $rank_ms->name }}</td> 
                         <td>{{ $rank_ms->point }}</td>
                         <?php if($rank_ms->rank <= 3) {?>

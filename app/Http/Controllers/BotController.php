@@ -657,6 +657,30 @@ class BotController extends Controller
                             // $replyData = new TextMessageBuilder("https://pimee.softbot.ai/leaderboard/".$userId);// softbot
                         }
 
+                        else if ($userMessage == "save image") {
+                            $response = $bot->getProfile($userId);
+                            $stdprofile = $response->getJSONDecodedBody();
+
+                            // $url_to_image = 'https://profile.line-scdn.net/0m0318358a7251806587cf63da2132106605b327667a41';
+                            $url_to_image = $stdprofile['pictureUrl'];
+                            $my_save_dir = public_path(). '/img/';
+                            $filename = basename($url_to_image);
+                            $complete_save_loc = $my_save_dir . $filename;
+                            file_put_contents($complete_save_loc, file_get_contents($url_to_image));
+
+                            // dd($complete_save_loc);
+
+
+                            DB::table('students')
+                                ->where('line_code', $userId)
+                                ->update(['local_pic' =>'img/'.$filename]);
+
+                            $replyData = new TextMessageBuilder("ขอบคุณครับบ");
+                            DB::table('user_sequences')
+                                ->where('line_code', $userId)
+                                ->update(['type' => "other"]);
+                        }
+                        
 
 
                         else if ($userMessage == "ถัดไป") {
@@ -779,18 +803,7 @@ EOF;
                         }
 
                     }
-                     // dd($replyData);
-
-                            // ADD SEQUENCE_CHAT
-                            DB::table('chat_sequences')->insert([
-                                'send' => "PM",
-                                'type_reply' => 1,
-                                'to' => $userId,
-                                'detail' => $replyData,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ]);
-                            //  
+                    
                 }
                 else if ($replyInfo == "follow") {
                 	echo "follow";
@@ -854,10 +867,20 @@ EOF;
 						// fclose($file);
 
 
+                        // dd($stdprofile['pictureUrl']);
+                        $url_to_image = $stdprofile['pictureUrl'];
+                        // $url_to_image = 'https://profile.line-scdn.net/0m0318358a7251806587cf63da2132106605b327667a41';
+                        $my_save_dir = public_path(). '/img/';
+                        $filename = basename($url_to_image);
+                        $complete_save_loc = $my_save_dir . $filename;
+                        file_put_contents($complete_save_loc, file_get_contents($url_to_image));
+
+
                         DB::table('students')->insert([
                             'line_code' => $userId,
                             'name' => $stdprofile['displayName'],
-                            'local_pic' => $stdprofile['pictureUrl'],
+                            'local_pic' => 'img/'.$filename,
+                            // 'local_pic' => $stdprofile['pictureUrl'],
                            // 'pic' => $file
                         ]);
                     }
@@ -869,7 +892,6 @@ EOF;
             
             // ส่วนของคำสั่งตอบกลับข้อความ
             $response = $bot->replyMessage($replyToken,$replyData);
-
         }
         //echo "2";
     }
