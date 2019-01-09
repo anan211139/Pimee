@@ -72,16 +72,23 @@ class BotController extends Controller
         // คำสั่งรอรับการส่งค่ามาของ LINE Messaging API
         $content = file_get_contents('php://input');
         $events = json_decode($content, true);
-        //echo "1";
+   
         if(!is_null($events)){
-        	//echo "3";
+        	
             foreach ($events['events'] as $event) {
                 // ถ้ามีค่า สร้างตัวแปรเก็บ replyToken ไว้ใช้งาน
-                $replyToken = $event['replyToken'];
+
+                // if(!is_null($event['replyToken'])){
+                //     $replyToken = $event['replyToken'];
+                // }
+                
                 $replyInfo = $event['type'];
                 $userId = $event['source']['userId'];
                  
                 if ($replyInfo == "postback") {
+                    $replyToken = $event['replyToken'];
+
+
                     $postbackData = $event['postback']['data'];
                     list($postback_action_part, $postback_id_part) = explode("&", $postbackData, 2);
                     list($postback_title, $postback_action) = explode("=", $postback_action_part);
@@ -155,7 +162,7 @@ class BotController extends Controller
                     continue;
                 }
                 else if ($replyInfo == "message") {
-
+                    $replyToken = $event['replyToken'];
                     $typeMessage = $event['message']['type'];
                     
                     if($event['message']['type'] == 'sticker'){
@@ -711,6 +718,8 @@ class BotController extends Controller
                             -H 'Authorization: Bearer $access_token' \
                             -H 'Content-Length: 0' \
                             https://api.line.me/v2/bot/user/$userId/richmenu/richmenu-497a0063e8f64379da843bd4e59b3076
+
+                            EOF;
 EOF;
                             $result = json_decode(shell_exec(str_replace('\\', '', str_replace(PHP_EOL, '', $sh))), true);
 
@@ -741,6 +750,8 @@ EOF;
                             -H 'Authorization: Bearer $access_token' \
                             -H 'Content-Length: 0' \
                             https://api.line.me/v2/bot/user/$userId/richmenu/richmenu-0fca5ca998edd876b6db81a1925aa403
+
+                            EOF;
 EOF;
                             $result = json_decode(shell_exec(str_replace('\\', '', str_replace(PHP_EOL, '', $sh))), true);
                         }
@@ -764,7 +775,6 @@ EOF;
                                     ->update(['subject_id' => $chap_name_id->subject_id]);
                               
                                 $textReplyMessage = $this->start_exam($replyToken,$userId, $chap_name_id->id);
-                                //echo $textReplyMessage;
                                 $replyData = new TextMessageBuilder($textReplyMessage);
                             }
                             else if($sub_name_count == 1){
@@ -781,8 +791,6 @@ EOF;
                                 $replyData = new TextMessageBuilder("หัวข้อ");
                             }
                             else{
-                                echo ">>else";
-
                                 DB::table('user_sequences')
                                     ->where('line_code', $userId)
                                     ->update(['type' => "other"]);
@@ -802,11 +810,45 @@ EOF;
                            
                         }
 
+
+
                     }
+
+                     // ส่วนของคำสั่งตอบกลับข้อความ
+                    $response = $bot->replyMessage($replyToken,$replyData);
                     
                 }
+                else if ($replyInfo == "unfollow") {
+                    echo "unfollow";
+
+                    // ADD SEQUENCE_CHAT
+                    DB::table('chat_sequences')->insert([
+                        'send' => $userId,
+                        'type_reply' => 11,
+                        'to' => "PM",
+                        'detail' => "unfollow",
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+                    //
+                   
+                }
                 else if ($replyInfo == "follow") {
+                    $replyToken = $event['replyToken'];
                 	echo "follow";
+
+                    // ADD SEQUENCE_CHAT
+                    DB::table('chat_sequences')->insert([
+                        'send' => $userId,
+                        'type_reply' => 10,
+                        'to' => "PM",
+                        'detail' => "follow",
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+                    //
+
+
                     $multiMessage = new MultiMessageBuilder;
                     //--------INSERT AND CHECK DB--------
                     $checkIMG = DB::table('students')
@@ -884,16 +926,25 @@ EOF;
                            // 'pic' => $file
                         ]);
                     }
+
+
+
+
+                     // ส่วนของคำสั่งตอบกลับข้อความ
+                    $response = $bot->replyMessage($replyToken,$replyData);
+
+
+
+
                 }
             }
 
             
-
+            // dd($replyData);
             
-            // ส่วนของคำสั่งตอบกลับข้อความ
-            $response = $bot->replyMessage($replyToken,$replyData);
+            // // ส่วนของคำสั่งตอบกลับข้อความ
+            // $response = $bot->replyMessage($replyToken,$replyData);
         }
-        //echo "2";
     }
     public function test_homework(){
         $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
@@ -924,8 +975,6 @@ EOF;
             ->where('send_groups_id',$send_groups_id)
             ->where('line_code',$userId)
             ->count();
-        // echo "countquiz_fornext>>";
-        // dd($count_quiz);
         $next = DB::table('info_examgroups')
             ->where('examgroup_id', $group_hw)
             ->offset($count_quiz)
@@ -1129,6 +1178,8 @@ EOF;
             ->where('id', $current_log->exam_id)
             ->first();
         
+
+         echo "count_quiz :".$count_quiz.",exam_id :".$current_log->exam_id; 
         //show current quiz
         $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id,$userId);
         $pathtoexam = SERV_NAME.$current_quiz->local_pic;
@@ -1286,7 +1337,7 @@ EOF;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $result = curl_exec($ch);
-        // dd($ch);
+        // dd($result);
         curl_close($ch);
     }
     public function replymessage_princ($replyToken,$fn_json,$princ_id,$userId){   
@@ -1324,7 +1375,6 @@ EOF;
         curl_close($ch);
     }
     public function replymessage7($replyToken,$fn_json,$userId){   
-        echo "function_json";
         echo $fn_json;
         $url = 'https://api.line.me/v2/bot/message/reply';
         $data = [
@@ -1380,6 +1430,7 @@ EOF;
         $exam_check_pic = DB::table('exam_news')
             ->where('id', $exam_id)
             ->first();
+
         if($exam_check_pic->local_pic === null){
             $data = [
                 'replyToken' => $replyToken,
@@ -1499,8 +1550,8 @@ EOF;
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId){  
-        echo $userId; 
+    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId){ 
+        echo $replyToken;
         if($version == 0){
             $count_quiz++; 
             $messages1 = [
@@ -1518,6 +1569,7 @@ EOF;
         $exam_check_pic = DB::table('exam_news')
             ->where('id', $exam_id)
             ->first();
+        echo "pic".$exam_check_pic->local_pic;
         if($exam_check_pic->local_pic === null){
             $data = [
                 'replyToken' => $replyToken,
@@ -1530,11 +1582,12 @@ EOF;
                 'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
             ];
         }
-        echo "CHAP_UPDATE";
+        // dd($data);
+        
         DB::table('user_sequences')
                 ->where('line_code', $userId)
                 ->update(['type' => "exam"]);
-
+        // echo "CHAP_UPDATE";
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
         $headers = array('Content-Type: application/json', 'Authorization: Bearer ' . $access_token);
@@ -1545,6 +1598,7 @@ EOF;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $result = curl_exec($ch);
+        dd($result);
         curl_close($ch);
     }
     public function flex_message_sub(){
@@ -1923,8 +1977,6 @@ EOF;
         $exam =  DB::table('exam_news')
             ->where('id',$exam_id)
             ->first();
-        echo SERV_NAME.$exam->local_pic;
-        //dd($exam_pic);
             $textMessageBuilder = [ 
                 "type" => "flex",
                 "altText" => "this is a flex message",
@@ -2061,6 +2113,8 @@ EOF;
                     ),
                 )
             ];  
+
+        // dd($textMessageBuilder);
         
         return $textMessageBuilder; 
     }
