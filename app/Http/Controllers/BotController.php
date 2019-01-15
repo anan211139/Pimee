@@ -83,7 +83,7 @@ class BotController extends Controller
                         'send' => $userId,
                         'type_reply' => 4,
                         'to' => "PM",
-                        'detail' => $postback_action,
+                        'detail' => $postbackData,
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ]);
@@ -264,6 +264,15 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 14,
+                                'to' => $userId,
+                                'detail' => "[ดูคะแนนย้อนหลัง]",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         }
                         else if ($userMessage == "แลกของรางวัล") {
                             $score = DB::table('students')
@@ -288,6 +297,15 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 14,
+                                'to' => $userId,
+                                'detail' => "[ดูแต้มสะสม]",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         }
                         else if ($userMessage == "[แลกของรางวัล]") {
                             $re_prizes = Prize::all()->toArray();
@@ -309,6 +327,15 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 15,
+                                'to' => $userId,
+                                'detail' => "[แลกของรางวัล]",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         }
                         else if ($userMessage == "เพิ่มห้องเรียน") {
                             $actionBuilder = array(
@@ -330,6 +357,15 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 14,
+                                'to' => $userId,
+                                'detail' => "[เพิ่มห้องเรียน]",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         }
                         else if ($userMessage == "เกี่ยวกับพี่หมี") {
                             $arr_replyData = array();
@@ -346,6 +382,15 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 1,
+                                'to' => $userId,
+                                'detail' => "เกี่ยวกับพี่หมี",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         } 
                         else if ($userMessage == '1' || $userMessage == '2' || $userMessage == '3' || $userMessage == '4') {
                             $seq = DB::table('user_sequences')
@@ -472,6 +517,14 @@ class BotController extends Controller
                                 DB::table('user_sequences')
                                     ->where('line_code', $userId)
                                     ->update(['type' => "other"]);
+                                DB::table('chat_sequences')->insert([
+                                    'send' => "PM",
+                                    'type_reply' => 1,
+                                    'to' => $userId,
+                                    'detail' => "น้องๆยังไม่ได้อยู่ในขั้นตอนการตอบคำถาม",
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ]);
                             }   
                         }
                         else if ($userMessage == "content") {
@@ -480,6 +533,15 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 1,
+                                'to' => $userId,
+                                'detail' => $content,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         }
                         else if ($userMessage == "[เพิ่มห้องเรียบร้อยแล้ว]") {
 
@@ -487,6 +549,15 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 1,
+                                'to' => $userId,
+                                'detail' => "ขอบคุณครับบ",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         }
                         else if($userMessage == "[ลงทะเบียนเรียบร้อยแล้ว]"){
                             DB::table('user_sequences')->insert([
@@ -499,6 +570,14 @@ class BotController extends Controller
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
                                 ->update(['type' => "other"]);
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 6,
+                                'to' => $userId,
+                                'detail' => "เอาล่ะถ้าพร้อมแล้ว + [เลือกวิชา]",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
                         }
                         else if(strpos($userMessage,"[homework:") !== false){
                             $sub_string = substr($userMessage,10,-1);//2,3
@@ -535,7 +614,16 @@ class BotController extends Controller
                             );  
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
-                                ->update(['type' => "other"]);     
+                                ->update(['type' => "other"]); 
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 14,
+                                'to' => $userId,
+                                'detail' => "[จัดอันดับ]",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);    
                         }
                         else if($userMessage == "การบ้าน"){
                             $actionBuilder = array(
@@ -555,10 +643,29 @@ class BotController extends Controller
                             ); 
                             DB::table('user_sequences')
                                 ->where('line_code', $userId)
-                                ->update(['type' => "other"]);      
+                                ->update(['type' => "other"]); 
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 14,
+                                'to' => $userId,
+                                'detail' => "[การบ้าน]",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);       
                         }
                         else if ($userMessage == "ถัดไป") {
                             $replyData = new TextMessageBuilder("เปลี่ยนหน้าเรียบร้อยแล้วครับบบ");
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 1,
+                                'to' => $userId,
+                                'detail' => "เปลี่ยนหน้าเรียบร้อยแล้วครับบบ",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]); 
+
                             $access_token = LINE_MESSAGE_ACCESS_TOKEN;
 
                             $sh = <<< EOF
@@ -571,6 +678,16 @@ EOF;
                         }
                         else if ($userMessage == "ก่อนหน้า") {
                             $replyData = new TextMessageBuilder("เปลี่ยนหน้าเรียบร้อยแล้วครับบบ");
+
+                            DB::table('chat_sequences')->insert([
+                                'send' => "PM",
+                                'type_reply' => 1,
+                                'to' => $userId,
+                                'detail' => "เปลี่ยนหน้าเรียบร้อยแล้วครับบบ",
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]); 
+
                             $access_token = LINE_MESSAGE_ACCESS_TOKEN;
 
                             $sh = <<< EOF
@@ -628,6 +745,15 @@ EOF;
                                 $userMessage =  $this->detect_intent_texts($projectId,$text1, $sessionId,$languageCode);
                                 // detect_intent_texts('your-project-id','hi','123456');
                                 $replyData = new TextMessageBuilder($userMessage); 
+
+                                DB::table('chat_sequences')->insert([
+                                    'send' => "PM",
+                                    'type_reply' => 1,
+                                    'to' => $userId,
+                                    'detail' => $userMessage,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ]); 
                             } 
                         }
                     }
@@ -695,6 +821,14 @@ EOF;
                             'line_code' => $userId,
                             'name' => $stdprofile['displayName'],
                             'local_pic' => 'img/'.$filename,
+                        ]);
+                        DB::table('chat_sequences')->insert([
+                            'send' => "PM",
+                            'type_reply' => 6,
+                            'to' => $userId,
+                            'detail' => "ก่อนเริ่ม + [ลงทะเบียน]",
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
                         ]);
                     }
                     // ส่วนของคำสั่งตอบกลับข้อความ
@@ -1224,8 +1358,11 @@ EOF;
         }   
         echo "ADD SEQ---EXAM";
         DB::table('user_sequences')
-                ->where('line_code', $userId)
-                ->update(['type' => "exam"]);
+            ->where('line_code', $userId)
+            ->update(['type' => "exam"]);
+        // dd($data);//flex next quiz
+        // dd($data['messages'][0]['text']);//ถูกต้อง ยังผิดอยู่เลย 
+
 
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
