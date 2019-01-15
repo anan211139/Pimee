@@ -465,6 +465,14 @@ class BotController extends Controller
                                     } 
                                 }else{
                                     $arr_replyData[] = new TextMessageBuilder("ข้อสอบไม่เพียงพอ");
+                                    DB::table('chat_sequences')->insert([
+                                        'send' => "PM",
+                                        'type_reply' => 1,
+                                        'to' => $userId,
+                                        'detail' => "ข้อสอบไม่เพียงพอ",
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ]);
                                 }
                                 if($count_quiz == 20 && $check_st_end == true){
                                     $arr_replyData[] = $this->close_group($urgroup->id);
@@ -837,25 +845,6 @@ EOF;
             }
         }
     }
-    public function test_homework(){
-        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(LINE_MESSAGE_ACCESS_TOKEN);
-        $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => LINE_MESSAGE_CHANNEL_SECRET]);
-        
-        $examgroup_id = 1;
-        $send_groups_id = 1;
-        $userId = "U038940166356c6b9fb0dcf051aded27f";
-
-        DB::table('students')
-            ->where('line_code', $userId)
-            ->update(['send_groups_id' =>$send_groups_id,'hw_group_id' => $examgroup_id]);
-        DB::table('user_sequences')
-            ->where('line_code',$userId)
-            ->update(['type' => "homework"]);
-
-        $textReplyMessage = "การบ้าน";
-        $replyData = new TextMessageBuilder($textReplyMessage);
-        $response = $bot->pushMessage($userId,$replyData);
-    }
     public function query_next_hw($replyToken,$send_groups_id,$group_hw,$userId)
     {   
         $count_quiz = DB::table('homework_logs')
@@ -884,6 +873,14 @@ EOF;
                 ->update(['status' => 1]);
         
             $textReplyMessage = "น้องๆทำการบ้านชุดนี้เสร็จเรียบร้อยแล้วครับ เก่งจังเลย\n พี่หมีจะบอกคะแนนและเฉลยตอนวันหมดเขตส่งนะจ๊ะ รอพี่หมีหน่อยนะ";
+            DB::table('chat_sequences')->insert([
+                'send' => "PM",
+                'type_reply' => 1,
+                'to' => $userId,
+                'detail' => $textReplyMessage,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
             $replyData = new TextMessageBuilder($textReplyMessage);
             return $replyData;
         }else{
@@ -972,6 +969,14 @@ EOF;
             echo "20";
             $textReplyMessage = "ข้อสอบไม่เพียงพอ";
             $replyData = new TextMessageBuilder($textReplyMessage);
+            DB::table('chat_sequences')->insert([
+                'send' => "PM",
+                'type_reply' => 1,
+                'to' => $userId,
+                'detail' => "ข้อสอบไม่เพียงพอ",
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
             return $replyData;
         }
 
@@ -1178,8 +1183,16 @@ EOF;
             $textReplyMessage = $concat_result;
         }
         DB::table('user_sequences')
-                ->where('line_code', $userId)
-                ->update(['type' => "other"]);
+            ->where('line_code', $userId)
+            ->update(['type' => "other"]);
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 1,
+            'to' => $userId,
+            'detail' => $textReplyMessage,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
 
         $replyData = new TextMessageBuilder($textReplyMessage);
         return $replyData;
@@ -1218,6 +1231,30 @@ EOF;
     }
     public function replymessage_princ($replyToken,$fn_json,$princ_id,$userId){   
         echo "replymessage_princ";
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 1,
+            'to' => $userId,
+            'detail' => "ผิดแล้วพี่หมีจะสอนให้",
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 5,
+            'to' => $userId,
+            'detail' => "เฉลยหลักการที่".$princ_id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 1,
+            'to' => $userId,
+            'detail' => "น้องๆ ลองตอบใหม่สิจ๊ะ :)",
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
         $messages1 = [
             'type' => 'text',
             'text' =>  'ผิดแล้วพี่หมีจะสอนให้'
@@ -1226,8 +1263,6 @@ EOF;
             'type' => 'text',
             'text' =>  'น้องๆ ลองตอบใหม่สิจ๊ะ :)'
         ]; 
-        echo "function_json";
-        echo $fn_json;
         $url = 'https://api.line.me/v2/bot/message/reply';
         $data = [
             'replyToken' => $replyToken,
@@ -1251,7 +1286,6 @@ EOF;
         curl_close($ch);
     }
     public function replymessage7($replyToken,$fn_json,$userId){   
-        echo $fn_json;
         $url = 'https://api.line.me/v2/bot/message/reply';
         $data = [
             'replyToken' => $replyToken,
@@ -1259,8 +1293,8 @@ EOF;
         ];
 
         DB::table('user_sequences')
-                ->where('line_code', $userId)
-                ->update(['type' => "other"]);
+            ->where('line_code', $userId)
+            ->update(['type' => "other"]);
 
         $access_token = LINE_MESSAGE_ACCESS_TOKEN;
         $post = json_encode($data);
@@ -1302,6 +1336,14 @@ EOF;
         curl_close($ch);
     }
     public function replymessage_hw($replyToken,$count_quiz,$exam_id,$userId){   
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 5,
+            'to' => $userId,
+            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
         $url = 'https://api.line.me/v2/bot/message/reply';
         $exam_check_pic = DB::table('exam_news')
             ->where('id', $exam_id)
@@ -1336,6 +1378,22 @@ EOF;
         curl_close($ch);
     }
     public function replymessage_exam($replyToken,$count_quiz,$exam_id,$text_reply,$userId){   
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 1,
+            'to' => $userId,
+            'detail' => $text_reply,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]); 
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 5,
+            'to' => $userId,
+            'detail' => "[EXAM] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);        
         $messages1 = [
             'type' => 'text',
             'text' =>  $text_reply
@@ -1356,7 +1414,6 @@ EOF;
                 'messages' => [$messages1,$this->flex_choice_pic($count_quiz,$exam_id)],
             ];
         }   
-        echo "ADD SEQ---EXAM";
         DB::table('user_sequences')
             ->where('line_code', $userId)
             ->update(['type' => "exam"]);
@@ -1377,6 +1434,8 @@ EOF;
         curl_close($ch);
     }
     public function replymessage_start_homework($replyToken,$version,$send_groups_id,$group_hw,$count_quiz,$userId){ 
+
+
         $exam_id = DB::table('homework_logs')
                 ->where('group_hw_id', $group_hw)
                 ->where('send_groups_id',$send_groups_id)
@@ -1394,6 +1453,25 @@ EOF;
                 'text' => 'เรามาทำการบ้านกันต่อ ในข้อที่ '.$count_quiz.'กันเลยจ้า',
             ]; 
         }
+
+
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 1,
+            'to' => $userId,
+            'detail' => $messages1['text'],
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 5,
+            'to' => $userId,
+            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id->exam_id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+
         $url = 'https://api.line.me/v2/bot/message/reply';
         $exam_check_pic = DB::table('exam_news')
             ->where('id',$exam_id->exam_id)
@@ -1441,6 +1519,24 @@ EOF;
                 'text' => 'เรามาเริ่มบทเรียนเรื่อง '.$chapter.'กันต่อ ในข้อที่ '.$count_quiz.'กันเลยจ้า',
             ]; 
         }
+
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 1,
+            'to' => $userId,
+            'detail' => $messages1['text'],
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 5,
+            'to' => $userId,
+            'detail' => "[EXAM] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+
         $url = 'https://api.line.me/v2/bot/message/reply';
         $exam_check_pic = DB::table('exam_news')
             ->where('id', $exam_id)
@@ -2119,6 +2215,15 @@ EOF;
         return $textMessageBuilder; 
     }
     public function flex_result_push(){
+        DB::table('chat_sequences')->insert([
+            'send' => "PM",
+            'type_reply' => 5,
+            'to' => $userId,
+            'detail' => "[สรุปคะแนนการบ้าน]",
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+
         $mytime = Carbon::now();
 
         $result_detail = DB::table('send_groups')
@@ -2455,15 +2560,24 @@ EOF;
             if ($del_group == true) {
                 $chap_text7 = rtrim($chap_text7, ',');
                 $textReplyMessage = "ข้อสอบเรื่อง".$chap_text7." ที่ทำค้างไว้ถูกลบแล้วนะครับบบบ";
-                $replyData = new TextMessageBuilder($textReplyMessage);
-                $response = $bot->pushMessage($line_u ->line_code,$replyData);
+                // $replyData = new TextMessageBuilder($textReplyMessage);
+                // $response = $bot->pushMessage($line_u ->line_code,$replyData);
             }
             else if (strlen($chap_text3) > 0) {
                 $chap_text3 = rtrim($chap_text3, ',');
                 $textReplyMessage = "กลับมาทำโจทย์เรื่อง".$chap_text3." กับพี่หมีกันเถอะ !!!!!!";
-                $replyData = new TextMessageBuilder($textReplyMessage);
-                $response = $bot->pushMessage($line_u->line_code ,$replyData);
+                
             }
+            DB::table('chat_sequences')->insert([
+                'send' => "PM",
+                'type_reply' => 1,
+                'to' => $userId,
+                'detail' => $textReplyMessage,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+            $replyData = new TextMessageBuilder($textReplyMessage);
+            $response = $bot->pushMessage($line_u->line_code ,$replyData);
         }
     }
     public function notification_homework() {
@@ -2503,6 +2617,14 @@ EOF;
                                         $actionBuilder  // กำหนด action object
                                 )
                             ); 
+                DB::table('chat_sequences')->insert([
+                    'send' => "PM",
+                    'type_reply' => 14,
+                    'to' => $room_id_hw->line_code,
+                    'detail' => "PUSH [noti_hw :".$room_id_hw->title_hw."]",
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
                 $response = $bot->pushMessage($room_id_hw->line_code,$replyData);
             }
             
