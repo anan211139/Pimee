@@ -891,7 +891,7 @@ EOF;
                     'exam_id' => $next->exam_id,
                     'created_at' => Carbon::now()
                 ]);
-            $this->replymessage_hw($replyToken,($count_quiz+1),$next->exam_id,$userId);
+            $this->replymessage_hw($replyToken,($count_quiz+1),$next->exam_id,$userId,$send_groups_id);
         }
     }
     public function randQuiz($replyToken,$chapter_id, $level_id, $group_id,$text_reply,$userId){
@@ -985,7 +985,7 @@ EOF;
             ->where('id', $quizzesforsubj->id)
             ->first();
   
-        $this->replymessage_exam($replyToken,($count_quiz+1),$current_quiz->id,$text_reply,$userId);
+        $this->replymessage_exam($replyToken,($count_quiz+1),$current_quiz->id,$text_reply,$userId,$group_id);
         $pathtoexam = SERV_NAME.$current_quiz->local_pic;
         $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
         return $arr_replyData;
@@ -1060,7 +1060,13 @@ EOF;
             ->where('id', $current_log->exam_id)
             ->first();
         
-        $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id,$userId);
+        $get_group = $old_group = DB::table('groups')
+            ->where('line_code', $userId)
+            ->where('chapter_id', $chapter_id)
+            ->orderBy('id','DESC')
+            ->first();
+
+        $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id,$userId,$get_group->id);
         $pathtoexam = SERV_NAME.$current_quiz->local_pic;
         $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
         return $arr_replyData;
@@ -1335,12 +1341,12 @@ EOF;
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_hw($replyToken,$count_quiz,$exam_id,$userId){   
+    public function replymessage_hw($replyToken,$count_quiz,$exam_id,$userId,$send_groups_id){   
         DB::table('chat_sequences')->insert([
             'send' => "PM",
             'type_reply' => 5,
             'to' => $userId,
-            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id,
+            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id.",ชุดที่".$send_groups_id,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
@@ -1377,7 +1383,7 @@ EOF;
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_exam($replyToken,$count_quiz,$exam_id,$text_reply,$userId){   
+    public function replymessage_exam($replyToken,$count_quiz,$exam_id,$text_reply,$userId,$group_id){   
         DB::table('chat_sequences')->insert([
             'send' => "PM",
             'type_reply' => 1,
@@ -1390,7 +1396,7 @@ EOF;
             'send' => "PM",
             'type_reply' => 5,
             'to' => $userId,
-            'detail' => "[EXAM] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id,
+            'detail' => "[EXAM] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id.",ชุดที่".$group_id,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);        
@@ -1467,7 +1473,7 @@ EOF;
             'send' => "PM",
             'type_reply' => 5,
             'to' => $userId,
-            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id->exam_id,
+            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id->exam_id,",ชุดที่".$send_groups_id,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
@@ -1505,7 +1511,7 @@ EOF;
         $result = curl_exec($ch);
         curl_close($ch);
     }
-    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId){ 
+    public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId,$get_group){ 
         if($version == 0){
             $count_quiz++; 
             $messages1 = [
@@ -1532,7 +1538,7 @@ EOF;
             'send' => "PM",
             'type_reply' => 5,
             'to' => $userId,
-            'detail' => "[EXAM] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id,
+            'detail' => "[EXAM] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id.",ชุดที่".$get_group,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
