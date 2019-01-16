@@ -100,7 +100,7 @@ class BotController extends Controller
                         $student = DB::table('students')
                             ->where('line_code', $userId)
                             ->first();
-                        if ($student->point >= $selected->point) {
+                        if ($student->point >= $selected->point) { 
                             DB::table('students')
                                 ->where('line_code', $userId)
                                 ->update(['point' => $student->point - $selected->point]);
@@ -1013,6 +1013,16 @@ EOF;
                 ->first();
             if($quizzesforsubj === null){
                 $textReplyMessage = "ยังไม่มีข้อสอบวิชานี้";
+
+
+                DB::table('chat_sequences')->insert([
+                    'send' => "PM",
+                    'type_reply' => 1,
+                    'to' => $userId,
+                    'detail' => $textReplyMessage,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
                 return $textReplyMessage;
             }
             $group_id = DB::table('groups')->insertGetId([ //create new group
@@ -1065,7 +1075,7 @@ EOF;
             ->where('chapter_id', $chapter_id)
             ->orderBy('id','DESC')
             ->first();
-
+        echo "1";
         $this->replymessage_start_exam($replyToken,$current_chapter->name,$version,$count_quiz,$current_log->exam_id,$userId,$get_group->id);
         $pathtoexam = SERV_NAME.$current_quiz->local_pic;
         $arr_replyData[] = new ImageMessageBuilder($pathtoexam,$pathtoexam);
@@ -1112,6 +1122,7 @@ EOF;
         return $arr_replyData;
     }
     public function close_group($group_id) {
+        echo "close_group";
         $current_group = DB::table('groups')
             ->where('id', $group_id)
             ->first();
@@ -1130,6 +1141,9 @@ EOF;
         DB::table('groups')
             ->where('id', $group_id)
             ->update(['status' => 1, 'score' => $point_update]);
+        DB::table('user_sequences')
+            ->where('line_code', $current_group->line_code)
+            ->update(['type' => "other"]);
         return $this->declare_point($current_group->line_code);
     }
     public function results($group_id, $level_id) {
@@ -1473,7 +1487,7 @@ EOF;
             'send' => "PM",
             'type_reply' => 5,
             'to' => $userId,
-            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id->exam_id,",ชุดที่".$send_groups_id,
+            'detail' => "[HW] ข้อที่".$count_quiz.",เลขที่ข้อสอบ".$exam_id->exam_id.",ชุดที่".$send_groups_id,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
@@ -1512,6 +1526,7 @@ EOF;
         curl_close($ch);
     }
     public function replymessage_start_exam($replyToken,$chapter,$version,$count_quiz,$exam_id,$userId,$get_group){ 
+        echo "2";
         if($version == 0){
             $count_quiz++; 
             $messages1 = [
@@ -1573,6 +1588,7 @@ EOF;
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $result = curl_exec($ch);
         curl_close($ch);
+        echo "3";
     }
     public function flex_message_sub(){
         $query_sub = DB::table('subjects')
@@ -2221,15 +2237,7 @@ EOF;
         return $textMessageBuilder; 
     }
     public function flex_result_push(){
-        DB::table('chat_sequences')->insert([
-            'send' => "PM",
-            'type_reply' => 5,
-            'to' => $userId,
-            'detail' => "[สรุปคะแนนการบ้าน]",
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ]);
-
+        
         $mytime = Carbon::now();
 
         $result_detail = DB::table('send_groups')
@@ -2253,6 +2261,17 @@ EOF;
         $line_code_arr = $result_detail->unique('line_code')->pluck('line_code')->toArray(); //ได้เด็กไม่ซ้ำแล้วจ้า
         
         foreach ($line_code_arr as $line_code_arr) {
+
+            DB::table('chat_sequences')->insert([
+                'send' => "PM",
+                'type_reply' => 5,
+                'to' => $line_code_arr,
+                'detail' => "[สรุปคะแนนการบ้าน]",
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+
+            
             $result_detail_me = DB::table('send_groups')
             ->join('info_classrooms','info_classrooms.classroom_id','=','send_groups.room_id')
             ->join('examgroups','examgroups.id','=','send_groups.examgroup_id')
@@ -2577,7 +2596,7 @@ EOF;
             DB::table('chat_sequences')->insert([
                 'send' => "PM",
                 'type_reply' => 1,
-                'to' => $userId,
+                'to' => $line_u->line_code,
                 'detail' => $textReplyMessage,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
