@@ -136,7 +136,8 @@ class regisController extends Controller
         $output ="";
         foreach($de_homewrk as $homework_notyet){
             $homework_notyet['exp_date'] =  date("d/m/Y", strtotime($homework_notyet['exp_date']));
-            if($homework_notyet['finish_status'] === null){
+            // if($homework_notyet['finish_status'] === null){
+            if($homework_notyet['finish_status'] != 1){
                     $output .=                 
                     '<tr>
                         <td>'.$homework_notyet['title_hw'].'</td> 

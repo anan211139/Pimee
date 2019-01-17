@@ -100,26 +100,33 @@ class BotController extends Controller
                         $student = DB::table('students')
                             ->where('line_code', $userId)
                             ->first();
-                        if ($student->point >= $selected->point) { 
-                            DB::table('students')
-                                ->where('line_code', $userId)
-                                ->update(['point' => $student->point - $selected->point]);
-                            if ($selected->type_id === 1) {
+                        if ($student->point >= $selected->point) { //คะแนนที่มีมากกว่าของที่แลก
+                            
+                            if ($selected->type_id === 1) { //เป็น code
                                 $avail_code = DB::table('codes')
                                     ->where('prize_id', $selected->id)
                                     ->where('status', 0)
                                     ->first();
-                                DB::table('codes')
-                                    ->where('id', $avail_code->id)
-                                    ->update(['status' => 1]);
-                                DB::table('exchanges')->insert([
-                                    'line_code' => $userId,
-                                    'send' => 1,
-                                    'code_id' => $avail_code->id,
-                                    'time' => Carbon::now()
-                                ]);
-                                $replyData = "เก่งมาก นำโค้ดนี้ไปใช้นะ " . $avail_code->code;
-                            } elseif ($selected->type_id === 2) {
+                                if($avail_code === null){
+                                    $replyData = "พี่หมีต้องขอโทษด้วยนะะะ ตอนนี้คูปองนี้ถูกแลกไปหมดแล้ว";
+                                }
+                                else{
+                                    DB::table('students')
+                                        ->where('line_code', $userId)
+                                        ->update(['point' => $student->point - $selected->point]);
+                                    DB::table('codes')
+                                        ->where('id', $avail_code->id)
+                                        ->update(['status' => 1]);
+                                    DB::table('exchanges')->insert([
+                                        'line_code' => $userId,
+                                        'send' => 1,
+                                        'code_id' => $avail_code->id,
+                                        'time' => Carbon::now()
+                                    ]);
+                                    $replyData = "เก่งมาก นำโค้ดนี้ไปใช้นะ " . $avail_code->code;
+                                }
+                                
+                            } elseif ($selected->type_id === 2) { //ส่งของ ยังไม่ได้ทำ
                                 DB::table('exchanges')->insert([
                                     'line_code' => $userId,
                                     'send' => 1,
@@ -421,6 +428,9 @@ class BotController extends Controller
                                 $sec_chance = $currentlog->second_chance;
                                 $arr_replyData = array();
                                 $check_st_end = false;
+                                DB::table('user_sequences')
+                                    ->where('line_code', $userId)
+                                    ->update(['type' => "exam"]);
                                 if ($ans_status === null) {
                                     if ((int)$userMessage == $ans->answer) {
                                         // ตอบถูกครั้งแรก
@@ -464,26 +474,38 @@ class BotController extends Controller
                                         $arr_replyData[] = $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $urgroup->id,$text_reply,$userId);
                                     } 
                                 }else{
-                                    $arr_replyData[] = new TextMessageBuilder("ข้อสอบไม่เพียงพอ");
+                                    $arr_replyData[] = new TextMessageBuilder("ข้อสอบไม่เพียงพอ ไว้ค่อยกลับมาทำต่อน้าาา");
                                     DB::table('chat_sequences')->insert([
                                         'send' => "PM",
                                         'type_reply' => 1,
                                         'to' => $userId,
-                                        'detail' => "ข้อสอบไม่เพียงพอ",
+                                        'detail' => "ข้อสอบไม่เพียงพอ ไว้ค่อยกลับมาทำต่อน้าาา",
                                         'created_at' => Carbon::now(),
                                         'updated_at' => Carbon::now()
                                     ]);
+                                    DB::table('user_sequences')
+                                        ->where('line_code', $userId)
+                                        ->update(['type' => "other"]);
                                 }
                                 if($count_quiz == 20 && $check_st_end == true){
+                                    DB::table('chat_sequences')->insert([
+                                        'send' => "PM",
+                                        'type_reply' => 1,
+                                        'to' => $userId,
+                                        'detail' => $text_reply,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ]);
+                                    DB::table('user_sequences')
+                                        ->where('line_code', $userId)
+                                        ->update(['type' => "other"]);
                                     $arr_replyData[] = $this->close_group($urgroup->id);
                                 }
                                 foreach ($arr_replyData as $arr_Reply) {
                                     $multiMessage->add($arr_Reply);
                                 }
                                 $replyData =  $multiMessage;
-                                DB::table('user_sequences')
-                                    ->where('line_code', $userId)
-                                    ->update(['type' => "exam"]);
+                                
                             }
                             else if($seq->type == "homework"){
                                 $current_group_hw = DB::table('students')
@@ -1052,10 +1074,27 @@ EOF;
                 ->first();
             $group_id = $old_group->id;
             $count_quiz = DB::table('logChildrenQuizzes')
-            ->where('group_id', $group_id)
-            ->count();
+                ->where('group_id', $group_id)
+                ->count();
+            $get_log = DB::table('logChildrenQuizzes')
+                ->orderBy('id','DESC')
+                ->first();
 
             $version = 1;
+            if($get_log->is_correct == 1 || $get_log->second_chance == 1){
+                $count_quiz++;
+                $text_reply = "";
+                $ans = DB::table('exam_news')
+                    ->where('id', $get_log->exam_id)
+                    ->orderBy('id', 'DESC')
+                    ->first();
+                $this->randQuiz($replyToken,$ans->chapter_id, $ans->level_id, $group_id,$text_reply,$userId);
+                // DB::table('logChildrenQuizzes')->insert([
+                //     'group_id' => $group_id,
+                //     'exam_id' => $quizzesforsubj->id,
+                //     'time' => Carbon::now()
+                // ]);
+            }
          
             $textReplyMessage = "เรามาเริ่มบทเรียน\nเรื่อง ".$current_chapter->name."\n กันต่อ ในข้อที่ ".$count_quiz." กันเลยจ้า";
             $arr_replyData[] = new TextMessageBuilder($textReplyMessage);
@@ -1122,6 +1161,7 @@ EOF;
         return $arr_replyData;
     }
     public function close_group($group_id) {
+
         echo "close_group";
         $current_group = DB::table('groups')
             ->where('id', $group_id)
@@ -1132,6 +1172,9 @@ EOF;
         $all_lvl = DB::table('levels')
             ->get();
         $point_update = 0;
+        DB::table('user_sequences')
+            ->where('line_code', $current_group->line_code)
+            ->update(['type' => "other"]);
         foreach ($all_lvl as $lvl) {
             $point_update += ($this->results($group_id, $lvl->id)) * $lvl->id;
         }
@@ -1142,8 +1185,10 @@ EOF;
             ->where('id', $group_id)
             ->update(['status' => 1, 'score' => $point_update]);
         DB::table('user_sequences')
-            ->where('line_code', $current_group->line_code)
+            ->where('line_code',$current_group->line_code)
             ->update(['type' => "other"]);
+        // echo $current_group->line_code;
+        
         return $this->declare_point($current_group->line_code);
     }
     public function results($group_id, $level_id) {
@@ -1184,6 +1229,9 @@ EOF;
             ->where('status',1)
             ->orderBy('id','DESC')
             ->first();
+        DB::table('user_sequences')
+            ->where('line_code',$userId)
+            ->update(['type' => "other"]);
         if($group_true === null){
             $textReplyMessage = "น้องๆยังไม่ได้ทำข้อสอบครบอย่างน้อย 1 ชุด";
         }
@@ -1203,7 +1251,7 @@ EOF;
             $textReplyMessage = $concat_result;
         }
         DB::table('user_sequences')
-            ->where('line_code', $userId)
+            ->where('line_code',$userId)
             ->update(['type' => "other"]);
         DB::table('chat_sequences')->insert([
             'send' => "PM",
